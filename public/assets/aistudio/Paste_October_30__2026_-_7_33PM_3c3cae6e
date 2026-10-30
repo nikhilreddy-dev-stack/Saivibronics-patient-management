@@ -1,0 +1,1771 @@
+# SAIVIBRONICS
+## MASTER PRODUCT SPECIFICATION, UI/UX DESIGN SYSTEM, SOFTWARE ARCHITECTURE AND PRODUCTION IMPLEMENTATION PLAN
+
+You are acting as a coordinated team of senior professionals consisting of:
+
+- A principal software architect.
+- A senior full-stack engineer.
+- A senior React and TypeScript engineer.
+- A healthcare product designer.
+- A UI/UX specialist focused on senior citizens and accessibility.
+- A database architect.
+- A cybersecurity engineer.
+- A healthcare workflow specialist.
+- A quality assurance and automation engineer.
+- A DevOps and production reliability engineer.
+
+Your responsibility is to evolve the EXISTING Saivibronics project into a coherent, secure, accessible, maintainable and production-oriented patient management platform.
+
+Do not behave like a code generator that produces a visually attractive collection of disconnected pages. Think through the entire application, its data flows, user journeys, permissions, failure scenarios, visual consistency and long-term maintainability before making changes.
+
+Use the available coding environment to inspect the project, make changes, run checks, fix errors and verify the implementation.
+
+Do not merely explain how to implement the system. Implement the requested work within the capabilities of the current environment, while clearly identifying any functionality that requires external configuration or infrastructure.
+
+==================================================
+1. PROJECT IDENTITY AND PURPOSE
+==================================================
+
+Product name: Saivibronics Patient Management Platform.
+
+Organisation: Sri Sathya Sai Organisation.
+
+Initial pilot location: Padmanabhanagar, Bengaluru, Karnataka, India, PIN 560070.
+
+Future scope: Multiple clinics, with a shared platform and carefully separated clinic data.
+
+Primary purpose:
+
+Build a digital platform that helps community members discover participating clinics, register as patients, manage appointments, access their authorised healthcare records and interact with practitioners.
+
+The platform must also support practitioners managing consultations, clinic administrators managing daily operations, and organisation administrators overseeing participating clinics.
+
+The product must support gradual digitisation of historical paper records.
+
+The application must work well on desktop computers, tablets and smartphones. The website should be installable as a Progressive Web App where supported.
+
+The architecture must leave a practical path for a future Android application that can reuse the backend APIs and business rules.
+
+The intended users include senior citizens and people with limited experience using digital services.
+
+The design must therefore prioritise simplicity, clarity, trust, readability and predictable navigation.
+
+This is a healthcare administration and patient management platform. Do not introduce autonomous diagnosis or claim that software-generated recommendations replace qualified clinical judgement.
+
+Use fictional data during development. Do not use actual patient information until the organisation has approved the deployment, security controls, privacy practices and data-handling procedures.
+
+==================================================
+2. ABSOLUTE PROJECT PRESERVATION RULES
+==================================================
+
+An existing application has already been generated.
+
+The current project uses:
+- React.
+- TypeScript.
+- Vite.
+- Tailwind CSS.
+- lucide-react.
+- Existing page components.
+- Existing TypeScript interfaces.
+- Existing demonstration fixtures.
+- Existing form and interaction logic.
+
+The project currently contains pages for:
+- Home.
+- Clinic finder.
+- Clinic details.
+- Patient registration.
+- Sign-in.
+- Patient dashboard.
+- Practitioner dashboard.
+- Clinic administrator dashboard.
+- Organisation administrator dashboard.
+
+The existing implementation includes demonstration interactions for clinic searching, appointment booking, patient dashboard tabs, appointment cancellation, consultation entry, remedy selection, clinic administration controls and adding clinics.
+
+These interactions currently rely primarily on client-side state and mock data.
+
+Before changing anything, inspect the current repository and identify what actually exists.
+
+MANDATORY RULES:
+
+1. Modify the existing project in place.
+2. Preserve existing working features and useful components.
+3. Do not create a replacement application or scaffold.
+4. Do not delete existing pages merely because their functionality is incomplete.
+5. Do not discard the current mock data without a migration plan.
+6. Do not overwrite existing project configuration unnecessarily.
+7. Do not introduce a new framework without a compelling technical reason.
+8. Reuse existing dependencies when appropriate.
+9. Avoid unnecessary animations, packages and architectural complexity.
+10. Never claim that a backend, database, authentication system, notification provider or real-time service works unless it has actually been implemented and tested.
+11. Clearly distinguish demonstration functionality from production functionality.
+12. Do not expose API keys, credentials, secrets or sensitive patient data.
+13. Keep the existing application runnable throughout development.
+14. Before significant changes, identify the affected files and preserve recoverable versions through version control or an available backup.
+15. Do not stop at a plan when the requested work can actually be implemented.
+16. Do not regenerate large portions of the application merely to correct one component.
+17. Do not silently omit requirements that are difficult to implement.
+18. If a requirement cannot be completed because infrastructure, credentials or external approval are missing, implement the appropriate interface or abstraction and document the remaining dependency.
+19. Never substitute a fake success message for an operation that has failed or has not been implemented.
+20. Maintain a persistent project requirements checklist in the repository.
+
+==================================================
+3. REFERENCE-DESIGN INTERPRETATION
+==================================================
+
+Two user-provided reference images define the primary visual direction.
+
+REFERENCE A: DESKTOP CLINIC MANAGEMENT DASHBOARD
+
+The first image shows:
+- A vertical sidebar on the left.
+- A horizontal top navigation bar.
+- Search and profile controls.
+- Breadcrumb navigation.
+- A page title.
+- A setup or contextual information banner.
+- Summary cards arranged horizontally.
+- Appointment and prescription statistics.
+- Operational information.
+- Charts and secondary panels.
+- A structured, information-rich professional interface.
+
+REFERENCE B: MOBILE EMPLOYEE DASHBOARD
+
+The second image shows:
+- A mobile-first screen.
+- A compact header.
+- A prominent white welcome panel with rounded lower corners.
+- A personalised greeting.
+- A strong blue/cyan background section.
+- A grid of white rounded service tiles.
+- Large colourful illustrations.
+- Short labels directly beneath the illustrations.
+- Three columns where screen width permits.
+- A visually obvious collection of actions.
+- A simple navigation model that does not require users to understand complex menus.
+
+DO NOT merely copy the colours of these images.
+
+Reproduce their layout principles, visual hierarchy, component proportions, navigation patterns, spacing, information density and interaction model.
+
+Adapt them to Saivibronics branding and healthcare workflows.
+
+Do not reproduce the reference organisation's logo, employee information or proprietary artwork.
+
+The patient dashboard must feel like a dedicated mobile application.
+
+The professional dashboards must feel like structured clinic management software.
+
+The public homepage must remain a separate experience designed to help visitors discover and understand the service.
+
+==================================================
+4. VISUAL DESIGN SYSTEM
+==================================================
+
+Create one consistent design system used throughout the application.
+
+BRAND PERSONALITY
+
+The visual identity should communicate:
+- Compassion.
+- Trust.
+- Calmness.
+- Clarity.
+- Professionalism.
+- Accessibility.
+- Community service.
+- Reliability.
+
+Avoid an overly corporate hospital aesthetic, excessive decorative elements or a generic AI-generated SaaS appearance.
+
+COLOUR SYSTEM
+
+Use a coherent palette built around:
+
+Primary healthcare blue:
+#1976D2
+
+Deep blue:
+#123A63
+
+Cyan accent:
+#21B8D5
+
+Healthcare green:
+#16866F
+
+Light blue surface:
+#EAF6FC
+
+Light green surface:
+#EAF7F1
+
+Main page background:
+#F6F9FC
+
+Card background:
+#FFFFFF
+
+Primary text:
+#172B4D
+
+Secondary text:
+#526579
+
+Borders:
+#DCE5ED
+
+Success:
+#247A4B
+
+Warning:
+#A86608
+
+Error:
+#B42318
+
+These are starting tokens, not permission to apply every colour everywhere.
+
+Use blue and cyan to reproduce the visual energy of the mobile reference. Use the established Saivibronics green/teal identity for important brand elements and healthcare actions.
+
+Reserve warning, error and success colours for meaningful states.
+
+Validate text and control contrast. If a proposed combination does not meet accessibility requirements, adjust it.
+
+TYPOGRAPHY
+
+Use a clean, highly legible sans-serif typeface.
+
+Use a consistent typography scale:
+- Large page headings: approximately 28–36px on desktop.
+- Section headings: approximately 20–24px.
+- Card headings: approximately 17–20px.
+- Standard body text: approximately 16–18px.
+- Important metadata: generally at least 14–16px.
+- Small legal or secondary text: only where necessary, while remaining readable.
+
+The patient dashboard should favour larger text than the professional dashboards.
+
+Avoid text-xs and 11px labels for essential patient information.
+
+Do not use oversized marketing typography inside signed-in dashboards.
+
+SPACING
+
+Use a consistent spacing system based on multiples of four or eight pixels.
+
+Use:
+- Comfortable card padding.
+- Predictable gaps between sections.
+- Consistent page margins.
+- Clear separation between unrelated functions.
+- Compact but readable professional dashboards.
+- Tighter vertical spacing on mobile without sacrificing touch accessibility.
+
+Avoid large empty areas caused by excessive padding.
+
+Avoid squeezing too much information into a single viewport.
+
+CARDS
+
+Use:
+- White surfaces.
+- Subtle borders.
+- Moderate corner radii.
+- Restrained shadows.
+- Clear internal alignment.
+- Consistent icon containers.
+- Consistent heading and description spacing.
+
+Do not use excessive glassmorphism, glowing borders, giant gradients or decorative animations.
+
+BUTTONS
+
+Define consistent primary, secondary, tertiary, destructive and disabled button styles.
+
+Buttons must communicate:
+- Their action.
+- Whether they are available.
+- Whether an operation is in progress.
+- Whether an operation succeeded or failed.
+
+Destructive actions must be visually distinct and use confirmation where appropriate.
+
+ICONS
+
+Use the installed lucide-react library.
+
+Use consistent icon sizes and stroke weights.
+
+Professional dashboard navigation should generally use icons around 18–22px.
+
+Patient service tiles should use substantially larger visual elements, generally around 36–48px or suitable illustrations.
+
+Use coloured icon containers to make the patient service grid visually distinctive.
+
+Every meaningful icon must have an accessible name or a visible text label.
+
+Do not use emoji as a replacement for a consistent production icon system.
+
+ANIMATION
+
+Use animation only where it improves feedback or comprehension.
+
+Keep animations subtle and short.
+
+Respect reduced-motion preferences.
+
+Never delay important healthcare actions with unnecessary transitions.
+
+==================================================
+5. APPLICATION ARCHITECTURE AND PAGE STRUCTURE
+==================================================
+
+Create a maintainable architecture with reusable shared components.
+
+Avoid putting the entire application into one enormous component.
+
+Suggested organisation, adapted to the actual existing project:
+
+src/
+  app/
+    App.tsx
+    routes/
+    layouts/
+  components/
+    common/
+    navigation/
+    forms/
+    feedback/
+    dashboard/
+    accessibility/
+  features/
+    authentication/
+    patients/
+    clinics/
+    appointments/
+    practitioners/
+    consultations/
+    medical-records/
+    prescriptions/
+    notifications/
+    clinic-administration/
+    organisation-administration/
+    historical-records/
+  services/
+    api/
+    auth/
+    data-access/
+    notifications/
+  hooks/
+  types/
+  utils/
+  data/
+  styles/
+
+Do not move every file simply to match this example. Refactor incrementally when doing so improves maintainability.
+
+SHARED COMPONENTS
+
+Build or improve reusable components for:
+- Application headers.
+- Public website navigation.
+- Dashboard sidebars.
+- Mobile navigation drawers.
+- Breadcrumbs.
+- Page titles.
+- Summary cards.
+- Service tiles.
+- Search fields.
+- Filter controls.
+- Data tables.
+- Status badges.
+- Form fields.
+- Dialogs.
+- Confirmation prompts.
+- Notifications.
+- Empty states.
+- Loading indicators.
+- Error states.
+- Pagination.
+- Accessibility controls.
+- Profile menus.
+- Audit-history views.
+
+Avoid duplicating the same UI logic across four separate dashboards.
+
+==================================================
+6. FOUR DISTINCT ROLE EXPERIENCES
+==================================================
+
+The platform has four principal user roles.
+
+PATIENT:
+Can manage their profile, discover clinics, book appointments, access their permitted records, view prescriptions and receive relevant notifications.
+
+PRACTITIONER:
+Can manage their authorised schedule, access assigned patients, record consultations and issue or manage clinical documents within their permissions.
+
+CLINIC ADMINISTRATOR:
+Can manage an assigned clinic's operations, staff assignments, appointments and authorised administrative workflows.
+
+ORGANISATION ADMINISTRATOR:
+Can manage the multi-clinic network, clinic configuration, staff assignments, policies and permitted organisation-wide reports.
+
+These roles must not be treated as interchangeable dashboard themes.
+
+Each role needs a distinct navigation structure, relevant landing page, permitted actions and clear boundaries.
+
+Hiding a button is not security.
+
+The backend must enforce every sensitive permission.
+
+==================================================
+7. PATIENT DASHBOARD: HIGHEST DESIGN PRIORITY
+==================================================
+
+This screen must closely follow the second reference image.
+
+The signed-in patient dashboard must not look like the public marketing homepage.
+
+It must resemble a simple, welcoming mobile service application.
+
+A. MOBILE HEADER
+
+Create a compact header with:
+- Saivibronics branding.
+- A menu button where appropriate.
+- A notification button.
+- A profile or account button.
+- A clear visual hierarchy.
+- Appropriate spacing around touch targets.
+
+Do not use the oversized public website header inside the patient dashboard.
+
+B. WELCOME PANEL
+
+Create a white welcome panel positioned at the top of the dashboard.
+
+The panel should include:
+- A concise greeting.
+- The patient's preferred display name.
+- A relevant next-appointment summary.
+- A patient identifier only where operationally necessary.
+- A prominent booking action where appropriate.
+
+Use rounded lower corners inspired by the reference.
+
+Avoid exposing sensitive information on a shared or unattended device.
+
+If the patient has no upcoming appointment, show a friendly empty state and a clear booking action.
+
+C. SERVICE GRID
+
+Below the welcome panel, create a visually prominent blue/cyan service area.
+
+Within this area, arrange white service tiles in a regular grid.
+
+Each tile must contain:
+- A large colourful icon or appropriate illustration.
+- A short visible label.
+- Comfortable internal spacing.
+- Consistent dimensions.
+- A clear hover or focus state.
+- A large clickable area.
+
+Use:
+- Two columns on narrow mobile screens.
+- Three columns on wider mobile screens when they fit comfortably.
+- Three or four columns on larger screens where appropriate.
+
+Do not force three columns into a narrow viewport.
+
+Do not shrink labels to make the grid fit.
+
+The following tiles are required:
+
+1. Find a Clinic.
+2. Appointments.
+3. Medical Records.
+4. Prescriptions.
+5. My Visits.
+6. My Practitioner.
+7. Notifications.
+8. My Profile.
+9. Help and Support.
+10. Health Information.
+11. Language Preferences.
+12. Accessibility Settings.
+
+Each tile must navigate to the correct existing route, section or appropriate implementation placeholder.
+
+Never display a success message when the destination or function is not implemented.
+
+D. APPOINTMENT CARD
+
+Display the next appointment prominently.
+
+Where data exists, show appropriate information such as:
+- Clinic name.
+- Appointment date.
+- Appointment time.
+- Appointment status.
+- Relevant instructions approved by the clinic.
+- View or manage appointment action.
+
+Do not expose information the patient is not authorised to see.
+
+E. SENIOR ACCESSIBILITY
+
+Design for people who may have:
+- Reduced vision.
+- Difficulty distinguishing colours.
+- Limited fine motor control.
+- Limited familiarity with smartphone interfaces.
+- Difficulty understanding technical language.
+
+Use:
+- Body text around 16–18px where appropriate.
+- Large buttons.
+- Large clickable cards.
+- High-contrast labels.
+- Plain language.
+- Clear instructions.
+- Consistent navigation.
+- Obvious confirmation and error messages.
+- Visible help access.
+- Accessible keyboard focus.
+- Screen-reader-friendly labels.
+- Support for text resizing.
+- Support for high-contrast mode.
+- Reduced-motion compatibility.
+
+Aim for touch targets of at least 44–48 CSS pixels, with larger primary actions where practical.
+
+Never rely on colour alone to communicate appointment status or errors.
+
+Do not make users remember complex sequences of steps.
+
+Avoid hiding essential features behind multiple layers of navigation.
+
+F. PATIENT DASHBOARD STATES
+
+Design and implement appropriate states for:
+- First-time patient.
+- No upcoming appointments.
+- Upcoming appointment.
+- Cancelled appointment.
+- No available records.
+- Existing medical history.
+- Loading data.
+- Network failure.
+- Expired session.
+- Empty notifications.
+- Unread notifications.
+- Incomplete profile where relevant.
+
+Use honest messages and clear recovery actions.
+
+==================================================
+8. PROFESSIONAL DASHBOARD: DESKTOP DESIGN
+==================================================
+
+The practitioner and administrator dashboards must closely follow the first reference image.
+
+DESKTOP SHELL
+
+Use:
+- A left sidebar approximately 230–250px wide on standard desktop screens.
+- A horizontal top bar.
+- A central workspace.
+- A responsive content grid.
+- A consistent page title and breadcrumb area.
+
+SIDEBAR
+
+The sidebar should include:
+- Saivibronics branding.
+- Dashboard.
+- Calendar.
+- Appointments.
+- Patients or assigned patients.
+- Consultations where relevant.
+- Prescriptions where permitted.
+- Medical records where permitted.
+- Reports where relevant.
+- Role-appropriate administrative functions.
+- Profile and sign-out controls.
+
+Only show relevant navigation items for the signed-in role.
+
+Clearly indicate the active route.
+
+Use readable labels next to icons.
+
+TOP BAR
+
+Include:
+- Context-appropriate search.
+- Breadcrumbs.
+- Notifications.
+- Profile menu.
+- Relevant quick actions.
+
+Search results must respect the user's authorisation scope.
+
+MAIN WORKSPACE
+
+Use a structured hierarchy:
+
+1. Page title and optional description.
+2. Contextual setup or alert banner when relevant.
+3. Three or four summary cards across a sufficiently wide viewport.
+4. Main operational content such as a queue, appointment table or patient list.
+5. Secondary content such as schedules, recent activity or charts.
+
+Do not display charts merely for decoration.
+
+Every metric must be derived from appropriate data and have a clear meaning.
+
+Use readable tables with appropriate sorting, filtering and pagination when needed.
+
+On narrow screens, convert tables into useful responsive cards or provide deliberate horizontal scrolling.
+
+Avoid clipped text, overlapping controls and excessive horizontal overflow.
+
+==================================================
+9. PUBLIC WEBSITE
+==================================================
+
+HOME PAGE
+
+The public homepage must explain the platform clearly without overwhelming visitors.
+
+Include:
+- Saivibronics logo and branding.
+- Find a Clinic.
+- How It Works.
+- Sign In.
+- Register.
+- A concise introduction to the service.
+- A prominent clinic discovery action.
+- A secondary patient registration action.
+- A brief explanation of the appointment workflow.
+- A relevant clinic preview using available data.
+- Accessibility and help links.
+- A professional footer.
+
+Do not use an enormous headline occupying most of the first viewport.
+
+Do not allow the pilot or demonstration banner to dominate the public experience.
+
+If the application is in demonstration mode, communicate that clearly without permanently consuming excessive screen space.
+
+CLINIC FINDER
+
+Implement or preserve:
+- Clinic name search.
+- Locality search.
+- PIN code search.
+- Manual search without location permission.
+- Permission-gated geolocation.
+- Service filtering.
+- Relevant clinic status and opening-hour information.
+- Clinic detail navigation.
+- Directions through an appropriate mapping service.
+
+Use the existing mock fixtures until a backend is connected.
+
+Never describe mock clinic availability as live availability.
+
+CLINIC DETAILS
+
+Display:
+- Clinic name.
+- Address.
+- Locality.
+- Opening hours.
+- Available services.
+- Approved practitioner information.
+- Relevant accessibility information.
+- Directions.
+- Appointment booking.
+
+Preserve existing validation and booking interactions.
+
+REGISTRATION
+
+Support the future workflow for:
+- Patient details.
+- Contact information.
+- Verification.
+- Password creation where password authentication is used.
+- Consent and privacy notices.
+- Validation.
+- Clear error recovery.
+
+Do not claim that registration has created a persistent account until the backend confirms success.
+
+SIGN-IN
+
+Prepare the interface for:
+- Secure authentication.
+- Session management.
+- Password recovery.
+- Verification challenges where required.
+- Appropriate error messages.
+- Safe sign-out.
+
+Remove production reliance on one-click role switching.
+
+Any demonstration role-switch feature must be clearly marked as demonstration-only and excluded from production authentication paths.
+
+==================================================
+10. PATIENT ACCOUNTS AND IDENTITY
+==================================================
+
+Required functionality:
+- Patient registration.
+- Account verification.
+- Sign-in.
+- Sign-out.
+- Account recovery.
+- Patient profile management.
+- Unique patient identifiers.
+- Duplicate-patient detection.
+- Account status management.
+- Session expiry.
+- Session revocation where supported.
+- Consent tracking.
+- Appropriate account assistance workflows.
+
+Patient identity must not be determined by name alone.
+
+Do not automatically merge two patient histories based on approximate matches.
+
+Where possible duplicates are identified, provide an authorised review process.
+
+Validate data on the server as well as the client.
+
+Never store authentication credentials or sensitive medical records in browser localStorage.
+
+==================================================
+11. CLINIC DISCOVERY AND MULTI-CLINIC SUPPORT
+==================================================
+
+The initial deployment starts with Padmanabhanagar, Bengaluru.
+
+The architecture must support additional clinics without redesigning the application.
+
+Required capabilities:
+- Clinic creation and configuration.
+- Clinic address and location.
+- Locality and PIN code.
+- Operational hours.
+- Services offered.
+- Practitioner assignments.
+- Appointment availability.
+- Clinic status.
+- Temporary closure handling.
+- Search and filtering.
+- Location-based discovery.
+- Manual search.
+- Directions.
+- Clinic-specific administration.
+- Organisation-wide clinic management.
+
+Every clinic-specific resource must have an explicit association with the appropriate clinic.
+
+The backend must enforce clinic-level access boundaries.
+
+Do not rely on frontend filters to isolate clinic data.
+
+==================================================
+12. APPOINTMENT MANAGEMENT
+==================================================
+
+Required functionality:
+- Browse available clinics.
+- Browse available practitioners.
+- View appointment slots.
+- Book appointments.
+- View upcoming appointments.
+- View appointment history.
+- Reschedule appointments.
+- Cancel appointments.
+- Support clinic-managed walk-ins.
+- Maintain appointment status.
+- Send confirmations.
+- Schedule reminders.
+- Handle unavailable practitioners.
+- Handle clinic closures.
+- Handle cancellations.
+- Prevent conflicting bookings.
+- Record important status changes.
+
+Define clear appointment states, such as:
+- Requested.
+- Confirmed.
+- Checked in.
+- In consultation.
+- Completed.
+- Cancelled.
+- No-show, where operationally appropriate.
+
+Choose the final state model based on actual clinic workflows.
+
+The server must validate slot availability at booking time.
+
+Use appropriate database constraints or transactional logic to prevent two users from reserving the same exclusive slot.
+
+Do not trust availability data cached in the browser.
+
+If a booking fails, display a clear explanation and allow the user to choose another slot.
+
+Do not display a confirmed booking until the backend confirms it.
+
+==================================================
+13. MEDICAL RECORDS
+==================================================
+
+Required capabilities:
+- Patient profile information.
+- Consultation history.
+- Practitioner-entered clinical notes.
+- Diagnoses recorded by authorised practitioners.
+- Prescriptions.
+- Allergies and relevant clinical information when collected.
+- Medical report attachments.
+- Historical records.
+- Record correction and amendment workflows.
+- Access history.
+- Appropriate document viewing and downloading.
+- Authorised export where required.
+
+Medical record entities must be properly modelled.
+
+A completed consultation must create or update the appropriate persistent clinical record according to the approved workflow.
+
+Updating an appointment summary alone is not sufficient.
+
+Maintain a relationship between:
+- Patient.
+- Clinic.
+- Practitioner.
+- Appointment.
+- Consultation.
+- Clinical record.
+- Prescription.
+- Attached document where applicable.
+
+Use server-side access checks for every protected operation.
+
+Do not expose another patient's information by changing a URL, identifier or API request.
+
+Do not silently overwrite clinical records.
+
+Corrections and amendments should preserve appropriate history and accountability.
+
+==================================================
+14. PRACTITIONER WORKSPACE
+==================================================
+
+Required capabilities:
+- Practitioner dashboard.
+- Daily schedule.
+- Appointment queue.
+- Assigned patient list.
+- Authorised patient search.
+- Patient history review.
+- Consultation creation.
+- Clinical note entry.
+- Prescription creation.
+- Follow-up instructions.
+- Appointment completion.
+- Previous consultation history.
+- Record review.
+- Clear save and submission states.
+- Recoverable validation errors.
+
+The consultation workflow must:
+1. Load the correct authorised patient and appointment.
+2. Present relevant permitted history.
+3. Allow the practitioner to enter clinical notes.
+4. Validate required fields.
+5. Save through the backend.
+6. Create or update the relevant medical record.
+7. Create prescription records when appropriate.
+8. Update appointment status.
+9. Record appropriate audit events.
+10. Communicate success only after the operation succeeds.
+
+Handle network failures and duplicate submissions.
+
+Do not invent medical conclusions or automate clinical decisions.
+
+Existing Vibronics remedy selection and dosage components may be preserved as workflow fields, subject to the organisation's approved clinical practices.
+
+Any remedy information must be entered or confirmed by an appropriately authorised practitioner.
+
+==================================================
+15. CLINIC ADMINISTRATION
+==================================================
+
+Required capabilities:
+- Clinic profile management.
+- Clinic opening hours.
+- Clinic status.
+- Practitioner management.
+- Staff assignments.
+- Role assignments within permitted scope.
+- Appointment management.
+- Walk-in registration.
+- Reception queue.
+- Daily token quota controls where required.
+- Practitioner shift management.
+- Patient registration assistance.
+- Historical record digitisation.
+- Clinic-level operational reports.
+- Relevant exports.
+- Audit history.
+- Temporary closure and availability management.
+
+Clinic administrators must not automatically receive unrestricted access to all clinical notes.
+
+The backend must verify that the administrator has authority over the relevant clinic and action.
+
+Changes must persist through the backend once implemented.
+
+==================================================
+16. ORGANISATION ADMINISTRATION
+==================================================
+
+Required capabilities:
+- Multi-clinic dashboard.
+- Clinic registry.
+- Searchable clinic list.
+- Add clinic.
+- Edit clinic configuration.
+- Assign clinic administrators.
+- Manage authorised staff.
+- Configure organisation-level policies.
+- View aggregated operational metrics.
+- Review onboarding progress.
+- Review historical digitisation progress.
+- Manage account status.
+- Review audit events.
+- Access authorised reports.
+- Export appropriate aggregated data.
+
+Use organisation-wide summaries without automatically exposing unnecessary patient-level clinical information.
+
+Every administrative operation must be permission-checked on the server.
+
+==================================================
+17. HISTORICAL PAPER RECORD DIGITISATION
+==================================================
+
+Design a secure and auditable digitisation workflow.
+
+Required stages:
+1. An authorised staff member begins a digitisation entry.
+2. Staff identify the patient or request identity review.
+3. Relevant historical information is entered or an authorised document is uploaded.
+4. The record is marked as pending verification.
+5. An authorised reviewer checks the information.
+6. The record is approved, rejected or returned for correction.
+7. The system records who entered, reviewed and approved it.
+8. Approved information becomes accessible only to authorised users.
+
+Support:
+- Structured manual entry.
+- Secure document attachments.
+- Source and date information where known.
+- Verification status.
+- Reviewer notes.
+- Correction workflows.
+- Duplicate detection.
+- Audit history.
+- Restricted access to pending records.
+
+OCR may be added later to assist transcription, but extracted content must be reviewed before it becomes verified clinical information.
+
+Do not allow an unverified scan to silently become an authoritative medical record.
+
+==================================================
+18. DOCUMENT UPLOADS AND STORAGE
+==================================================
+
+Prepare support for:
+- Medical reports.
+- Historical paper scans.
+- Relevant supporting documents.
+- Prescription documents where applicable.
+
+Use private object storage rather than exposing medical documents through public URLs.
+
+Required safeguards include:
+- Authentication.
+- Authorisation.
+- File size limits.
+- File type validation.
+- Server-side validation.
+- Safe filenames.
+- Malware scanning where available.
+- Restricted downloads.
+- Short-lived authorised download links where appropriate.
+- Appropriate retention and deletion procedures.
+- Audit events for important document actions.
+
+Do not assume that changing a file extension makes a file safe.
+
+Do not store sensitive documents directly in localStorage.
+
+If storage credentials are unavailable, implement a clean storage interface and clearly mark the external configuration required.
+
+==================================================
+19. NOTIFICATIONS AND REMINDERS
+==================================================
+
+Required notification capabilities:
+- In-app notifications.
+- Appointment confirmations.
+- Appointment reminders.
+- Cancellation updates.
+- Rescheduling updates.
+- Relevant clinic announcements.
+- Account security notifications.
+- Read and unread states.
+- Notification history.
+- User preferences.
+- Delivery status.
+- Retry and failure handling.
+
+Prepare integrations for approved email, SMS and push providers.
+
+WhatsApp integration may be added through an approved business messaging provider if the organisation chooses to use it.
+
+Do not assume that an external message was delivered merely because the application submitted a request.
+
+Distinguish:
+- Queued.
+- Sent to provider.
+- Delivered, if confirmed.
+- Failed.
+- Retrying.
+
+Respect consent, privacy and communication preferences.
+
+Avoid including unnecessary medical information in lock-screen notifications or message previews.
+
+==================================================
+20. REAL-TIME DATA AND SYNCHRONISATION
+==================================================
+
+Real-time functionality must be genuine and appropriately implemented.
+
+Examples include:
+- Appointment status updates.
+- Reception queue updates.
+- Practitioner schedule updates.
+- Relevant dashboard metric updates.
+- Notification delivery status.
+- Clinic availability changes.
+
+Use ordinary authenticated API requests where immediate push updates are unnecessary.
+
+Use WebSockets or server-sent events where timely updates materially improve the workflow.
+
+Do not add real-time infrastructure merely for appearance.
+
+Requirements:
+- The database is the authoritative source of persistent data.
+- Successful changes are reflected in the correct views.
+- Concurrent booking conflicts are handled safely.
+- Failed changes do not appear successful.
+- Reconnection and retry behaviour is deliberate.
+- Users can understand when data is stale.
+- Relevant updates respect permissions.
+- Duplicate events do not create duplicate records.
+
+Do not broadcast sensitive patient information to every connected client.
+
+==================================================
+21. BACKEND AND API ARCHITECTURE
+==================================================
+
+The current project is primarily a client-side React application.
+
+An Express dependency exists, but the audit did not identify an implemented backend server.
+
+Establish a proper backend incrementally.
+
+Preferred direction:
+- Node.js.
+- TypeScript.
+- Express or an equally justified backend framework.
+- PostgreSQL.
+- Prisma or a similarly suitable database access layer.
+- Server-side schema validation using Zod or an equivalent.
+- Secure authentication.
+- Centralised authorisation.
+- Structured error handling.
+- API logging.
+- Database migrations.
+- Automated tests.
+
+Adapt this plan to the actual hosting environment and existing project capabilities.
+
+Do not add multiple competing backend frameworks.
+
+Use a versioned API structure where appropriate.
+
+Keep business rules out of purely presentational components.
+
+Separate:
+- UI.
+- Data access.
+- Business logic.
+- Authentication.
+- Authorisation.
+- Database access.
+- External integrations.
+
+Implement the smallest useful backend incrementally instead of trying to implement the entire production system in one unverified change.
+
+==================================================
+22. DATABASE ARCHITECTURE
+==================================================
+
+Design a relational schema with appropriate relationships, constraints and indexes.
+
+Potential entities include:
+
+- User.
+- PatientProfile.
+- Clinic.
+- PractitionerProfile.
+- ClinicStaffAssignment.
+- Role or Permission.
+- Appointment.
+- Consultation.
+- MedicalRecord.
+- Prescription.
+- PrescriptionItem, where appropriate.
+- MedicalDocument.
+- HistoricalRecordImport.
+- Notification.
+- NotificationDelivery.
+- ConsentRecord.
+- AuditLog.
+- ClinicSchedule.
+- PractitionerAvailability.
+
+Adapt the final schema to the actual workflows.
+
+Requirements:
+- Stable identifiers.
+- Appropriate foreign keys.
+- Explicit clinic associations.
+- Timestamps.
+- Suitable unique constraints.
+- Transactional operations where necessary.
+- Appropriate indexes.
+- Defined deletion and retention behaviour.
+- No accidental cascading deletion of important clinical history.
+- Migration support.
+- Backup and restoration strategy.
+
+Do not store every type of information in one unstructured JSON object.
+
+Do not create duplicate sources of truth for the same data.
+
+Define relationships clearly.
+
+==================================================
+23. AUTHENTICATION AND AUTHORISATION
+==================================================
+
+Implement a secure, maintainable authentication approach suitable for the selected deployment.
+
+Do not assume that frontend role selectors provide security.
+
+Requirements:
+- Secure sign-in.
+- Account verification where required.
+- Password recovery if password authentication is used.
+- Appropriate session management.
+- Session expiry.
+- Secure sign-out.
+- Server-side authentication checks.
+- Server-side role checks.
+- Clinic-level authorisation.
+- Organisation-level authorisation.
+- Protection against privilege escalation.
+- Appropriate rate limiting.
+- Secure credential storage through the chosen authentication system.
+- No hardcoded production credentials.
+- No secret keys exposed in frontend bundles.
+
+Use the least-privilege principle.
+
+A patient must not be able to access another patient's records.
+
+A practitioner must not automatically access every patient.
+
+A clinic administrator must be restricted to their authorised clinic and administrative duties.
+
+An organisation administrator must only receive the access required for their approved responsibilities.
+
+Every sensitive API operation must verify the acting user's authority.
+
+Demonstration role switching must never be mistaken for production authentication.
+
+==================================================
+24. PRIVACY, SECURITY AND COMPLIANCE
+==================================================
+
+The application handles potentially sensitive health information.
+
+Treat privacy and security as core engineering requirements.
+
+Implement or plan:
+- HTTPS in deployment.
+- Secure authentication.
+- Server-side validation.
+- Role and resource-level authorisation.
+- Protection against common injection attacks.
+- Appropriate cross-site scripting protections.
+- CSRF protection where relevant to the chosen authentication model.
+- Rate limiting.
+- Secure file handling.
+- Audit logging.
+- Session revocation.
+- Secret management.
+- Backup protection.
+- Error handling that does not leak sensitive information.
+- Data retention rules.
+- Appropriate account and consent workflows.
+- Security monitoring.
+- Incident response procedures.
+
+Avoid logging full clinical notes, passwords, access tokens or unnecessary personal data.
+
+Ensure that application errors do not reveal stack traces or database internals to ordinary users.
+
+Before deployment with real patient information, the organisation must review applicable Indian privacy requirements, including the DPDP framework and rules in force, together with other applicable healthcare, records and organisational obligations.
+
+Do not claim legal compliance merely because security features have been implemented.
+
+==================================================
+25. ACCESSIBILITY AND LANGUAGE SUPPORT
+==================================================
+
+Accessibility is mandatory.
+
+Support:
+- Semantic HTML.
+- Keyboard navigation.
+- Visible focus indicators.
+- Screen-reader labels.
+- Accessible dialogs.
+- Appropriate form labels.
+- Understandable validation errors.
+- Colour contrast.
+- Text resizing.
+- Reduced motion.
+- Responsive layouts.
+- Large touch targets.
+- Clear action feedback.
+- Plain-language instructions.
+
+Prepare a language architecture that can support English and Kannada initially, subject to the organisation's approval.
+
+Do not translate clinical terminology carelessly.
+
+Ensure translated interfaces remain usable when text becomes longer.
+
+Do not display untranslated technical keys to users.
+
+Accessibility controls must work rather than merely change their visual appearance.
+
+==================================================
+26. PWA AND FUTURE ANDROID SUPPORT
+==================================================
+
+The website should support an installable Progressive Web App where the browser and device allow it.
+
+Review:
+- Web app manifest.
+- Application icons.
+- Theme colours.
+- Installation guidance.
+- Service worker behaviour.
+- Update handling.
+- Offline status indicators.
+- Appropriate caching.
+- Mobile navigation.
+- Touch interactions.
+
+Cache only resources appropriate for offline use.
+
+Do not cache sensitive medical records or authenticated API responses indiscriminately.
+
+Offline indicators must reflect actual connectivity state.
+
+Do not imply that a booking or consultation was saved when the backend was unreachable.
+
+If offline drafts are introduced, they must have an explicit, secure synchronisation design.
+
+The backend should expose APIs that can later support an Android client.
+
+A future Android app should reuse backend business rules and authorisation rather than duplicating them.
+
+==================================================
+27. SEARCH, FILTERS AND DATA TABLES
+==================================================
+
+Where appropriate, support:
+- Search.
+- Filtering.
+- Sorting.
+- Pagination.
+- Empty states.
+- Loading states.
+- Error states.
+- Clear-filter actions.
+- Accessible controls.
+
+Search must be limited to the user's permitted data scope.
+
+Avoid loading unbounded amounts of patient data into the browser.
+
+For larger datasets, implement server-side filtering and pagination.
+
+Provide clear feedback when no results match the selected filters.
+
+==================================================
+28. REPORTS AND ANALYTICS
+==================================================
+
+Potential reporting includes:
+- Appointment counts.
+- Completed consultations.
+- Cancellation rates.
+- Clinic activity.
+- Practitioner workload.
+- Historical record digitisation progress.
+- Operational queue metrics.
+- Clinic onboarding status.
+
+Only implement metrics whose meaning and source are defined.
+
+Use appropriate aggregation.
+
+Do not expose unnecessary patient-identifying information in organisation-wide reports.
+
+Charts must have readable labels and accessible alternatives.
+
+Avoid fabricated charts and misleading percentages.
+
+If the available data is demonstration data, label it accordingly.
+
+==================================================
+29. ERROR HANDLING AND RELIABILITY
+==================================================
+
+Every important workflow must account for failure.
+
+Handle:
+- Network interruptions.
+- Authentication expiry.
+- Validation failures.
+- Permission denial.
+- Duplicate submissions.
+- Conflicting appointments.
+- Missing records.
+- Unavailable clinics.
+- File upload failures.
+- Notification provider failures.
+- Database errors.
+- External service outages.
+
+Display useful messages and a safe recovery action.
+
+Use loading states to prevent accidental repeated submissions.
+
+Use idempotency or equivalent safeguards for operations that could create duplicates when retried.
+
+Do not expose internal server errors to users.
+
+==================================================
+30. TESTING STRATEGY
+==================================================
+
+Use the testing tools already available where appropriate.
+
+Add tests incrementally.
+
+UNIT TESTS
+
+Test important validation and business rules.
+
+INTEGRATION TESTS
+
+Test API endpoints, database relationships, permissions and transactional workflows.
+
+END-TO-END TESTS
+
+Test critical user journeys.
+
+Required end-to-end journeys include:
+
+JOURNEY A: PATIENT BOOKING
+1. Open the public website.
+2. Find a clinic.
+3. Open clinic details.
+4. Register or sign in.
+5. Select an available appointment.
+6. Submit the booking.
+7. Confirm the appointment is saved.
+8. Verify that the appropriate practitioner or clinic dashboard reflects the booking.
+
+JOURNEY B: PRACTITIONER CONSULTATION
+1. Sign in as an authorised practitioner.
+2. Open an assigned appointment.
+3. Access the permitted patient history.
+4. Enter consultation notes.
+5. Save the consultation.
+6. Create an appropriate medical record.
+7. Update appointment status.
+8. Verify the patient can access the permitted resulting information.
+
+JOURNEY C: CLINIC ADMINISTRATION
+1. Sign in as a clinic administrator.
+2. View the assigned clinic.
+3. Manage appropriate staff or appointments.
+4. Verify changes persist.
+5. Verify the administrator cannot access an unrelated clinic without permission.
+
+JOURNEY D: ORGANISATION ADMINISTRATION
+1. Sign in as an organisation administrator.
+2. Add a clinic.
+3. Verify its details persist.
+4. Verify the clinic appears in appropriate discovery and administrative views.
+5. Verify clinic-specific permissions remain intact.
+
+JOURNEY E: HISTORICAL RECORDS
+1. Enter a historical record.
+2. Mark it pending verification.
+3. Review and approve it through an authorised workflow.
+4. Verify its audit history.
+5. Verify unauthorised users cannot access it.
+
+SECURITY TESTS
+
+Test:
+- Unauthenticated API access.
+- Cross-patient access attempts.
+- Cross-clinic access attempts.
+- Privilege escalation.
+- Invalid input.
+- Duplicate bookings.
+- Repeated submissions.
+- File upload restrictions.
+- Session expiry.
+- Unauthorised administrative actions.
+
+ACCESSIBILITY TESTS
+
+Check:
+- Keyboard navigation.
+- Focus visibility.
+- Labels.
+- Contrast.
+- Text scaling.
+- Responsive behaviour.
+- Screen-reader compatibility where tooling permits.
+
+Do not claim a test passed unless it was executed or the limitation is explicitly stated.
+
+==================================================
+31. DEVELOPMENT AND DEPLOYMENT
+==================================================
+
+Use GitHub for version control and collaboration.
+
+Establish:
+- A protected main branch where feasible.
+- Feature branches.
+- Clear commits.
+- Environment-specific configuration.
+- Automated build checks.
+- Test execution.
+- Database migration procedures.
+- Secure secret management.
+- Production monitoring.
+- Backup procedures.
+- Restoration testing.
+- A controlled deployment process.
+
+Do not commit production secrets.
+
+Do not assume a successful development preview means the application is production-ready.
+
+External services must be configured and tested in the deployment environment.
+
+==================================================
+32. PERFORMANCE REQUIREMENTS
+==================================================
+
+Keep the application responsive.
+
+Prioritise:
+- Reasonable initial load time.
+- Efficient component rendering.
+- Pagination for large datasets.
+- Lazy loading where appropriate.
+- Optimised images.
+- Avoiding unnecessary dependencies.
+- Avoiding repeated API calls.
+- Sensible caching.
+- Clear loading feedback.
+
+Do not sacrifice accessibility or security for marginal performance gains.
+
+==================================================
+33. FEATURE COMPLETENESS CHECKLIST
+==================================================
+
+Maintain a project checklist covering every major requirement.
+
+For each feature, record:
+- Feature name.
+- Relevant pages.
+- Frontend status.
+- Backend status.
+- Database status.
+- Authentication and permission requirements.
+- Integration dependencies.
+- Tests required.
+- Actual test results.
+- Remaining issues.
+
+Use these statuses:
+
+NOT STARTED
+IN PROGRESS
+IMPLEMENTED
+TESTED
+VERIFIED
+BLOCKED BY EXTERNAL DEPENDENCY
+
+Do not mark a feature VERIFIED merely because its button appears on screen.
+
+A feature is VERIFIED only when the intended workflow has been tested and its expected outcome confirmed.
+
+Keep separate checklists for:
+- Public website.
+- Patient workflows.
+- Practitioner workflows.
+- Clinic administration.
+- Organisation administration.
+- Appointments.
+- Medical records.
+- Historical digitisation.
+- Notifications.
+- Security.
+- Accessibility.
+- PWA.
+- Deployment.
+
+Do not remove an incomplete requirement from the checklist to make progress appear better.
+
+==================================================
+34. IMPLEMENTATION STRATEGY
+==================================================
+
+Do not attempt to implement the entire production platform in one uncontrolled code change.
+
+First, inspect the existing application and establish the current baseline.
+
+Then work in controlled phases.
+
+PHASE 1: VISUAL DESIGN FOUNDATION
+- Establish design tokens.
+- Build shared navigation and dashboard shells.
+- Redesign the patient dashboard to match the second reference.
+- Redesign professional dashboards to match the first reference.
+- Improve public pages.
+- Preserve existing functionality.
+- Verify responsive layouts.
+
+PHASE 2: NAVIGATION AND ROUTING
+- Add proper URL routing.
+- Support direct links.
+- Support browser Back and Forward.
+- Preserve existing navigation.
+- Add not-found handling.
+- Prepare role-specific route boundaries without pretending they provide backend security.
+
+PHASE 3: BACKEND AND DATABASE FOUNDATION
+- Select and configure the database and backend.
+- Design and migrate the schema.
+- Implement health checks and error handling.
+- Establish a typed data-access layer.
+- Implement server-side validation.
+- Implement secure authentication and authorisation.
+
+PHASE 4: PATIENT WORKFLOWS
+- Registration.
+- Sign-in.
+- Profile.
+- Clinic discovery.
+- Appointment booking.
+- Appointment management.
+- Medical record access.
+- Prescriptions.
+- Notifications.
+
+PHASE 5: PRACTITIONER WORKFLOWS
+- Schedule.
+- Assigned patients.
+- Consultation workflow.
+- Clinical records.
+- Prescriptions.
+- Appointment completion.
+
+PHASE 6: ADMINISTRATION
+- Clinic management.
+- Staff assignments.
+- Reception queue.
+- Token management where required.
+- Organisation-wide clinic management.
+- Reporting.
+
+PHASE 7: HISTORICAL RECORDS AND DOCUMENTS
+- Record entry.
+- Uploads.
+- Verification.
+- Audit history.
+- Secure storage.
+
+PHASE 8: REAL-TIME INTEGRATIONS
+- Appropriate live updates.
+- Notification providers.
+- Booking conflict protection.
+- Delivery status.
+- Reconnection behaviour.
+
+PHASE 9: HARDENING AND DEPLOYMENT
+- Security testing.
+- Accessibility testing.
+- End-to-end testing.
+- Backups.
+- Monitoring.
+- PWA installation.
+- Controlled pilot.
+
+These phases are a dependency-aware plan, not permission to ignore features that are scheduled for later.
+
+==================================================
+35. REQUIRED ACTION FOR THE CURRENT TASK
+==================================================
+
+The immediate task is to establish the intended visual quality and structural UI.
+
+Do not attempt to implement every backend feature during this visual redesign.
+
+Instead:
+
+1. Inspect the current project.
+2. Identify the current page structure and working interactions.
+3. Establish a consistent design system.
+4. Redesign the patient dashboard to reproduce the second reference's layout principles.
+5. Redesign practitioner and administration dashboards to reproduce the first reference's layout principles.
+6. Improve the public homepage, clinic finder, clinic details, registration and sign-in.
+7. Preserve existing functionality.
+8. Add or update the feature checklist.
+9. Run available build and TypeScript checks.
+10. Fix errors introduced by the redesign.
+11. Inspect and correct responsive layout problems.
+12. Report the exact work completed.
+
+The patient dashboard and professional dashboard layouts must be structurally different where their purposes differ.
+
+Do not stop after adjusting colours, fonts or border radii.
+
+The result must reflect the reference images' layout, information hierarchy, card proportions, icon grid and navigation model.
+
+==================================================
+36. FINAL ACCEPTANCE CRITERIA
+==================================================
+
+The current visual redesign is acceptable only when:
+
+- The patient dashboard resembles the mobile reference's welcoming panel and colourful service grid.
+- The service grid contains all specified patient functions.
+- The patient interface is readable and usable by senior citizens.
+- The practitioner dashboard has a professional sidebar and information-rich main workspace.
+- The administration dashboards have appropriate operational cards, lists and controls.
+- The public homepage is concise and is not confused with the signed-in dashboard.
+- The application has a consistent visual identity.
+- All existing working interactions are preserved.
+- No important page has been accidentally removed.
+- Responsive layouts are checked at mobile, tablet and desktop sizes.
+- Keyboard focus and accessible labels are present.
+- Build and TypeScript checks have been run where available.
+- Remaining limitations are reported honestly.
+
+The overall production platform is acceptable only when its required workflows have real persistence, secure backend enforcement, appropriate database relationships, error handling, tested integrations and documented operational procedures.
+
+A beautiful frontend alone does not satisfy the production acceptance criteria.
+
+==================================================
+37. EXECUTION PRINCIPLES
+==================================================
+
+Work carefully and intelligently.
+
+Inspect before editing.
+
+Plan dependencies before implementation.
+
+Prefer small, coherent changes over risky rewrites.
+
+Preserve existing work.
+
+Reuse components.
+
+Keep business logic separate from presentation.
+
+Validate data on the server.
+
+Enforce permissions on the server.
+
+Protect patient information.
+
+Test real workflows.
+
+Report uncertainty honestly.
+
+Do not invent completed integrations.
+
+Do not waste effort recreating existing working features.
+
+Do not omit a requirement without recording it.
+
+Do not ask the user to repeat the supplied specification.
+
+If the task exceeds what can safely be completed in one execution, complete the highest-priority current phase, preserve a clear record of remaining work and identify the exact next implementation step.
+
+FINAL INSTRUCTION:
+
+Build Saivibronics as a cohesive, senior-friendly, accessible, secure and maintainable healthcare platform.
+
+Treat the supplied reference images as the primary visual direction, the requirements in this document as the product specification, and verified behaviour rather than visual appearance as the standard of functionality.
+
+Start by inspecting the existing project and then implement the current visual redesign in place.

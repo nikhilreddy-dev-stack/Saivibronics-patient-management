@@ -26,7 +26,12 @@ import {
   Sun,
   Eye,
   Check,
-  ChevronRight
+  ChevronRight,
+  BookOpen,
+  Globe,
+  Sliders,
+  Languages,
+  Sparkles
 } from 'lucide-react';
 
 interface PatientDashboardPageProps {
@@ -57,6 +62,10 @@ export const PatientDashboardPage: React.FC<PatientDashboardPageProps> = ({
   const [actionFeedback, setActionFeedback] = useState<string | null>(null);
   const [showNotificationsModal, setShowNotificationsModal] = useState(false);
   const [showHelpModal, setShowHelpModal] = useState(false);
+  const [showHealthInfoModal, setShowHealthInfoModal] = useState(false);
+  const [showLanguageModal, setShowLanguageModal] = useState(false);
+  const [showAccessibilityModal, setShowAccessibilityModal] = useState(false);
+  const [selectedLanguage, setSelectedLanguage] = useState<'en' | 'kn' | 'hi'>('en');
 
   // Senior-Friendly Accessibility State
   const [textSize, setTextSize] = useState<'normal' | 'large' | 'xlarge'>('normal');
@@ -188,6 +197,36 @@ export const PatientDashboardPage: React.FC<PatientDashboardPageProps> = ({
       iconColor: 'text-rose-700',
       borderColor: 'border-rose-200',
       action: () => setShowHelpModal(true),
+    },
+    {
+      id: 'health-info',
+      title: 'Health Information',
+      desc: 'Holistic lifestyle guidance & remedy rules',
+      icon: BookOpen,
+      bgColor: 'bg-emerald-50',
+      iconColor: 'text-emerald-700',
+      borderColor: 'border-emerald-200',
+      action: () => setShowHealthInfoModal(true),
+    },
+    {
+      id: 'language',
+      title: 'Language',
+      desc: 'English, ಕನ್ನಡ (Kannada), हिन्दी (Hindi)',
+      icon: Globe,
+      bgColor: 'bg-cyan-50',
+      iconColor: 'text-cyan-700',
+      borderColor: 'border-cyan-200',
+      action: () => setShowLanguageModal(true),
+    },
+    {
+      id: 'accessibility',
+      title: 'Accessibility',
+      desc: 'Text sizing, contrast & screen settings',
+      icon: Sliders,
+      bgColor: 'bg-purple-50',
+      iconColor: 'text-purple-700',
+      borderColor: 'border-purple-200',
+      action: () => setShowAccessibilityModal(true),
     },
   ];
 
@@ -476,18 +515,32 @@ export const PatientDashboardPage: React.FC<PatientDashboardPageProps> = ({
               </div>
             </div>
 
-            {/* 9 LARGE SERVICE CARDS (Design Reference 2: Grid of large distinct service icons) */}
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <h3 className={`${sizeClasses.title} font-extrabold text-slate-900`}>
-                  Patient Services & Care Features
-                </h3>
-                <span className={`${sizeClasses.small} text-slate-500 font-medium`}>
-                  Select any service card below
+            {/* 12 LARGE SERVICE CARDS (Design Reference B: Rich blue/cyan container hosting 12 white service cards with colorful icon containers) */}
+            <div
+              className={`rounded-3xl sm:rounded-[2.5rem] p-6 sm:p-8 transition-all shadow-md ${
+                highContrast
+                  ? 'bg-neutral-900 border-2 border-neutral-700 text-white'
+                  : 'bg-linear-to-br from-[#123A63] via-[#1976D2] to-[#0F5A8F] text-white border border-teal-500/20'
+              }`}
+            >
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-6 border-b border-white/20 mb-6">
+                <div>
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="px-3 py-1 rounded-full text-xs font-extrabold uppercase tracking-wider bg-teal-400/25 text-teal-100 border border-teal-300/40">
+                      Complete Care Services
+                    </span>
+                    <span className="text-xs text-teal-100/90 font-semibold">12 Core Touchpoints</span>
+                  </div>
+                  <h3 className={`${sizeClasses.title} font-extrabold text-white tracking-tight`}>
+                    Patient Care & Self-Service Portal
+                  </h3>
+                </div>
+                <span className={`${sizeClasses.small} text-teal-100 font-medium`}>
+                  Touch or click any service card to view details
                 </span>
               </div>
 
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
                 {serviceCards.map((service) => {
                   const IconComponent = service.icon;
                   return (
@@ -495,15 +548,15 @@ export const PatientDashboardPage: React.FC<PatientDashboardPageProps> = ({
                       key={service.id}
                       type="button"
                       onClick={service.action}
-                      className={`p-5 sm:p-6 rounded-3xl border text-left transition-all hover:scale-[1.02] hover:shadow-md cursor-pointer flex flex-col justify-between min-h-[140px] sm:min-h-[170px] relative group ${
+                      className={`p-5 sm:p-6 rounded-2xl sm:rounded-3xl text-left transition-all hover:scale-[1.03] active:scale-95 hover:shadow-xl cursor-pointer flex flex-col justify-between min-h-[155px] sm:min-h-[175px] relative group ${
                         highContrast
-                          ? 'bg-neutral-900 border-neutral-700 text-white hover:border-yellow-400'
-                          : 'bg-white border-slate-200 hover:border-teal-400 shadow-2xs'
+                          ? 'bg-neutral-800 border-2 border-neutral-600 text-white hover:border-yellow-400'
+                          : 'bg-white text-slate-900 border border-white shadow-sm hover:border-teal-300'
                       }`}
                       aria-label={`${service.title}: ${service.desc}`}
                     >
                       {service.badge && (
-                        <span className="absolute top-4 right-4 px-2 py-0.5 rounded-full text-xs font-bold bg-sky-100 text-sky-800 border border-sky-300">
+                        <span className="absolute top-3.5 right-3.5 px-2.5 py-0.5 rounded-full text-xs font-extrabold bg-sky-100 text-sky-800 border border-sky-300 shadow-2xs">
                           {service.badge}
                         </span>
                       )}
@@ -517,7 +570,7 @@ export const PatientDashboardPage: React.FC<PatientDashboardPageProps> = ({
                         </div>
 
                         <div>
-                          <h4 className="text-base sm:text-lg font-bold text-slate-900 group-hover:text-teal-800 transition-colors">
+                          <h4 className="text-base sm:text-lg font-extrabold text-slate-900 group-hover:text-teal-800 transition-colors line-clamp-1">
                             {service.title}
                           </h4>
                           <p className="text-xs sm:text-sm text-slate-500 mt-1 line-clamp-2 leading-relaxed">
@@ -526,8 +579,8 @@ export const PatientDashboardPage: React.FC<PatientDashboardPageProps> = ({
                         </div>
                       </div>
 
-                      <div className="pt-2 flex items-center gap-1 text-xs font-bold text-teal-700 group-hover:text-teal-900">
-                        <span>Open</span>
+                      <div className="pt-3 flex items-center justify-between text-xs font-bold text-teal-700 group-hover:text-teal-900 border-t border-slate-100 mt-2">
+                        <span>Access</span>
                         <ChevronRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
                       </div>
                     </button>
@@ -1062,9 +1115,242 @@ export const PatientDashboardPage: React.FC<PatientDashboardPageProps> = ({
             <button
               type="button"
               onClick={() => setShowHelpModal(false)}
-              className="w-full py-3 bg-teal-700 text-white font-bold rounded-2xl text-sm min-h-[48px]"
+              className="w-full py-3 bg-teal-700 text-white font-bold rounded-2xl text-sm min-h-[48px] hover:bg-teal-800 transition-colors cursor-pointer"
             >
               Close Help Window
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Health Information & Vibronics Guidance Modal */}
+      {showHealthInfoModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs">
+          <div className="w-full max-w-xl max-h-[90vh] overflow-y-auto rounded-3xl bg-white p-6 sm:p-8 shadow-2xl border border-slate-200 space-y-5">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+              <div className="flex items-center gap-2.5">
+                <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center border border-emerald-200">
+                  <BookOpen className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold text-slate-900">Health Information & Seva Advice</h3>
+                  <p className="text-xs text-slate-500">Holistic Sai Vibronics 108 Patient Guidelines</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowHealthInfoModal(false)}
+                className="text-slate-400 hover:text-slate-700 p-2 min-h-[44px] min-w-[44px] cursor-pointer"
+                aria-label="Close modal"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="space-y-4 text-sm text-slate-700 leading-relaxed">
+              <div className="p-4 bg-emerald-50/80 rounded-2xl border border-emerald-200">
+                <h4 className="font-bold text-emerald-950 flex items-center gap-2">
+                  <Sparkles className="w-4 h-4 text-emerald-700" />
+                  <span>How to Ingest Vibronics Remedies (Globules)</span>
+                </h4>
+                <ul className="mt-2 space-y-1.5 list-disc list-inside text-xs sm:text-sm text-emerald-900">
+                  <li>Place <strong>3 sugar globules</strong> directly on or under a clean tongue.</li>
+                  <li>Do not touch the globules with bare fingers; tip them directly from the vial cap.</li>
+                  <li>Allow globules to dissolve naturally without chewing or drinking water immediately.</li>
+                </ul>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs sm:text-sm">
+                <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200 space-y-1">
+                  <strong className="text-slate-900 block font-bold">Mouth Cleanliness Gap</strong>
+                  <p className="text-slate-600">
+                    Maintain a 15–20 minute gap before and after taking remedies from food, coffee, tea, or brushing teeth.
+                  </p>
+                </div>
+                <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200 space-y-1">
+                  <strong className="text-slate-900 block font-bold">Storage & Preservation</strong>
+                  <p className="text-slate-600">
+                    Store vials away from mobile phones, microwave ovens, direct midday sunlight, and camphor/menthol aromas.
+                  </p>
+                </div>
+              </div>
+
+              <div className="p-4 bg-amber-50 rounded-2xl border border-amber-200 text-xs sm:text-sm text-amber-950">
+                <strong className="font-bold block mb-1">Clinical Safety & Complementary Seva:</strong>
+                Sai Vibronics is a gentle holistic discipline offered purely as selfless seva. It is non-invasive and complementary. 
+                <strong> Never stop or alter doctor-prescribed medications (e.g. cardiac, diabetes, or hypertension allopathic prescriptions)</strong> without direct authorization from your licensed physician.
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setShowHealthInfoModal(false)}
+              className="w-full py-3.5 bg-teal-700 text-white font-bold rounded-2xl text-sm min-h-[48px] hover:bg-teal-800 transition-colors cursor-pointer"
+            >
+              Understood and Close
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Language Preferences Modal */}
+      {showLanguageModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs">
+          <div className="w-full max-w-md rounded-3xl bg-white p-6 sm:p-7 shadow-2xl border border-slate-200 space-y-5">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <div className="flex items-center gap-2.5">
+                <div className="w-10 h-10 rounded-xl bg-cyan-50 text-cyan-700 flex items-center justify-center border border-cyan-200">
+                  <Globe className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-slate-900">Language Preferences</h3>
+                  <p className="text-xs text-slate-500">ಭಾಷೆಯನ್ನು ಆಯ್ಕೆಮಾಡಿ / भाषा का चयन करें</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowLanguageModal(false)}
+                className="text-slate-400 hover:text-slate-700 p-2 min-h-[44px] min-w-[44px] cursor-pointer"
+                aria-label="Close modal"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="space-y-3">
+              {[
+                { code: 'en', name: 'English', native: 'English', note: 'Primary clinical language' },
+                { code: 'kn', name: 'Kannada', native: 'ಕನ್ನಡ', note: 'ಕರ್ನಾಟಕ ಅಧಿಕೃತ ಭಾಷೆ (Bengaluru Pilot)' },
+                { code: 'hi', name: 'Hindi', native: 'हिन्दी', note: 'राष्ट्रभाषा (All-India Seva)' },
+              ].map((lang) => (
+                <button
+                  key={lang.code}
+                  type="button"
+                  onClick={() => {
+                    setSelectedLanguage(lang.code as 'en' | 'kn' | 'hi');
+                    setActionFeedback(`Language preference set to ${lang.name} (${lang.native})`);
+                    setShowLanguageModal(false);
+                    setTimeout(() => setActionFeedback(null), 3000);
+                  }}
+                  className={`w-full p-4 rounded-2xl border text-left transition-all flex items-center justify-between cursor-pointer min-h-[56px] ${
+                    selectedLanguage === lang.code
+                      ? 'bg-teal-50/80 border-teal-400 ring-2 ring-teal-200 shadow-2xs'
+                      : 'bg-white border-slate-200 hover:bg-slate-50'
+                  }`}
+                >
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="font-extrabold text-slate-900 text-base">{lang.name}</span>
+                      <span className="text-sm font-bold text-teal-800">({lang.native})</span>
+                    </div>
+                    <span className="text-xs text-slate-500">{lang.note}</span>
+                  </div>
+                  {selectedLanguage === lang.code && (
+                    <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-teal-700 text-white flex items-center gap-1">
+                      <Check className="w-3.5 h-3.5" />
+                      <span>Active</span>
+                    </span>
+                  )}
+                </button>
+              ))}
+            </div>
+
+            <p className="text-xs text-slate-500 text-center">
+              Demonstration localized terms for Padmanabhanagar seva desk will apply.
+            </p>
+
+            <button
+              type="button"
+              onClick={() => setShowLanguageModal(false)}
+              className="w-full py-3 bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold rounded-2xl text-sm min-h-[48px] cursor-pointer"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Accessibility Settings Modal */}
+      {showAccessibilityModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs">
+          <div className="w-full max-w-lg rounded-3xl bg-white p-6 sm:p-7 shadow-2xl border border-slate-200 space-y-5">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <div className="flex items-center gap-2.5">
+                <div className="w-10 h-10 rounded-xl bg-purple-50 text-purple-700 flex items-center justify-center border border-purple-200">
+                  <Sliders className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-slate-900">Accessibility Settings</h3>
+                  <p className="text-xs text-slate-500">Tailored for seniors and low-vision ease</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowAccessibilityModal(false)}
+                className="text-slate-400 hover:text-slate-700 p-2 min-h-[44px] min-w-[44px] cursor-pointer"
+                aria-label="Close modal"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="space-y-4 text-sm text-slate-700">
+              {/* Text Sizing */}
+              <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200 space-y-2">
+                <span className="font-bold text-slate-900 block">Font Scaling (WCAG AAA)</span>
+                <p className="text-xs text-slate-500">Increases base font size from 16px to 20px+ across all patient screens.</p>
+                <div className="flex items-center gap-2 pt-1">
+                  {(['normal', 'large', 'xlarge'] as const).map((sz) => (
+                    <button
+                      key={sz}
+                      type="button"
+                      onClick={() => setTextSize(sz)}
+                      className={`flex-1 py-2.5 rounded-xl text-sm font-bold border transition-colors cursor-pointer min-h-[44px] ${
+                        textSize === sz
+                          ? 'bg-teal-700 text-white border-teal-800 shadow-2xs'
+                          : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-100'
+                      }`}
+                    >
+                      {sz === 'normal' ? 'Normal (A)' : sz === 'large' ? 'Large (A+)' : 'Extra Large (A++)'}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* High Contrast Mode */}
+              <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200 flex items-center justify-between gap-4">
+                <div>
+                  <span className="font-bold text-slate-900 block">High Contrast Mode</span>
+                  <p className="text-xs text-slate-500">Switches to pure black background with stark yellow and white elements.</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setHighContrast(!highContrast)}
+                  className={`px-4 py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider transition-colors cursor-pointer min-h-[44px] border ${
+                    highContrast
+                      ? 'bg-yellow-400 text-black border-yellow-500 shadow-2xs'
+                      : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-100'
+                  }`}
+                >
+                  {highContrast ? 'Enabled' : 'Disabled'}
+                </button>
+              </div>
+
+              {/* Touch Target Notice */}
+              <div className="p-4 bg-teal-50/70 rounded-2xl border border-teal-200 text-xs text-teal-950 flex items-start gap-2.5">
+                <CheckCircle className="w-4 h-4 text-teal-700 shrink-0 mt-0.5" />
+                <span>
+                  <strong>Touch Safety Active:</strong> All interactive buttons and service cards maintain a minimum 48x48 CSS pixel touch target with high contrast outlines.
+                </span>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setShowAccessibilityModal(false)}
+              className="w-full py-3.5 bg-teal-700 hover:bg-teal-800 text-white font-bold rounded-2xl text-sm min-h-[48px] transition-colors cursor-pointer"
+            >
+              Save Settings & Return
             </button>
           </div>
         </div>
