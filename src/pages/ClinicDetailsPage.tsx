@@ -13,7 +13,8 @@ import {
   Accessibility,
   Check,
   X,
-  Sparkles
+  Sparkles,
+  Stethoscope
 } from 'lucide-react';
 
 interface ClinicDetailsPageProps {
@@ -82,115 +83,117 @@ export const ClinicDetailsPage: React.FC<ClinicDetailsPageProps> = ({
       <div className="flex items-center justify-between">
         <button
           onClick={() => onNavigate('find-clinic')}
-          className="inline-flex items-center gap-2 text-xs font-semibold text-teal-800 hover:text-teal-950 transition-colors cursor-pointer"
+          className="inline-flex items-center gap-2 text-sm sm:text-base font-bold text-teal-800 hover:text-teal-950 transition-colors cursor-pointer min-h-[44px]"
         >
-          <ArrowLeft className="w-4 h-4" />
+          <ArrowLeft className="w-5 h-5" />
           <span>Back to All Clinics</span>
         </button>
 
-        <div className="text-xs text-slate-500">
-          Clinic ID: <span className="font-mono text-slate-800">{clinic.code}</span>
+        <div className="text-sm text-slate-500 font-medium">
+          Clinic ID: <span className="font-mono font-bold text-slate-900">{clinic.code}</span>
         </div>
       </div>
 
       {/* Main Clinic Profile Card */}
       <div className="bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-xs">
         {/* Banner with Image */}
-        <div className="relative h-64 sm:h-80 bg-slate-100">
+        <div className="relative h-72 sm:h-96 bg-slate-100">
           <img
             src={clinic.image}
             alt={clinic.name}
             referrerPolicy="no-referrer"
             className="w-full h-full object-cover"
           />
-          <div className="absolute inset-0 bg-linear-to-t from-slate-950/80 via-slate-950/30 to-transparent flex flex-col justify-end p-6 sm:p-8 text-white">
+          <div className="absolute inset-0 bg-linear-to-t from-slate-950/85 via-slate-950/30 to-transparent flex flex-col justify-end p-6 sm:p-10 text-white">
             <div className="flex flex-wrap items-center gap-2 mb-2">
-              <span className="bg-teal-600 text-white font-bold px-2.5 py-0.5 rounded-full text-xs">
+              <span className="bg-teal-600 text-white font-bold px-3 py-1 rounded-full text-xs uppercase tracking-wider">
                 {clinic.status}
               </span>
               {clinic.isPilotCenter && (
-                <span className="bg-amber-500 text-slate-950 font-bold px-2.5 py-0.5 rounded-full text-xs">
-                  Pilot Center
+                <span className="bg-amber-500 text-slate-950 font-bold px-3 py-1 rounded-full text-xs uppercase tracking-wider">
+                  Pilot Headquarters
                 </span>
               )}
             </div>
-            <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight">
               {clinic.name}
             </h1>
-            <p className="text-xs sm:text-sm text-slate-200 mt-1">
+            <p className="text-sm sm:text-base text-slate-200 mt-1 max-w-2xl">
               {clinic.address}
             </p>
           </div>
         </div>
 
-        {/* Clinic Content & CTAs */}
-        <div className="p-6 sm:p-8 space-y-8">
+        {/* Content & CTAs */}
+        <div className="p-6 sm:p-10 space-y-8">
           {/* Quick Info Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-teal-50/50 rounded-2xl border border-teal-100 text-xs text-slate-700">
-            <div className="flex items-start gap-2.5">
-              <Clock className="w-4 h-4 text-teal-700 shrink-0 mt-0.5" />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5 p-5 bg-teal-50/60 rounded-3xl border border-teal-100 text-slate-800">
+            <div className="flex items-start gap-3">
+              <Clock className="w-6 h-6 text-teal-700 shrink-0 mt-0.5" />
               <div>
-                <span className="font-bold text-slate-900 block">Operating Timings</span>
-                <span>{clinic.operatingHours}</span>
+                <span className="font-bold text-slate-900 block text-base">Operating Timings</span>
+                <span className="text-sm text-slate-600">{clinic.operatingHours}</span>
               </div>
             </div>
 
-            <div className="flex items-start gap-2.5">
-              <Phone className="w-4 h-4 text-teal-700 shrink-0 mt-0.5" />
+            <div className="flex items-start gap-3">
+              <Phone className="w-6 h-6 text-teal-700 shrink-0 mt-0.5" />
               <div>
-                <span className="font-bold text-slate-900 block">Helpline / Reception</span>
-                <span>{clinic.phone}</span>
+                <span className="font-bold text-slate-900 block text-base">Helpline / Reception</span>
+                <span className="text-sm text-slate-600">{clinic.phone}</span>
               </div>
             </div>
 
-            <div className="flex items-start gap-2.5">
-              <Accessibility className="w-4 h-4 text-teal-700 shrink-0 mt-0.5" />
+            <div className="flex items-start gap-3">
+              <Accessibility className="w-6 h-6 text-teal-700 shrink-0 mt-0.5" />
               <div>
-                <span className="font-bold text-slate-900 block">Senior Accessibility</span>
-                <span>{clinic.seniorAccessible ? 'Wheelchair ramp & priority assistance available' : 'Standard ground floor access'}</span>
+                <span className="font-bold text-slate-900 block text-base">Senior Accessibility</span>
+                <span className="text-sm text-slate-600">
+                  {clinic.seniorAccessible ? 'Wheelchair ramp & senior priority queue' : 'Ground floor access'}
+                </span>
               </div>
             </div>
           </div>
 
-          {/* Demonstration Notice */}
-          <div className="p-3.5 bg-amber-50 rounded-xl border border-amber-200 text-xs text-amber-900 flex items-start gap-2.5">
-            <ShieldAlert className="w-4 h-4 text-amber-700 shrink-0 mt-0.5" />
-            <div>
-              <strong>Demonstration Clinic Profile:</strong> Timings, practitioner rosters, and addresses are fictionalized for the Padmanabhanagar academic pilot.
+          {/* Prototype Demonstration Alert */}
+          <div className="p-4 bg-amber-50 rounded-2xl border border-amber-200 text-xs sm:text-sm text-amber-950 flex items-start gap-3">
+            <ShieldAlert className="w-5 h-5 text-amber-700 shrink-0 mt-0.5" />
+            <div className="leading-relaxed">
+              <strong>Demonstration Clinic Profile:</strong> Roster schedules and addresses reflect realistic fictional data for the Padmanabhanagar pilot.
             </div>
           </div>
 
-          {/* Book Appointment CTA Box */}
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-5 bg-teal-700 text-white rounded-2xl">
-            <div>
-              <h2 className="text-base font-bold">Ready to schedule a holistic consultation?</h2>
-              <p className="text-xs text-teal-100 mt-0.5">
+          {/* Large Booking CTA Card */}
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-6 p-6 sm:p-8 bg-teal-700 text-white rounded-3xl shadow-sm">
+            <div className="space-y-1">
+              <h2 className="text-xl sm:text-2xl font-extrabold">Ready to schedule a consultation?</h2>
+              <p className="text-sm sm:text-base text-teal-100">
                 Book a demonstration time token for Dr. K. S. Ramesh or Smt. Radha Murthy.
               </p>
             </div>
             <button
               onClick={() => setShowBookingModal(true)}
-              className="w-full sm:w-auto px-6 py-3 bg-white text-teal-900 hover:bg-teal-50 font-bold rounded-xl text-xs transition-colors shadow-xs shrink-0 cursor-pointer"
+              className="w-full sm:w-auto px-8 py-4 bg-white text-teal-900 hover:bg-teal-50 font-extrabold rounded-2xl text-base transition-colors shadow-xs shrink-0 cursor-pointer min-h-[50px]"
             >
               Book Appointment Token
             </button>
           </div>
 
           {/* Two-Column Details */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
             {/* Left: Services and Facilities */}
-            <div className="lg:col-span-7 space-y-6">
+            <div className="lg:col-span-7 space-y-8">
               <div>
-                <h3 className="text-base font-bold text-slate-900 mb-3">
+                <h3 className="text-lg sm:text-xl font-bold text-slate-900 mb-4">
                   Offered Seva Services & Specialties
                 </h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   {clinic.specialties.map((spec) => (
                     <div
                       key={spec}
-                      className="flex items-center gap-2 p-2.5 bg-slate-50 rounded-xl border border-slate-200/80 text-slate-800"
+                      className="flex items-center gap-3 p-3.5 bg-slate-50 rounded-2xl border border-slate-200 text-slate-800 text-sm font-semibold"
                     >
-                      <CheckCircle2 className="w-4 h-4 text-teal-600 shrink-0" />
+                      <CheckCircle2 className="w-5 h-5 text-teal-600 shrink-0" />
                       <span>{spec}</span>
                     </div>
                   ))}
@@ -198,16 +201,16 @@ export const ClinicDetailsPage: React.FC<ClinicDetailsPageProps> = ({
               </div>
 
               <div>
-                <h3 className="text-base font-bold text-slate-900 mb-3">
+                <h3 className="text-lg sm:text-xl font-bold text-slate-900 mb-4">
                   Clinic Facilities & Support
                 </h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   {clinic.facilities.map((fac) => (
                     <div
                       key={fac}
-                      className="flex items-center gap-2 p-2.5 bg-slate-50 rounded-xl border border-slate-200/80 text-slate-800"
+                      className="flex items-center gap-3 p-3.5 bg-slate-50 rounded-2xl border border-slate-200 text-slate-800 text-sm font-semibold"
                     >
-                      <Heart className="w-4 h-4 text-teal-600 shrink-0" />
+                      <Heart className="w-5 h-5 text-teal-600 shrink-0" />
                       <span>{fac}</span>
                     </div>
                   ))}
@@ -217,28 +220,28 @@ export const ClinicDetailsPage: React.FC<ClinicDetailsPageProps> = ({
 
             {/* Right: Practitioners on Duty */}
             <div className="lg:col-span-5 space-y-4">
-              <h3 className="text-base font-bold text-slate-900">
+              <h3 className="text-lg sm:text-xl font-bold text-slate-900">
                 Practitioners at this Seva Center
               </h3>
 
-              <div className="space-y-3">
+              <div className="space-y-4">
                 {practitioners.map((prac) => (
                   <div
                     key={prac.id}
-                    className="p-4 bg-slate-50 rounded-2xl border border-slate-200 text-xs space-y-1.5"
+                    className="p-5 bg-slate-50 rounded-2xl border border-slate-200 text-sm space-y-2"
                   >
                     <div className="flex items-center justify-between">
-                      <span className="font-bold text-slate-900 text-sm">{prac.name}</span>
-                      <span className="text-[11px] font-semibold text-teal-700 bg-teal-50 px-2 py-0.5 rounded border border-teal-200">
+                      <span className="font-bold text-slate-900 text-base">{prac.name}</span>
+                      <span className="text-xs font-bold text-teal-800 bg-teal-50 px-2.5 py-1 rounded-lg border border-teal-200">
                         {prac.experienceYears} yrs seva
                       </span>
                     </div>
                     <p className="text-slate-600">{prac.title}</p>
-                    <p className="text-slate-500 text-[11px]">
+                    <p className="text-xs text-slate-500">
                       <strong>Focus:</strong> {prac.specialization}
                     </p>
-                    <div className="pt-1 text-[11px] text-teal-800">
-                      <strong>Hours:</strong> {prac.timing}
+                    <div className="pt-1 text-xs text-teal-800 font-bold">
+                      <strong>Consultation Hours:</strong> {prac.timing}
                     </div>
                   </div>
                 ))}
@@ -248,36 +251,36 @@ export const ClinicDetailsPage: React.FC<ClinicDetailsPageProps> = ({
         </div>
       </div>
 
-      {/* Interactive Booking Modal */}
+      {/* Booking Modal with Accessible Form Fields */}
       {showBookingModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs overflow-y-auto">
-          <div className="w-full max-w-lg rounded-2xl bg-white p-6 sm:p-7 shadow-2xl border border-slate-200 my-8">
+          <div className="w-full max-w-lg rounded-3xl bg-white p-6 sm:p-8 shadow-2xl border border-slate-200 my-8">
             {!bookingSuccessToken ? (
-              <form onSubmit={handleBookingSubmit} className="space-y-4 text-xs">
-                <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-                  <div className="flex items-center gap-2">
-                    <Calendar className="w-5 h-5 text-teal-700" />
-                    <h3 className="text-base font-bold text-slate-900">
-                      Book Demonstration Consultation
+              <form onSubmit={handleBookingSubmit} className="space-y-5 text-sm">
+                <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+                  <div className="flex items-center gap-3">
+                    <Calendar className="w-6 h-6 text-teal-700" />
+                    <h3 className="text-lg sm:text-xl font-bold text-slate-900">
+                      Book Consultation Token
                     </h3>
                   </div>
                   <button
                     type="button"
                     onClick={closeBookingFlow}
-                    className="text-slate-400 hover:text-slate-700 p-1 rounded-lg cursor-pointer"
+                    className="text-slate-400 hover:text-slate-700 p-2 min-h-[44px] min-w-[44px]"
                   >
-                    <X className="w-5 h-5" />
+                    <X className="w-6 h-6" />
                   </button>
                 </div>
 
-                <div className="p-3 bg-teal-50 rounded-xl text-teal-900 border border-teal-200">
-                  <p className="font-semibold text-slate-900">{clinic.name}</p>
-                  <p className="text-[11px] text-teal-700">Padmanabhanagar, Bengaluru</p>
+                <div className="p-4 bg-teal-50 rounded-2xl text-teal-950 border border-teal-200">
+                  <p className="font-bold text-base text-slate-900">{clinic.name}</p>
+                  <p className="text-xs text-teal-700 mt-0.5">Padmanabhanagar, Bengaluru</p>
                 </div>
 
                 {/* Patient Name */}
                 <div>
-                  <label className="block font-semibold text-slate-700 mb-1">
+                  <label className="block font-bold text-slate-800 mb-1.5">
                     Patient Full Name
                   </label>
                   <input
@@ -285,13 +288,13 @@ export const ClinicDetailsPage: React.FC<ClinicDetailsPageProps> = ({
                     required
                     value={patientName}
                     onChange={(e) => setPatientName(e.target.value)}
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-teal-600 focus:bg-white text-slate-900"
+                    className="w-full px-4 py-3 bg-slate-50 border border-slate-300 rounded-2xl text-base focus:ring-2 focus:ring-teal-600 focus:bg-white text-slate-900 min-h-[48px]"
                   />
                 </div>
 
-                {/* Patient Mobile */}
+                {/* Mobile */}
                 <div>
-                  <label className="block font-semibold text-slate-700 mb-1">
+                  <label className="block font-bold text-slate-800 mb-1.5">
                     Contact Mobile Number (Demo)
                   </label>
                   <input
@@ -300,19 +303,19 @@ export const ClinicDetailsPage: React.FC<ClinicDetailsPageProps> = ({
                     value={patientPhone}
                     onChange={(e) => setPatientPhone(e.target.value)}
                     placeholder="10-digit mobile number"
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-teal-600 focus:bg-white text-slate-900"
+                    className="w-full px-4 py-3 bg-slate-50 border border-slate-300 rounded-2xl text-base focus:ring-2 focus:ring-teal-600 focus:bg-white text-slate-900 min-h-[48px]"
                   />
                 </div>
 
-                {/* Practitioner Select */}
+                {/* Practitioner */}
                 <div>
-                  <label className="block font-semibold text-slate-700 mb-1">
+                  <label className="block font-bold text-slate-800 mb-1.5">
                     Preferred Certified Practitioner
                   </label>
                   <select
                     value={selectedPractitioner}
                     onChange={(e) => setSelectedPractitioner(e.target.value)}
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-teal-600 focus:bg-white text-slate-900 cursor-pointer"
+                    className="w-full px-4 py-3 bg-slate-50 border border-slate-300 rounded-2xl text-sm focus:ring-2 focus:ring-teal-600 focus:bg-white text-slate-900 cursor-pointer min-h-[48px]"
                   >
                     {practitioners.map((p) => (
                       <option key={p.id} value={p.name}>
@@ -322,10 +325,10 @@ export const ClinicDetailsPage: React.FC<ClinicDetailsPageProps> = ({
                   </select>
                 </div>
 
-                {/* Date and Time Slot */}
-                <div className="grid grid-cols-2 gap-3">
+                {/* Date & Time */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block font-semibold text-slate-700 mb-1">
+                    <label className="block font-bold text-slate-800 mb-1.5">
                       Consultation Date
                     </label>
                     <input
@@ -333,17 +336,17 @@ export const ClinicDetailsPage: React.FC<ClinicDetailsPageProps> = ({
                       required
                       value={selectedDate}
                       onChange={(e) => setSelectedDate(e.target.value)}
-                      className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-teal-600 focus:bg-white text-slate-900"
+                      className="w-full px-4 py-3 bg-slate-50 border border-slate-300 rounded-2xl text-sm focus:ring-2 focus:ring-teal-600 focus:bg-white text-slate-900 min-h-[48px]"
                     />
                   </div>
                   <div>
-                    <label className="block font-semibold text-slate-700 mb-1">
+                    <label className="block font-bold text-slate-800 mb-1.5">
                       Time Slot
                     </label>
                     <select
                       value={selectedTimeSlot}
                       onChange={(e) => setSelectedTimeSlot(e.target.value)}
-                      className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-teal-600 focus:bg-white text-slate-900 cursor-pointer"
+                      className="w-full px-4 py-3 bg-slate-50 border border-slate-300 rounded-2xl text-sm focus:ring-2 focus:ring-teal-600 focus:bg-white text-slate-900 cursor-pointer min-h-[48px]"
                     >
                       {availableSlots.map((slot) => (
                         <option key={slot} value={slot}>
@@ -354,74 +357,66 @@ export const ClinicDetailsPage: React.FC<ClinicDetailsPageProps> = ({
                   </div>
                 </div>
 
-                {/* Reason for visit */}
+                {/* Reason */}
                 <div>
-                  <label className="block font-semibold text-slate-700 mb-1">
-                    Reason for Consultation / Symptoms
+                  <label className="block font-bold text-slate-800 mb-1.5">
+                    Reason for Consultation / Health Concerns
                   </label>
                   <textarea
                     rows={2}
                     value={reasonForVisit}
                     onChange={(e) => setReasonForVisit(e.target.value)}
                     placeholder="Briefly describe health concerns..."
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-teal-600 focus:bg-white text-slate-900"
+                    className="w-full px-4 py-3 bg-slate-50 border border-slate-300 rounded-2xl text-sm focus:ring-2 focus:ring-teal-600 focus:bg-white text-slate-900"
                   />
                 </div>
 
-                <div className="p-2.5 bg-amber-50 rounded-xl text-[11px] text-amber-900 border border-amber-200">
-                  <strong>Prototype notice:</strong> No real patient data is stored. Submitting adds this demonstration token to the local prototype session.
-                </div>
-
-                <div className="pt-3 border-t border-slate-100 flex items-center justify-end gap-2">
+                <div className="pt-3 border-t border-slate-100 flex items-center justify-end gap-3">
                   <button
                     type="button"
                     onClick={closeBookingFlow}
-                    className="px-4 py-2 text-xs font-medium text-slate-700 hover:bg-slate-100 rounded-xl transition-colors cursor-pointer"
+                    className="px-5 py-3 text-sm font-bold text-slate-700 hover:bg-slate-100 rounded-xl transition-colors cursor-pointer min-h-[48px]"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
-                    className="px-5 py-2 text-xs font-semibold text-white bg-teal-700 hover:bg-teal-800 rounded-xl transition-colors cursor-pointer"
+                    className="px-6 py-3 text-base font-bold text-white bg-teal-700 hover:bg-teal-800 rounded-2xl transition-colors cursor-pointer min-h-[48px]"
                   >
                     Confirm Demo Booking
                   </button>
                 </div>
               </form>
             ) : (
-              <div className="space-y-5 text-center py-2">
-                <div className="w-14 h-14 bg-teal-50 text-teal-700 rounded-2xl flex items-center justify-center mx-auto border border-teal-200">
-                  <Check className="w-7 h-7" />
+              <div className="space-y-6 text-center py-4">
+                <div className="w-16 h-16 bg-teal-50 text-teal-700 rounded-3xl flex items-center justify-center mx-auto border border-teal-200">
+                  <Check className="w-8 h-8" />
                 </div>
 
                 <div>
                   <span className="text-xs font-bold text-teal-700 uppercase tracking-wider">
                     Appointment Token Confirmed
                   </span>
-                  <h3 className="text-xl font-bold text-slate-900 mt-1">
+                  <h3 className="text-2xl font-extrabold text-slate-900 mt-1">
                     Token #{bookingSuccessToken.tokenNumber}
                   </h3>
-                  <p className="text-xs text-slate-600 mt-1">
+                  <p className="text-sm text-slate-600 mt-1">
                     Your consultation slot at {bookingSuccessToken.clinicName} has been recorded in the prototype session.
                   </p>
                 </div>
 
-                <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200 text-left text-xs space-y-2">
+                <div className="p-5 bg-slate-50 rounded-2xl border border-slate-200 text-left text-sm space-y-2.5">
                   <div className="flex justify-between">
                     <span className="text-slate-500">Patient:</span>
-                    <span className="font-semibold text-slate-900">{bookingSuccessToken.patientName}</span>
+                    <span className="font-bold text-slate-900">{bookingSuccessToken.patientName}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-slate-500">Practitioner:</span>
-                    <span className="font-semibold text-slate-900">{bookingSuccessToken.practitionerName}</span>
+                    <span className="font-bold text-slate-900">{bookingSuccessToken.practitionerName}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-slate-500">Date & Slot:</span>
-                    <span className="font-semibold text-slate-900">{bookingSuccessToken.date} · {bookingSuccessToken.timeSlot}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-slate-500">Status:</span>
-                    <span className="font-semibold text-teal-800">{bookingSuccessToken.status}</span>
+                    <span className="font-bold text-slate-900">{bookingSuccessToken.date} · {bookingSuccessToken.timeSlot}</span>
                   </div>
                 </div>
 
@@ -431,13 +426,13 @@ export const ClinicDetailsPage: React.FC<ClinicDetailsPageProps> = ({
                       closeBookingFlow();
                       onNavigate('patient-dashboard');
                     }}
-                    className="w-full sm:w-auto px-5 py-2.5 bg-teal-700 hover:bg-teal-800 text-white rounded-xl text-xs font-semibold transition-colors cursor-pointer"
+                    className="w-full sm:w-auto px-6 py-3.5 bg-teal-700 hover:bg-teal-800 text-white rounded-2xl text-sm font-bold min-h-[48px]"
                   >
                     View in Patient Dashboard Preview
                   </button>
                   <button
                     onClick={closeBookingFlow}
-                    className="w-full sm:w-auto px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-medium transition-colors cursor-pointer"
+                    className="w-full sm:w-auto px-5 py-3.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-2xl text-sm font-bold min-h-[48px]"
                   >
                     Done
                   </button>

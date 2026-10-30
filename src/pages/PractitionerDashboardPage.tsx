@@ -8,12 +8,18 @@ import {
   CheckCircle,
   FileEdit,
   ShieldAlert,
-  AlertTriangle,
   Plus,
   Trash2,
   Calendar,
   Save,
-  Check
+  Check,
+  Activity,
+  Users,
+  ChevronRight,
+  Droplet,
+  Search,
+  FileText,
+  AlertCircle
 } from 'lucide-react';
 
 interface PractitionerDashboardPageProps {
@@ -38,13 +44,19 @@ export const PractitionerDashboardPage: React.FC<PractitionerDashboardPageProps>
   const [dosageInstructions, setDosageInstructions] = useState('3 globules TDS (dry on clean tongue 15 mins before meals)');
   const [followUpDate, setFollowUpDate] = useState('2026-11-28');
   const [savedSuccessNotice, setSavedSuccessNotice] = useState(false);
+  const [activeTab, setActiveTab] = useState<'consultation' | 'queue' | 'remedies'>('consultation');
 
   const selectedApt = appointments.find((a) => a.id === selectedAppointmentId);
+
+  const completedCount = appointments.filter((a) => a.status === 'Completed').length;
+  const waitingCount = appointments.filter((a) => a.status === 'Waiting').length;
+  const inConsultationCount = appointments.filter((a) => a.status === 'In Consultation').length;
 
   const handleSelectPatient = (apt: Appointment) => {
     setSelectedAppointmentId(apt.id);
     setConsultationNotes(apt.notes || `Initial consultation for ${apt.patientName}.`);
     setSavedSuccessNotice(false);
+    setActiveTab('consultation');
   };
 
   const handleAddRemedy = () => {
@@ -82,110 +94,148 @@ export const PractitionerDashboardPage: React.FC<PractitionerDashboardPageProps>
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 space-y-8">
-      {/* Page Header */}
+      
+      {/* Top Header & Breadcrumb */}
       <div className="space-y-3">
-        <div className="flex items-center gap-2 text-xs text-slate-500">
-          <button onClick={() => onNavigate('home')} className="hover:text-teal-700">Home</button>
+        <div className="flex items-center gap-2 text-xs sm:text-sm text-slate-500 font-medium">
+          <button onClick={() => onNavigate('home')} className="hover:text-teal-700 cursor-pointer">
+            Home
+          </button>
           <span>/</span>
-          <span className="text-slate-900 font-medium">Practitioner Dashboard Preview</span>
+          <span className="text-slate-900 font-bold">Practitioner Clinical Console</span>
         </div>
 
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <div className="flex items-center gap-2 mb-1">
-              <span className="bg-teal-50 border border-teal-200 text-teal-800 text-[11px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">
+              <span className="bg-teal-50 border border-teal-200 text-teal-800 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
                 Certified Practitioner Console
               </span>
-              <span className="text-xs text-slate-500 font-medium">Padmanabhanagar Pilot Unit</span>
+              <span className="text-xs sm:text-sm text-slate-500 font-semibold">
+                Padmanabhanagar Pilot Headquarters
+              </span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
               Dr. K. S. Ramesh, BAMS, MD (Ayu)
             </h1>
-            <p className="text-xs sm:text-sm text-slate-600 mt-0.5">
-              Senior Sai Vibronics Practitioner & Seva Coordinator
+            <p className="text-sm text-slate-600 mt-0.5">
+              Senior Sai Vibronics Practitioner & Seva Coordinator · Room 01
             </p>
           </div>
 
-          <div className="flex items-center gap-2 text-xs bg-white px-3.5 py-2 rounded-xl border border-slate-200">
-            <Clock className="w-4 h-4 text-teal-700" />
-            <span className="text-slate-700">Today&apos;s Seva Queue: <strong className="text-slate-900 font-bold">{appointments.length} Patients</strong></span>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => onNavigate('clinic-admin-dashboard')}
+              className="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold rounded-xl text-xs sm:text-sm transition-colors cursor-pointer min-h-[44px]"
+            >
+              Switch to Clinic Admin
+            </button>
           </div>
         </div>
       </div>
 
+      {/* 4 Summary Healthcare KPI Cards (Design Reference 1: Desktop summary cards) */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="bg-white rounded-3xl border border-slate-200 p-5 space-y-1 shadow-2xs">
+          <span className="text-xs text-slate-500 font-bold uppercase tracking-wider block">Total Patients Today</span>
+          <div className="text-2xl sm:text-3xl font-extrabold text-slate-900 font-mono tabular-nums">{appointments.length}</div>
+          <span className="text-xs text-teal-700 font-bold">Scheduled queue</span>
+        </div>
+
+        <div className="bg-white rounded-3xl border border-slate-200 p-5 space-y-1 shadow-2xs">
+          <span className="text-xs text-slate-500 font-bold uppercase tracking-wider block">In Consultation</span>
+          <div className="text-2xl sm:text-3xl font-extrabold text-teal-700 font-mono tabular-nums">{inConsultationCount}</div>
+          <span className="text-xs text-slate-500">Active inside Room 01</span>
+        </div>
+
+        <div className="bg-white rounded-3xl border border-slate-200 p-5 space-y-1 shadow-2xs">
+          <span className="text-xs text-slate-500 font-bold uppercase tracking-wider block">Waiting in Hall</span>
+          <div className="text-2xl sm:text-3xl font-extrabold text-amber-700 font-mono tabular-nums">{waitingCount}</div>
+          <span className="text-xs text-amber-800 font-bold">Next in line</span>
+        </div>
+
+        <div className="bg-white rounded-3xl border border-slate-200 p-5 space-y-1 shadow-2xs">
+          <span className="text-xs text-slate-500 font-bold uppercase tracking-wider block">Completed Consultations</span>
+          <div className="text-2xl sm:text-3xl font-extrabold text-emerald-700 font-mono tabular-nums">{completedCount}</div>
+          <span className="text-xs text-emerald-800 font-bold">Remedies dispensed</span>
+        </div>
+      </div>
+
       {/* Safety Notice Banning Automated / AI Diagnosis */}
-      <div className="p-4 bg-amber-50 rounded-2xl border border-amber-200 text-xs text-amber-900 flex items-start gap-3">
+      <div className="p-4 bg-amber-50 rounded-2xl border border-amber-200 text-xs sm:text-sm text-amber-950 flex items-start gap-3">
         <ShieldAlert className="w-5 h-5 text-amber-700 shrink-0 mt-0.5" />
-        <div className="space-y-1">
+        <div className="space-y-1 leading-relaxed">
           <p className="font-bold text-amber-950">
             Clinical Safety & Prototype Boundary:
           </p>
-          <p className="text-amber-900/90 leading-relaxed">
+          <p>
             This prototype does <strong>not</strong> provide automated AI diagnosis, algorithmically generated prescription dosages, or machine treatment recommendations. All consultation notes and potentised Vibronics remedy selections are strictly manually logged demonstration records by human volunteer practitioners.
           </p>
         </div>
       </div>
 
       {savedSuccessNotice && (
-        <div className="p-3.5 bg-teal-50 border border-teal-200 rounded-xl text-xs text-teal-900 flex items-center gap-2">
-          <Check className="w-4 h-4 text-teal-600 shrink-0" />
-          <span>Consultation summary saved to session! Patient status updated to &ldquo;Completed&rdquo;.</span>
+        <div className="p-4 bg-teal-50 border border-teal-300 rounded-2xl text-sm text-teal-950 flex items-center gap-3 shadow-2xs">
+          <Check className="w-5 h-5 text-teal-600 shrink-0" />
+          <span className="font-bold">Consultation summary saved to session! Patient status updated to &ldquo;Completed&rdquo;.</span>
         </div>
       )}
 
-      {/* Two Column Layout: Patient Queue on Left, Consultation Desk on Right */}
+      {/* Two Column Layout: Patient Queue on Left, Clinical Workspace on Right */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-        {/* Left Column: Today's Queue */}
-        <div className="lg:col-span-5 bg-white rounded-2xl border border-slate-200 p-5 space-y-4 shadow-2xs">
+        
+        {/* Left Column: Today's Queue Sidebar */}
+        <div className="lg:col-span-5 bg-white rounded-3xl border border-slate-200 p-6 space-y-4 shadow-xs">
           <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-            <h2 className="text-sm font-bold text-slate-900">
-              Today&apos;s Patient Queue
+            <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
+              <Users className="w-5 h-5 text-teal-700" />
+              <span>Today&apos;s Seva Queue</span>
             </h2>
-            <span className="text-[11px] text-slate-500 font-mono">
-              Padmanabhanagar (Desk 01)
+            <span className="text-xs font-mono font-bold text-slate-500">
+              Desk 01 (Padmanabhanagar)
             </span>
           </div>
 
-          <div className="space-y-2.5">
+          <div className="space-y-3">
             {appointments.map((apt) => (
               <button
                 key={apt.id}
                 type="button"
                 onClick={() => handleSelectPatient(apt)}
-                className={`w-full text-left p-3.5 rounded-xl border transition-all cursor-pointer ${
+                className={`w-full text-left p-4 rounded-2xl border transition-all cursor-pointer min-h-[48px] ${
                   selectedAppointmentId === apt.id
-                    ? 'bg-teal-50/70 border-teal-400 ring-1 ring-teal-200'
+                    ? 'bg-teal-50 border-teal-500 ring-2 ring-teal-200'
                     : 'border-slate-200 hover:bg-slate-50'
                 }`}
               >
-                <div className="flex items-center justify-between mb-1">
+                <div className="flex items-center justify-between mb-1.5">
                   <div className="flex items-center gap-2">
-                    <span className="font-mono font-bold text-xs bg-slate-100 text-slate-800 px-2 py-0.5 rounded">
+                    <span className="font-mono font-bold text-xs bg-slate-100 text-slate-800 px-2.5 py-1 rounded-lg">
                       {apt.tokenNumber}
                     </span>
-                    <span className="text-xs font-bold text-slate-900">
+                    <span className="text-sm font-bold text-slate-900">
                       {apt.patientName}
                     </span>
                   </div>
                   <span
-                    className={`text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider ${
+                    className={`text-xs font-bold px-2.5 py-0.5 rounded-md uppercase tracking-wider ${
                       apt.status === 'In Consultation'
-                        ? 'bg-teal-600 text-white'
+                        ? 'bg-teal-700 text-white'
                         : apt.status === 'Completed'
                         ? 'bg-slate-100 text-slate-600'
-                        : 'bg-amber-100 text-amber-800'
+                        : 'bg-amber-100 text-amber-900'
                     }`}
                   >
                     {apt.status}
                   </span>
                 </div>
 
-                <div className="flex items-center justify-between text-[11px] text-slate-500 mt-1">
-                  <span>Slot: {apt.timeSlot}</span>
-                  <span className="font-mono text-[10px]">{apt.patientId}</span>
+                <div className="flex items-center justify-between text-xs text-slate-500 mt-1">
+                  <span>Slot: <strong className="text-slate-700">{apt.timeSlot}</strong></span>
+                  <span className="font-mono text-slate-400">{apt.patientId}</span>
                 </div>
 
-                <div className="text-[11px] text-slate-600 mt-1 truncate">
+                <div className="text-xs text-slate-600 mt-1.5 line-clamp-1">
                   Reason: {apt.reasonForVisit}
                 </div>
               </button>
@@ -193,70 +243,71 @@ export const PractitionerDashboardPage: React.FC<PractitionerDashboardPageProps>
           </div>
         </div>
 
-        {/* Right Column: Consultation Summary Interface */}
-        <div className="lg:col-span-7 bg-white rounded-2xl border border-slate-200 p-6 sm:p-7 space-y-6 shadow-2xs">
+        {/* Right Column: Clinical Consultation Workspace */}
+        <div className="lg:col-span-7 bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 space-y-6 shadow-xs">
           {selectedApt ? (
-            <form onSubmit={handleSaveConsultation} className="space-y-5 text-xs">
+            <form onSubmit={handleSaveConsultation} className="space-y-6 text-sm">
+              
               {/* Patient Banner */}
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-4 bg-slate-50 rounded-xl border border-slate-200">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-5 bg-teal-50/70 rounded-2xl border border-teal-200">
                 <div>
-                  <div className="flex items-center gap-2">
-                    <span className="font-mono font-bold text-teal-800 text-sm">
+                  <div className="flex items-center gap-2.5">
+                    <span className="font-mono font-bold text-teal-800 text-base bg-white px-2.5 py-1 rounded-lg border border-teal-200">
                       {selectedApt.tokenNumber}
                     </span>
-                    <h3 className="text-base font-bold text-slate-900">
+                    <h3 className="text-lg sm:text-xl font-bold text-slate-900">
                       {selectedApt.patientName}
                     </h3>
                   </div>
-                  <div className="text-[11px] text-slate-500 mt-0.5">
-                    Patient ID: <span className="font-mono">{selectedApt.patientId}</span> · Slot: {selectedApt.timeSlot}
+                  <div className="text-xs text-slate-600 mt-1">
+                    Card ID: <span className="font-mono font-semibold">{selectedApt.patientId}</span> · Slot: {selectedApt.timeSlot}
                   </div>
                 </div>
 
-                <div className="text-right sm:text-right">
-                  <span className="text-[11px] font-semibold text-teal-700 bg-teal-100/70 px-2 py-0.5 rounded">
-                    Current Status: {selectedApt.status}
+                <div>
+                  <span className="text-xs font-bold text-teal-900 bg-white px-3 py-1.5 rounded-xl border border-teal-200">
+                    Status: {selectedApt.status}
                   </span>
                 </div>
               </div>
 
-              {/* Stated Symptoms */}
+              {/* Patient Stated Concern */}
               <div>
-                <label className="block font-semibold text-slate-700 mb-1">
+                <label className="block font-bold text-slate-800 mb-1.5">
                   Patient Stated Concern / Reason for Visit
                 </label>
-                <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 text-slate-800">
+                <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200 text-slate-800 text-sm">
                   {selectedApt.reasonForVisit}
                 </div>
               </div>
 
-              {/* Consultation Evaluation Notes */}
+              {/* Practitioner Consultation Notes */}
               <div>
-                <label className="block font-semibold text-slate-700 mb-1">
-                  Practitioner Consultation & Assessment Notes
+                <label className="block font-bold text-slate-800 mb-1.5">
+                  Practitioner Clinical Assessment & Lifestyle Notes
                 </label>
                 <textarea
                   rows={4}
                   required
                   value={consultationNotes}
                   onChange={(e) => setConsultationNotes(e.target.value)}
-                  placeholder="Record patient pulse quality, tongue observation, digestion status, sleep habits..."
-                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-teal-600 focus:bg-white text-slate-900 leading-relaxed"
+                  placeholder="Record patient pulse observation, tongue diagnosis, digestion status, sleep habits..."
+                  className="w-full px-4 py-3 bg-slate-50 border border-slate-300 rounded-2xl text-sm focus:ring-2 focus:ring-teal-600 focus:bg-white text-slate-900 leading-relaxed"
                 />
               </div>
 
               {/* Vibronics Remedy Selector */}
               <div className="space-y-3">
-                <label className="block font-semibold text-slate-700">
+                <label className="block font-bold text-slate-800">
                   Prescribe Sai Vibronics Remedies (108 Common Combinations)
                 </label>
 
-                {/* Remedy addition row */}
+                {/* Add Remedy Row */}
                 <div className="flex items-center gap-2">
                   <select
                     value={remedyToAdd}
                     onChange={(e) => setRemedyToAdd(e.target.value)}
-                    className="flex-1 px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs text-slate-900 cursor-pointer"
+                    className="flex-1 px-4 py-3 bg-slate-50 border border-slate-300 rounded-2xl text-sm text-slate-900 cursor-pointer min-h-[48px]"
                   >
                     {VIBRONICS_REMEDIES.map((r) => (
                       <option key={r.code} value={r.code}>
@@ -267,35 +318,36 @@ export const PractitionerDashboardPage: React.FC<PractitionerDashboardPageProps>
                   <button
                     type="button"
                     onClick={handleAddRemedy}
-                    className="px-3 py-2 bg-teal-50 border border-teal-200 text-teal-800 hover:bg-teal-100 font-semibold rounded-xl text-xs transition-colors flex items-center gap-1 cursor-pointer"
+                    className="px-5 py-3 bg-teal-50 border border-teal-200 text-teal-800 hover:bg-teal-100 font-bold rounded-2xl text-sm transition-colors flex items-center gap-1.5 cursor-pointer min-h-[48px]"
                   >
-                    <Plus className="w-3.5 h-3.5" />
-                    <span>Add</span>
+                    <Plus className="w-4 h-4" />
+                    <span>Add Remedy</span>
                   </button>
                 </div>
 
-                {/* Selected remedies list */}
-                <div className="space-y-2">
+                {/* Selected Remedies List */}
+                <div className="space-y-2.5">
                   {selectedRemedyCodes.map((code) => {
                     const remedy = VIBRONICS_REMEDIES.find((r) => r.code === code);
                     return (
                       <div
                         key={code}
-                        className="flex items-center justify-between p-2.5 bg-teal-50/60 rounded-xl border border-teal-200/80 text-xs text-teal-950"
+                        className="flex items-center justify-between p-3.5 bg-teal-50/70 rounded-2xl border border-teal-200 text-teal-950"
                       >
                         <div>
-                          <strong className="font-mono text-teal-800">{code}</strong> ·{' '}
-                          <span className="font-medium">{remedy?.name || code}</span>
-                          <span className="text-[11px] text-slate-500 block">
+                          <strong className="font-mono text-teal-800 text-sm">{code}</strong> ·{' '}
+                          <span className="font-bold text-slate-900">{remedy?.name || code}</span>
+                          <span className="text-xs text-slate-500 block mt-0.5">
                             Indications: {remedy?.commonUses}
                           </span>
                         </div>
                         <button
                           type="button"
                           onClick={() => handleRemoveRemedy(code)}
-                          className="text-slate-400 hover:text-rose-600 p-1"
+                          className="text-slate-400 hover:text-rose-600 p-2 min-h-[36px] min-w-[36px]"
+                          aria-label={`Remove remedy ${code}`}
                         >
-                          <Trash2 className="w-4 h-4" />
+                          <Trash2 className="w-5 h-5" />
                         </button>
                       </div>
                     );
@@ -305,52 +357,43 @@ export const PractitionerDashboardPage: React.FC<PractitionerDashboardPageProps>
 
               {/* Dosage Instructions */}
               <div>
-                <label className="block font-semibold text-slate-700 mb-1">
+                <label className="block font-bold text-slate-800 mb-1.5">
                   Dosage & Administration Instructions
                 </label>
                 <input
                   type="text"
                   value={dosageInstructions}
                   onChange={(e) => setDosageInstructions(e.target.value)}
-                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-teal-600 focus:bg-white text-slate-900"
+                  className="w-full px-4 py-3 bg-slate-50 border border-slate-300 rounded-2xl text-sm focus:ring-2 focus:ring-teal-600 focus:bg-white text-slate-900 min-h-[48px]"
                 />
               </div>
 
               {/* Follow-up Date */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block font-semibold text-slate-700 mb-1">
-                    Recommended Follow-up Date
-                  </label>
-                  <input
-                    type="date"
-                    value={followUpDate}
-                    onChange={(e) => setFollowUpDate(e.target.value)}
-                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-teal-600 focus:bg-white text-slate-900"
-                  />
-                </div>
+              <div>
+                <label className="block font-bold text-slate-800 mb-1.5">
+                  Recommended Follow-up Review Date
+                </label>
+                <input
+                  type="date"
+                  value={followUpDate}
+                  onChange={(e) => setFollowUpDate(e.target.value)}
+                  className="w-full sm:w-64 px-4 py-3 bg-slate-50 border border-slate-300 rounded-2xl text-sm focus:ring-2 focus:ring-teal-600 focus:bg-white text-slate-900 min-h-[48px]"
+                />
               </div>
 
               {/* Save Consultation Action */}
               <div className="pt-4 border-t border-slate-100 flex items-center justify-end gap-3">
                 <button
-                  type="button"
-                  onClick={() => onNavigate('clinic-admin-dashboard')}
-                  className="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium rounded-xl text-xs transition-colors cursor-pointer"
-                >
-                  Switch to Admin View
-                </button>
-                <button
                   type="submit"
-                  className="px-6 py-2.5 bg-teal-700 hover:bg-teal-800 text-white font-semibold rounded-xl text-xs transition-colors flex items-center gap-1.5 cursor-pointer shadow-xs"
+                  className="px-8 py-3.5 bg-teal-700 hover:bg-teal-800 text-white font-extrabold rounded-2xl text-base transition-colors flex items-center gap-2 cursor-pointer shadow-xs min-h-[48px]"
                 >
-                  <Save className="w-4 h-4" />
+                  <Save className="w-5 h-5" />
                   <span>Save & Complete Consultation</span>
                 </button>
               </div>
             </form>
           ) : (
-            <div className="text-center py-12 text-slate-500 text-xs">
+            <div className="text-center py-16 text-slate-500 text-sm">
               Select a patient from the queue to start or review consultation.
             </div>
           )}
