@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Appointment, MedicalRecord, PageId } from '../types';
+import { Appointment, MedicalRecord, PageId, PatientProfile } from '../types';
 import {
   Calendar,
   Clock,
@@ -31,7 +31,10 @@ import {
   Globe,
   Sliders,
   Languages,
-  Sparkles
+  Sparkles,
+  LogOut,
+  Lock,
+  LogIn
 } from 'lucide-react';
 
 interface PatientDashboardPageProps {
@@ -39,6 +42,9 @@ interface PatientDashboardPageProps {
   medicalRecords: MedicalRecord[];
   onNavigate: (page: PageId) => void;
   onCancelAppointment: (appointmentId: string) => void;
+  authenticatedPatient?: PatientProfile | null;
+  onSignOut?: () => void;
+  onLoginAsDemo?: () => void;
 }
 
 type ServiceSection =
@@ -56,6 +62,9 @@ export const PatientDashboardPage: React.FC<PatientDashboardPageProps> = ({
   medicalRecords,
   onNavigate,
   onCancelAppointment,
+  authenticatedPatient,
+  onSignOut,
+  onLoginAsDemo,
 }) => {
   const [currentSection, setCurrentSection] = useState<ServiceSection>('overview');
   const [selectedRecord, setSelectedRecord] = useState<MedicalRecord | null>(null);
@@ -71,11 +80,31 @@ export const PatientDashboardPage: React.FC<PatientDashboardPageProps> = ({
   const [textSize, setTextSize] = useState<'normal' | 'large' | 'xlarge'>('normal');
   const [highContrast, setHighContrast] = useState<boolean>(false);
 
-  const upcomingAppointments = appointments.filter(
+  // Filter appointments for the authenticated patient if logged in
+  const patientAppointments = authenticatedPatient
+    ? appointments.filter(
+        (apt) =>
+          apt.patientId === authenticatedPatient.id ||
+          apt.patientName.toLowerCase() === authenticatedPatient.fullName.toLowerCase() ||
+          (authenticatedPatient.id === 'SSSO-BLR-2026-0842')
+      )
+    : [];
+
+  const upcomingAppointments = patientAppointments.filter(
     (apt) => apt.status === 'Scheduled' || apt.status === 'Waiting' || apt.status === 'In Consultation'
   );
 
   const primaryUpcoming = upcomingAppointments[0];
+
+  const patientInitials = authenticatedPatient?.fullName
+    ? authenticatedPatient.fullName
+        .split(' ')
+        .filter(Boolean)
+        .map((n) => n[0])
+        .join('')
+        .slice(0, 2)
+        .toUpperCase()
+    : 'PT';
 
   const handleCancelClick = (aptId: string) => {
     onCancelAppointment(aptId);
@@ -316,59 +345,125 @@ export const PatientDashboardPage: React.FC<PatientDashboardPageProps> = ({
           </div>
         </div>
 
-        {/* Welcoming Header (Reference 2: Welcoming patient hero) */}
-        <div
-          className={`p-6 sm:p-8 rounded-3xl border transition-all ${
-            highContrast
-              ? 'bg-neutral-900 border-neutral-700'
-              : 'bg-linear-to-r from-teal-50/80 via-white to-sky-50/60 border-teal-100/90 shadow-xs'
-          }`}
-        >
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-            <div className="flex items-center gap-4">
-              <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-teal-700 text-white flex items-center justify-center font-bold text-2xl sm:text-3xl shadow-sm shrink-0">
-                AR
-              </div>
-              <div className="space-y-1">
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className="bg-teal-100 text-teal-900 text-xs sm:text-sm font-bold px-3 py-1 rounded-full uppercase tracking-wider">
-                    Patient Portal
-                  </span>
-                  <span className="text-xs sm:text-sm font-mono text-slate-500 font-semibold">
-                    ID: SSSO-BLR-2026-0842
-                  </span>
+        {!authenticatedPatient ? (
+          /* Privacy Shield Screen for Unauthenticated Visitors */
+          <div className="p-8 sm:p-12 rounded-3xl bg-white border border-slate-200/90 shadow-sm text-center space-y-6 max-w-2xl mx-auto my-6">
+            <div className="w-16 h-16 rounded-2xl bg-teal-50 text-[#007F73] flex items-center justify-center mx-auto border border-teal-100 shadow-2xs">
+              <Lock className="w-8 h-8" />
+            </div>
+            <div className="space-y-2">
+              <span className="text-xs font-bold text-[#007F73] uppercase tracking-wider">
+                Protected Patient Records
+              </span>
+              <h2 className={`${sizeClasses.largeTitle} text-slate-900`}>
+                Patient Sign In Required
+              </h2>
+              <p className={`${sizeClasses.body} text-slate-600 max-w-lg mx-auto leading-relaxed`}>
+                To protect personal medical confidentiality, please sign in with your registered mobile number or email to view your consultation tokens, medical notes, and prescribed Vibronics remedies.
+              </p>
+            </div>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => onNavigate('signin')}
+                className="w-full sm:w-auto px-7 py-3.5 bg-[#007F73] hover:bg-[#006b60] text-white font-bold rounded-2xl text-base shadow-xs transition-colors flex items-center justify-center gap-2 cursor-pointer min-h-[48px]"
+              >
+                <LogIn className="w-5 h-5" />
+                <span>Sign In to Patient Portal</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => onNavigate('register')}
+                className="w-full sm:w-auto px-6 py-3.5 bg-white hover:bg-slate-50 border border-slate-300 text-slate-800 font-bold rounded-2xl text-base transition-colors cursor-pointer min-h-[48px]"
+              >
+                <span>Register as New Patient</span>
+              </button>
+            </div>
+            {onLoginAsDemo && (
+              <div className="pt-6 border-t border-slate-100">
+                <div className="p-4 bg-teal-50/70 rounded-2xl border border-teal-200 text-xs text-teal-950 flex flex-col sm:flex-row items-center justify-between gap-3 text-left">
+                  <div>
+                    <span className="font-bold block">Academic Pilot Evaluation Preview:</span>
+                    <span className="text-slate-600">Want to inspect the senior patient portal interface with 1 click?</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={onLoginAsDemo}
+                    className="px-4 py-2 bg-teal-700 hover:bg-teal-800 text-white font-bold rounded-xl whitespace-nowrap cursor-pointer shadow-2xs"
+                  >
+                    Preview Sample Patient (Smt. Ananya Rao)
+                  </button>
                 </div>
-                <h1 className={`${sizeClasses.largeTitle} text-slate-900 tracking-tight`}>
-                  Namaskaram, Smt. Ananya Rao
-                </h1>
-                <p className={`${sizeClasses.small} text-slate-600`}>
-                  Primary Center: <strong className="text-slate-900 font-bold">Padmanabhanagar Seva Clinic (560070)</strong>
-                </p>
+              </div>
+            )}
+          </div>
+        ) : (
+          <>
+            {/* Welcoming Header (Reference 2: Welcoming patient hero) */}
+            <div
+              className={`p-6 sm:p-8 rounded-3xl border transition-all ${
+                highContrast
+                  ? 'bg-neutral-900 border-neutral-700'
+                  : 'bg-linear-to-r from-teal-50/80 via-white to-sky-50/60 border-teal-100/90 shadow-xs'
+              }`}
+            >
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                <div className="flex items-center gap-4">
+                  <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-teal-700 text-white flex items-center justify-center font-bold text-2xl sm:text-3xl shadow-sm shrink-0">
+                    {patientInitials}
+                  </div>
+                  <div className="space-y-1">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="bg-teal-100 text-teal-900 text-xs sm:text-sm font-bold px-3 py-1 rounded-full uppercase tracking-wider">
+                        Patient Portal
+                      </span>
+                      <span className="text-xs sm:text-sm font-mono text-slate-500 font-semibold">
+                        ID: {authenticatedPatient.id}
+                      </span>
+                    </div>
+                    <h1 className={`${sizeClasses.largeTitle} text-slate-900 tracking-tight`}>
+                      Namaskaram, {authenticatedPatient.fullName}
+                    </h1>
+                    <p className={`${sizeClasses.small} text-slate-600`}>
+                      Primary Center: <strong className="text-slate-900 font-bold">{authenticatedPatient.preferredClinicName || 'Padmanabhanagar Seva Clinic (560070)'}</strong>
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setShowNotificationsModal(true)}
+                    className="relative p-3.5 rounded-2xl bg-white border border-slate-200 text-slate-700 hover:text-teal-700 hover:border-teal-300 shadow-2xs transition-colors min-h-[48px] min-w-[48px] flex items-center justify-center cursor-pointer"
+                    aria-label="View notifications"
+                  >
+                    <Bell className="w-6 h-6" />
+                    <span className="absolute top-2 right-2 w-3 h-3 bg-teal-600 rounded-full border-2 border-white" />
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => onNavigate('find-clinic')}
+                    className="px-6 py-3.5 bg-teal-700 hover:bg-teal-800 text-white rounded-2xl font-bold text-sm sm:text-base transition-colors shadow-xs flex items-center gap-2 cursor-pointer min-h-[48px]"
+                  >
+                    <Plus className="w-5 h-5" />
+                    <span>Book an Appointment</span>
+                  </button>
+
+                  {onSignOut && (
+                    <button
+                      type="button"
+                      onClick={onSignOut}
+                      className="px-4 py-3.5 bg-white hover:bg-slate-100 border border-slate-300 text-slate-700 rounded-2xl font-bold text-sm transition-colors flex items-center gap-2 cursor-pointer min-h-[48px]"
+                      title="Sign Out of Patient Account"
+                    >
+                      <LogOut className="w-4 h-4 text-slate-600" />
+                      <span>Sign Out</span>
+                    </button>
+                  )}
+                </div>
               </div>
             </div>
-
-            <div className="flex flex-wrap items-center gap-3">
-              <button
-                type="button"
-                onClick={() => setShowNotificationsModal(true)}
-                className="relative p-3.5 rounded-2xl bg-white border border-slate-200 text-slate-700 hover:text-teal-700 hover:border-teal-300 shadow-2xs transition-colors min-h-[48px] min-w-[48px] flex items-center justify-center cursor-pointer"
-                aria-label="View notifications"
-              >
-                <Bell className="w-6 h-6" />
-                <span className="absolute top-2 right-2 w-3 h-3 bg-teal-600 rounded-full border-2 border-white" />
-              </button>
-
-              <button
-                type="button"
-                onClick={() => onNavigate('find-clinic')}
-                className="px-6 py-3.5 bg-teal-700 hover:bg-teal-800 text-white rounded-2xl font-bold text-sm sm:text-base transition-colors shadow-xs flex items-center gap-2 cursor-pointer min-h-[48px]"
-              >
-                <Plus className="w-5 h-5" />
-                <span>Book an Appointment</span>
-              </button>
-            </div>
-          </div>
-        </div>
 
         {/* Prototype Demonstration Alert */}
         <div className="p-4 bg-amber-50/90 rounded-2xl border border-amber-200 text-amber-950 flex items-start gap-3">
@@ -940,42 +1035,71 @@ export const PatientDashboardPage: React.FC<PatientDashboardPageProps> = ({
         {/* SECTION: PROFILE */}
         {currentSection === 'profile' && (
           <div className="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 space-y-6 shadow-xs max-w-2xl">
-            <h3 className={`${sizeClasses.title} font-bold text-slate-900`}>
-              Patient Profile & Emergency Contacts
-            </h3>
+            <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+              <h3 className={`${sizeClasses.title} font-bold text-slate-900`}>
+                Patient Profile & Emergency Contacts
+              </h3>
+              {onSignOut && (
+                <button
+                  type="button"
+                  onClick={onSignOut}
+                  className="px-3.5 py-1.5 rounded-xl border border-rose-200 text-rose-700 hover:bg-rose-50 text-xs font-bold transition-colors inline-flex items-center gap-1.5 cursor-pointer"
+                >
+                  <LogOut className="w-3.5 h-3.5" />
+                  <span>Sign Out</span>
+                </button>
+              )}
+            </div>
 
             <div className="space-y-4 text-sm sm:text-base">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100">
                   <span className="text-xs text-slate-500 block">Full Name</span>
-                  <span className="font-bold text-slate-900 mt-1 block">Smt. Ananya Rao</span>
+                  <span className="font-bold text-slate-900 mt-1 block">{authenticatedPatient.fullName}</span>
                 </div>
                 <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100">
                   <span className="text-xs text-slate-500 block">Patient Card ID</span>
-                  <span className="font-mono font-bold text-teal-800 mt-1 block">SSSO-BLR-2026-0842</span>
+                  <span className="font-mono font-bold text-teal-800 mt-1 block">{authenticatedPatient.id}</span>
                 </div>
               </div>
 
               <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100">
                 <span className="text-xs text-slate-500 block">Residential Address</span>
                 <span className="font-bold text-slate-900 mt-1 block">
-                  18th Cross, Padmanabhanagar, Bengaluru, Karnataka 560070
+                  {authenticatedPatient.address || 'Padmanabhanagar, Bengaluru, Karnataka 560070'}
                 </span>
               </div>
 
-              <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100">
-                <span className="text-xs text-slate-500 block">Primary Contact Mobile</span>
-                <span className="font-bold text-slate-900 mt-1 block">+91 98450 12345</span>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                  <span className="text-xs text-slate-500 block">Primary Contact Mobile</span>
+                  <span className="font-bold text-slate-900 mt-1 block">+91 {authenticatedPatient.mobileNumber}</span>
+                </div>
+                <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                  <span className="text-xs text-slate-500 block">Registered Email</span>
+                  <span className="font-bold text-slate-900 mt-1 block">{authenticatedPatient.email}</span>
+                </div>
               </div>
 
               <div className="p-4 bg-rose-50/70 rounded-2xl border border-rose-200">
-                <span className="text-xs text-rose-700 font-bold block">Emergency Attendant / Family</span>
+                <span className="text-xs text-rose-700 font-bold block">Emergency Attendant / Family Caregiver</span>
                 <span className="font-bold text-slate-900 mt-1 block">
-                  Sri R. K. Rao (Spouse) · +91 98450 98765
+                  {authenticatedPatient.emergencyContactName ? `${authenticatedPatient.emergencyContactName} · +91 ${authenticatedPatient.emergencyContactPhone || '98450 98765'}` : 'Sri T. S. Raghavan (Spouse) · +91 98450 98765'}
                 </span>
               </div>
+
+              {authenticatedPatient.accessibilityNeeds && (
+                <div className="p-4 bg-teal-50/70 rounded-2xl border border-teal-200">
+                  <span className="text-xs text-teal-800 font-bold block">Accessibility & Assistance Preference</span>
+                  <span className="font-bold text-slate-900 mt-1 block">
+                    {authenticatedPatient.accessibilityNeeds}
+                  </span>
+                </div>
+              )}
             </div>
           </div>
+        )}
+          </>
         )}
       </div>
 

@@ -4,12 +4,13 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { PageId, Clinic, Appointment, MedicalRecord } from './types';
+import { PageId, Clinic, Appointment, MedicalRecord, PatientProfile } from './types';
 import {
   INITIAL_CLINICS,
   PRACTITIONERS,
   INITIAL_APPOINTMENTS,
   INITIAL_MEDICAL_RECORDS,
+  DEMO_PATIENT,
 } from './data/mockData';
 
 import { Header } from './components/Header';
@@ -22,6 +23,7 @@ import { FindClinicPage } from './pages/FindClinicPage';
 import { ClinicDetailsPage } from './pages/ClinicDetailsPage';
 import { PatientRegistrationPage } from './pages/PatientRegistrationPage';
 import { SignInPage } from './pages/SignInPage';
+import { StaffSignInPage } from './pages/StaffSignInPage';
 import { PatientDashboardPage } from './pages/PatientDashboardPage';
 import { PractitionerDashboardPage } from './pages/PractitionerDashboardPage';
 import { ClinicAdminDashboardPage } from './pages/ClinicAdminDashboardPage';
@@ -31,11 +33,16 @@ export default function App() {
   const [currentPage, setCurrentPage] = useState<PageId>('home');
   const [selectedClinicId, setSelectedClinicId] = useState<string>('clinic-padmanabhanagar');
   const [clinicSearchQuery, setClinicSearchQuery] = useState<string>('');
+  const [clinicSearchService, setClinicSearchService] = useState<string>('All Services');
 
   // Prototype state management (in-memory demonstration storage)
   const [clinics, setClinics] = useState<Clinic[]>(INITIAL_CLINICS);
   const [appointments, setAppointments] = useState<Appointment[]>(INITIAL_APPOINTMENTS);
   const [medicalRecords, setMedicalRecords] = useState<MedicalRecord[]>(INITIAL_MEDICAL_RECORDS);
+
+  // Patient Authentication & Registration State (in-memory demonstration)
+  const [authenticatedPatient, setAuthenticatedPatient] = useState<PatientProfile | null>(null);
+  const [registeredPatients, setRegisteredPatients] = useState<PatientProfile[]>([DEMO_PATIENT]);
 
   // Scroll to top when page changes
   useEffect(() => {
@@ -46,8 +53,11 @@ export default function App() {
     setSelectedClinicId(clinicId);
   };
 
-  const handleSearchFromHome = (query: string) => {
+  const handleSearchFromHome = (query: string, service?: string) => {
     setClinicSearchQuery(query);
+    if (service) {
+      setClinicSearchService(service);
+    }
     setCurrentPage('find-clinic');
   };
 
@@ -71,6 +81,28 @@ export default function App() {
     setClinics((prev) => [newClinic, ...prev]);
   };
 
+  // Authentication Handlers
+  const handleSignInSuccess = (patient: PatientProfile) => {
+    setAuthenticatedPatient(patient);
+    setCurrentPage('patient-dashboard');
+  };
+
+  const handleSignOut = () => {
+    setAuthenticatedPatient(null);
+    setCurrentPage('home');
+  };
+
+  const handleLoginAsDemo = () => {
+    setAuthenticatedPatient(DEMO_PATIENT);
+    setCurrentPage('patient-dashboard');
+  };
+
+  const handleRegisterSuccess = (patient: PatientProfile) => {
+    setRegisteredPatients((prev) => [patient, ...prev]);
+    setAuthenticatedPatient(patient);
+    setCurrentPage('patient-dashboard');
+  };
+
   const selectedClinic = clinics.find((c) => c.id === selectedClinicId) || clinics[0];
   const clinicPractitioners = PRACTITIONERS.filter((p) => p.clinicId === selectedClinic.id);
   const activePractitioners = clinicPractitioners.length > 0 ? clinicPractitioners : PRACTITIONERS.slice(0, 2);
@@ -81,7 +113,12 @@ export default function App() {
       <DemoBanner currentPage={currentPage} onNavigate={setCurrentPage} />
 
       {/* Top Navigation Bar adhering to Top Bar Contract */}
-      <Header currentPage={currentPage} onNavigate={setCurrentPage} />
+      <Header
+        currentPage={currentPage}
+        onNavigate={setCurrentPage}
+        authenticatedPatient={authenticatedPatient}
+        onSignOut={handleSignOut}
+      />
 
       {/* Offline Status Monitor */}
       <OfflineIndicator />
@@ -102,6 +139,7 @@ export default function App() {
             onSelectClinic={handleSelectClinic}
             onNavigate={setCurrentPage}
             initialSearchQuery={clinicSearchQuery}
+            initialService={clinicSearchService}
           />
         )}
 
@@ -111,15 +149,28 @@ export default function App() {
             practitioners={activePractitioners}
             onNavigate={setCurrentPage}
             onBookAppointment={handleBookAppointment}
+            authenticatedPatient={authenticatedPatient}
           />
         )}
 
         {currentPage === 'register' && (
-          <PatientRegistrationPage onNavigate={setCurrentPage} />
+          <PatientRegistrationPage
+            onNavigate={setCurrentPage}
+            onRegisterSuccess={handleRegisterSuccess}
+            clinics={clinics}
+          />
         )}
 
         {currentPage === 'signin' && (
-          <SignInPage onNavigate={setCurrentPage} />
+          <SignInPage
+            onNavigate={setCurrentPage}
+            onSignInSuccess={handleSignInSuccess}
+            registeredPatients={registeredPatients}
+          />
+        )}
+
+        {currentPage === 'staff-signin' && (
+          <StaffSignInPage onNavigate={setCurrentPage} />
         )}
 
         {currentPage === 'patient-dashboard' && (
@@ -128,6 +179,9 @@ export default function App() {
             medicalRecords={medicalRecords}
             onNavigate={setCurrentPage}
             onCancelAppointment={handleCancelAppointment}
+            authenticatedPatient={authenticatedPatient}
+            onSignOut={handleSignOut}
+            onLoginAsDemo={handleLoginAsDemo}
           />
         )}
 

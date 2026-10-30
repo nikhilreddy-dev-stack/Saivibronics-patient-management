@@ -4,12 +4,32 @@ export type PageId =
   | 'clinic-details'
   | 'register'
   | 'signin'
+  | 'staff-signin'
   | 'patient-dashboard'
   | 'practitioner-dashboard'
   | 'clinic-admin-dashboard'
   | 'org-admin-dashboard';
 
 export type UserRole = 'patient' | 'practitioner' | 'clinic-admin' | 'org-admin';
+
+export interface PatientProfile {
+  id: string;
+  patientId?: string;
+  fullName: string;
+  mobileNumber: string;
+  email: string;
+  age?: number | string;
+  gender?: string;
+  preferredLanguage?: string;
+  preferredClinicId: string;
+  preferredClinicName?: string;
+  address?: string;
+  pincode?: string;
+  emergencyContactName?: string;
+  emergencyContactPhone?: string;
+  accessibilityNeeds?: string;
+  registeredDate: string;
+}
 
 export interface Clinic {
   id: string;

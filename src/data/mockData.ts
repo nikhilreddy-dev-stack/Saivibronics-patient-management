@@ -1,4 +1,22 @@
-import { Clinic, Practitioner, Appointment, MedicalRecord, VibronicsRemedy } from '../types';
+import { Clinic, Practitioner, Appointment, MedicalRecord, VibronicsRemedy, PatientProfile } from '../types';
+
+export const DEMO_PATIENT: PatientProfile = {
+  id: 'SSSO-BLR-2026-0842',
+  fullName: 'Smt. Ananya Rao',
+  mobileNumber: '9845012345',
+  email: 'ananya.rao@example.com',
+  age: 58,
+  gender: 'Female',
+  preferredLanguage: 'Kannada / English',
+  preferredClinicId: 'clinic-padmanabhanagar',
+  preferredClinicName: 'Sri Sathya Sai Vibronics Seva Clinic - Padmanabhanagar',
+  address: '14th Main, Near Carmel High School, Padmanabhanagar, Bengaluru',
+  pincode: '560070',
+  emergencyContactName: 'Sri T. S. Raghavan (Spouse)',
+  emergencyContactPhone: '9845098765',
+  accessibilityNeeds: 'Ground Floor Access & Priority Seating',
+  registeredDate: '2026-08-10',
+};
 
 export const INITIAL_CLINICS: Clinic[] = [
   {

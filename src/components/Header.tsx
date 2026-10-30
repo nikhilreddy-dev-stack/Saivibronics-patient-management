@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { PageId } from '../types';
+import { PageId, PatientProfile } from '../types';
 import {
   HeartHandshake,
   Menu,
@@ -12,16 +12,25 @@ import {
   ArrowRight,
   LogIn,
   UserPlus,
-  Calendar
+  Calendar,
+  LogOut,
+  ShieldCheck
 } from 'lucide-react';
 import { PWAInstallButton } from './PWAInstallButton';
 
 interface HeaderProps {
   currentPage: PageId;
   onNavigate: (page: PageId) => void;
+  authenticatedPatient?: PatientProfile | null;
+  onSignOut?: () => void;
 }
 
-export const Header: React.FC<HeaderProps> = ({ currentPage, onNavigate }) => {
+export const Header: React.FC<HeaderProps> = ({
+  currentPage,
+  onNavigate,
+  authenticatedPatient,
+  onSignOut,
+}) => {
   const [drawerOpen, setDrawerOpen] = useState(false);
 
   // Close drawer on Escape key and prevent background scroll when open
@@ -51,6 +60,18 @@ export const Header: React.FC<HeaderProps> = ({ currentPage, onNavigate }) => {
     }
   };
 
+  const handleScrollToHowItWorks = () => {
+    if (currentPage !== 'home') {
+      onNavigate('home');
+      setTimeout(() => {
+        document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' });
+      }, 150);
+    } else {
+      document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' });
+    }
+    setDrawerOpen(false);
+  };
+
   return (
     <>
       <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200/90 shadow-2xs">
@@ -75,6 +96,49 @@ export const Header: React.FC<HeaderProps> = ({ currentPage, onNavigate }) => {
               </div>
             </button>
 
+            {/* Concise Desktop Navigation Links in Center */}
+            <nav
+              className="hidden lg:flex items-center gap-1 xl:gap-2 shrink-0 whitespace-nowrap"
+              aria-label="Primary Navigation"
+            >
+              <button
+                onClick={() => handleNavigate('home')}
+                className={`px-3 py-1.5 rounded-lg text-sm font-semibold transition-colors cursor-pointer min-h-[40px] flex items-center ${
+                  currentPage === 'home'
+                    ? 'text-[#007F73] font-bold bg-[#E9F8F4]'
+                    : 'text-[#536579] hover:text-[#007F73] hover:bg-slate-50'
+                }`}
+              >
+                Home
+              </button>
+              <button
+                onClick={() => handleNavigate('find-clinic')}
+                className={`px-3 py-1.5 rounded-lg text-sm font-semibold transition-colors cursor-pointer min-h-[40px] flex items-center ${
+                  currentPage === 'find-clinic'
+                    ? 'text-[#007F73] font-bold bg-[#E9F8F4]'
+                    : 'text-[#536579] hover:text-[#007F73] hover:bg-slate-50'
+                }`}
+              >
+                Find a Clinic
+              </button>
+              <button
+                onClick={handleScrollToHowItWorks}
+                className="px-3 py-1.5 rounded-lg text-sm font-semibold text-[#536579] hover:text-[#007F73] hover:bg-slate-50 transition-colors cursor-pointer min-h-[40px] flex items-center"
+              >
+                How It Works
+              </button>
+              <button
+                onClick={() => handleNavigate('patient-dashboard')}
+                className={`px-3 py-1.5 rounded-lg text-sm font-semibold transition-colors cursor-pointer min-h-[40px] flex items-center ${
+                  currentPage === 'patient-dashboard'
+                    ? 'text-[#007F73] font-bold bg-[#E9F8F4]'
+                    : 'text-[#536579] hover:text-[#007F73] hover:bg-slate-50'
+                }`}
+              >
+                Patient Portal
+              </button>
+            </nav>
+
             {/* Primary Actions in a single, aligned row on the right */}
             <div className="flex items-center gap-2 sm:gap-3 shrink-0 whitespace-nowrap">
               {/* Install App (PWA) action */}
@@ -82,14 +146,39 @@ export const Header: React.FC<HeaderProps> = ({ currentPage, onNavigate }) => {
                 <PWAInstallButton variant="header" />
               </div>
 
-              {/* Sign In action */}
-              <button
-                onClick={() => onNavigate('signin')}
-                className="hidden sm:inline-flex items-center gap-1.5 px-3 py-2 text-sm font-semibold text-[#14243A] hover:text-[#007F73] hover:bg-slate-50 rounded-xl transition-colors cursor-pointer min-h-[44px] shrink-0"
-              >
-                <User className="w-4 h-4 text-[#536579]" />
-                <span>Sign In</span>
-              </button>
+              {/* Sign In / Patient Profile Action */}
+              {authenticatedPatient ? (
+                <div className="hidden sm:flex items-center gap-1.5 shrink-0">
+                  <button
+                    onClick={() => onNavigate('patient-dashboard')}
+                    className="inline-flex items-center gap-2 px-3 py-1.5 text-xs sm:text-sm font-semibold text-[#007F73] bg-[#E9F8F4] hover:bg-teal-100 rounded-xl transition-colors cursor-pointer min-h-[44px]"
+                    title="Open Patient Portal"
+                  >
+                    <span className="w-6 h-6 rounded-full bg-[#007F73] text-white flex items-center justify-center text-xs font-bold">
+                      {authenticatedPatient.fullName.charAt(0)}
+                    </span>
+                    <span className="max-w-[120px] truncate">{authenticatedPatient.fullName.split(' ')[0]}</span>
+                  </button>
+                  {onSignOut && (
+                    <button
+                      onClick={onSignOut}
+                      className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-semibold text-slate-500 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer min-h-[44px]"
+                      title="Sign Out of Patient Account"
+                    >
+                      <LogOut className="w-3.5 h-3.5" />
+                      <span>Sign Out</span>
+                    </button>
+                  )}
+                </div>
+              ) : (
+                <button
+                  onClick={() => onNavigate('signin')}
+                  className="hidden sm:inline-flex items-center gap-1.5 px-3 py-2 text-sm font-semibold text-[#14243A] hover:text-[#007F73] hover:bg-slate-50 rounded-xl transition-colors cursor-pointer min-h-[44px] shrink-0"
+                >
+                  <User className="w-4 h-4 text-[#536579]" />
+                  <span>Sign In</span>
+                </button>
+              )}
 
               {/* Book Appointment action */}
               <button
@@ -114,23 +203,23 @@ export const Header: React.FC<HeaderProps> = ({ currentPage, onNavigate }) => {
         </div>
       </header>
 
-      {/* Navigation Drawer Overlay */}
+      {/* Navigation Drawer: Full Viewport Height from Top to Bottom */}
       {drawerOpen && (
         <div
-          className="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs transition-opacity flex justify-end"
+          className="fixed inset-0 z-[100] bg-slate-900/60 backdrop-blur-xs transition-opacity flex justify-end"
           onClick={() => setDrawerOpen(false)}
           role="dialog"
           aria-modal="true"
           aria-label="Site Navigation Drawer"
         >
           <div
-            className="w-full max-w-sm sm:max-w-md bg-white h-full shadow-2xl flex flex-col overflow-hidden animate-in slide-in-from-right duration-200"
+            className="w-full sm:max-w-md h-screen h-[100dvh] fixed top-0 bottom-0 right-0 z-[101] bg-white shadow-2xl flex flex-col overflow-hidden animate-in slide-in-from-right duration-200"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Drawer Header */}
-            <div className="p-4 sm:p-5 border-b border-slate-100 flex items-center justify-between">
+            {/* Drawer Header (Fixed at top of drawer) */}
+            <div className="shrink-0 p-4 sm:p-5 border-b border-slate-100 flex items-center justify-between bg-white z-10">
               <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-lg bg-[#007F73] text-white flex items-center justify-center shadow-xs">
+                <div className="w-9 h-9 rounded-lg bg-[#007F73] text-white flex items-center justify-center shadow-xs shrink-0">
                   <HeartHandshake className="w-5 h-5 text-teal-100" />
                 </div>
                 <div>
@@ -144,15 +233,15 @@ export const Header: React.FC<HeaderProps> = ({ currentPage, onNavigate }) => {
               </div>
               <button
                 onClick={() => setDrawerOpen(false)}
-                className="p-2 rounded-xl text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center cursor-pointer"
+                className="p-2.5 rounded-xl text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center cursor-pointer"
                 aria-label="Close navigation menu"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            {/* Drawer Scrollable Body */}
-            <div className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-5">
+            {/* Drawer Scrollable Body (Internal scroll if content exceeds viewport height) */}
+            <div className="flex-1 overflow-y-auto overscroll-contain p-4 sm:p-5 space-y-5">
               {/* Main Navigation Destinations */}
               <div className="space-y-1">
                 <div className="text-xs font-bold text-slate-400 uppercase tracking-wider px-3 pb-1">
@@ -169,7 +258,7 @@ export const Header: React.FC<HeaderProps> = ({ currentPage, onNavigate }) => {
                   }`}
                 >
                   <div
-                    className={`w-8 h-8 rounded-lg flex items-center justify-center ${
+                    className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
                       currentPage === 'home'
                         ? 'bg-[#007F73] text-white'
                         : 'bg-slate-100 text-[#007F73]'
@@ -177,9 +266,9 @@ export const Header: React.FC<HeaderProps> = ({ currentPage, onNavigate }) => {
                   >
                     <Home className="w-4 h-4" />
                   </div>
-                  <div className="flex-1">
-                    <span className="block">Home</span>
-                    <span className="text-xs text-slate-500 font-normal">
+                  <div className="flex-1 min-w-0">
+                    <span className="block truncate">Home</span>
+                    <span className="text-xs text-slate-500 font-normal block truncate">
                       Platform overview & seva mission
                     </span>
                   </div>
@@ -195,7 +284,7 @@ export const Header: React.FC<HeaderProps> = ({ currentPage, onNavigate }) => {
                   }`}
                 >
                   <div
-                    className={`w-8 h-8 rounded-lg flex items-center justify-center ${
+                    className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
                       currentPage === 'find-clinic'
                         ? 'bg-[#007F73] text-white'
                         : 'bg-slate-100 text-[#007F73]'
@@ -203,9 +292,9 @@ export const Header: React.FC<HeaderProps> = ({ currentPage, onNavigate }) => {
                   >
                     <Search className="w-4 h-4" />
                   </div>
-                  <div className="flex-1">
-                    <span className="block">Find a Clinic</span>
-                    <span className="text-xs text-slate-500 font-normal">
+                  <div className="flex-1 min-w-0">
+                    <span className="block truncate">Find a Clinic</span>
+                    <span className="text-xs text-slate-500 font-normal block truncate">
                       Padmanabhanagar & multi-clinic network
                     </span>
                   </div>
@@ -221,7 +310,7 @@ export const Header: React.FC<HeaderProps> = ({ currentPage, onNavigate }) => {
                   }`}
                 >
                   <div
-                    className={`w-8 h-8 rounded-lg flex items-center justify-center ${
+                    className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
                       currentPage === 'patient-dashboard'
                         ? 'bg-[#007F73] text-white'
                         : 'bg-slate-100 text-[#007F73]'
@@ -229,9 +318,9 @@ export const Header: React.FC<HeaderProps> = ({ currentPage, onNavigate }) => {
                   >
                     <User className="w-4 h-4" />
                   </div>
-                  <div className="flex-1">
-                    <span className="block">Patient Portal</span>
-                    <span className="text-xs text-slate-500 font-normal">
+                  <div className="flex-1 min-w-0">
+                    <span className="block truncate">Patient Portal</span>
+                    <span className="text-xs text-slate-500 font-normal block truncate">
                       Senior-friendly dashboard & records
                     </span>
                   </div>
@@ -247,7 +336,7 @@ export const Header: React.FC<HeaderProps> = ({ currentPage, onNavigate }) => {
                   }`}
                 >
                   <div
-                    className={`w-8 h-8 rounded-lg flex items-center justify-center ${
+                    className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
                       currentPage === 'practitioner-dashboard'
                         ? 'bg-[#007F73] text-white'
                         : 'bg-slate-100 text-[#007F73]'
@@ -255,9 +344,9 @@ export const Header: React.FC<HeaderProps> = ({ currentPage, onNavigate }) => {
                   >
                     <Stethoscope className="w-4 h-4" />
                   </div>
-                  <div className="flex-1">
-                    <span className="block">Practitioner</span>
-                    <span className="text-xs text-slate-500 font-normal">
+                  <div className="flex-1 min-w-0">
+                    <span className="block truncate">Practitioner</span>
+                    <span className="text-xs text-slate-500 font-normal block truncate">
                       Consultation queue & remedies
                     </span>
                   </div>
@@ -273,7 +362,7 @@ export const Header: React.FC<HeaderProps> = ({ currentPage, onNavigate }) => {
                   }`}
                 >
                   <div
-                    className={`w-8 h-8 rounded-lg flex items-center justify-center ${
+                    className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
                       currentPage === 'clinic-admin-dashboard'
                         ? 'bg-[#007F73] text-white'
                         : 'bg-slate-100 text-[#007F73]'
@@ -281,9 +370,9 @@ export const Header: React.FC<HeaderProps> = ({ currentPage, onNavigate }) => {
                   >
                     <Building2 className="w-4 h-4" />
                   </div>
-                  <div className="flex-1">
-                    <span className="block">Clinic Admin</span>
-                    <span className="text-xs text-slate-500 font-normal">
+                  <div className="flex-1 min-w-0">
+                    <span className="block truncate">Clinic Admin</span>
+                    <span className="text-xs text-slate-500 font-normal block truncate">
                       Reception desk, tokens & schedule
                     </span>
                   </div>
@@ -296,32 +385,69 @@ export const Header: React.FC<HeaderProps> = ({ currentPage, onNavigate }) => {
                   Account & Registration
                 </div>
 
-                {/* 6. Sign In and 7. Register */}
-                <div className="grid grid-cols-2 gap-2">
-                  <button
-                    onClick={() => handleNavigate('signin')}
-                    className={`p-3 rounded-xl border text-left font-semibold text-sm transition-colors min-h-[44px] cursor-pointer flex items-center gap-2 ${
-                      currentPage === 'signin'
-                        ? 'border-[#007F73] bg-[#E9F8F4] text-[#007F73]'
-                        : 'border-slate-200 bg-slate-50 hover:bg-slate-100 text-[#14243A]'
-                    }`}
-                  >
-                    <LogIn className="w-4 h-4 text-[#007F73]" />
-                    <span>Sign In</span>
-                  </button>
+                {/* Patient Session or 6. Sign In and 7. Register */}
+                {authenticatedPatient ? (
+                  <div className="p-3.5 bg-[#E9F8F4] border border-teal-200 rounded-xl space-y-2.5">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-[#007F73] text-white font-bold flex items-center justify-center text-sm shadow-xs shrink-0">
+                        {authenticatedPatient.fullName.charAt(0)}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="text-sm font-bold text-slate-900 truncate">
+                          {authenticatedPatient.fullName}
+                        </div>
+                        <div className="text-[11px] text-teal-800 font-mono flex items-center gap-1">
+                          <ShieldCheck className="w-3 h-3 text-[#007F73]" />
+                          <span>{authenticatedPatient.patientId || authenticatedPatient.id}</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2 pt-1">
+                      <button
+                        onClick={() => handleNavigate('patient-dashboard')}
+                        className="py-2 px-3 rounded-lg bg-[#007F73] hover:bg-[#006b60] text-white text-xs font-bold text-center cursor-pointer transition-colors"
+                      >
+                        My Dashboard
+                      </button>
+                      <button
+                        onClick={() => {
+                          onSignOut?.();
+                          setDrawerOpen(false);
+                        }}
+                        className="py-2 px-3 rounded-lg bg-white border border-rose-200 text-rose-700 hover:bg-rose-50 text-xs font-bold text-center cursor-pointer transition-colors flex items-center justify-center gap-1"
+                      >
+                        <LogOut className="w-3 h-3" />
+                        <span>Sign Out</span>
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-2 gap-2">
+                    <button
+                      onClick={() => handleNavigate('signin')}
+                      className={`p-3 rounded-xl border text-left font-semibold text-sm transition-colors min-h-[44px] cursor-pointer flex items-center gap-2 ${
+                        currentPage === 'signin'
+                          ? 'border-[#007F73] bg-[#E9F8F4] text-[#007F73]'
+                          : 'border-slate-200 bg-slate-50 hover:bg-slate-100 text-[#14243A]'
+                      }`}
+                    >
+                      <LogIn className="w-4 h-4 text-[#007F73] shrink-0" />
+                      <span className="truncate">Sign In</span>
+                    </button>
 
-                  <button
-                    onClick={() => handleNavigate('register')}
-                    className={`p-3 rounded-xl border text-left font-semibold text-sm transition-colors min-h-[44px] cursor-pointer flex items-center gap-2 ${
-                      currentPage === 'register'
-                        ? 'border-[#007F73] bg-[#E9F8F4] text-[#007F73]'
-                        : 'border-slate-200 bg-slate-50 hover:bg-slate-100 text-[#14243A]'
-                    }`}
-                  >
-                    <UserPlus className="w-4 h-4 text-[#007F73]" />
-                    <span>Register</span>
-                  </button>
-                </div>
+                    <button
+                      onClick={() => handleNavigate('register')}
+                      className={`p-3 rounded-xl border text-left font-semibold text-sm transition-colors min-h-[44px] cursor-pointer flex items-center gap-2 ${
+                        currentPage === 'register'
+                          ? 'border-[#007F73] bg-[#E9F8F4] text-[#007F73]'
+                          : 'border-slate-200 bg-slate-50 hover:bg-slate-100 text-[#14243A]'
+                      }`}
+                    >
+                      <UserPlus className="w-4 h-4 text-[#007F73] shrink-0" />
+                      <span className="truncate">Register</span>
+                    </button>
+                  </div>
+                )}
 
                 {/* 8. Find a Clinic & Book Token */}
                 <button
@@ -332,6 +458,20 @@ export const Header: React.FC<HeaderProps> = ({ currentPage, onNavigate }) => {
                   <span>Find a Clinic & Book Token</span>
                   <ArrowRight className="w-4 h-4" />
                 </button>
+
+                {/* Staff & Administrator Portal Link */}
+                <div className="pt-1">
+                  <button
+                    onClick={() => handleNavigate('staff-signin')}
+                    className="w-full py-2.5 px-3 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-xs font-semibold text-slate-700 transition-colors flex items-center justify-between cursor-pointer min-h-[40px]"
+                  >
+                    <span className="flex items-center gap-2">
+                      <Building2 className="w-3.5 h-3.5 text-teal-700" />
+                      <span>Authorized Staff & Admin Sign In</span>
+                    </span>
+                    <ArrowRight className="w-3.5 h-3.5 text-slate-400" />
+                  </button>
+                </div>
               </div>
 
               {/* Progressive Web App Option */}
@@ -341,13 +481,13 @@ export const Header: React.FC<HeaderProps> = ({ currentPage, onNavigate }) => {
                 </div>
                 <PWAInstallButton variant="inline" />
               </div>
+            </div>
 
-              {/* Pilot Footer Info */}
-              <div className="pt-3 border-t border-slate-100 text-xs text-slate-500 space-y-1">
-                <p className="font-semibold text-slate-700">Sri Sathya Sai Organisation</p>
-                <p>Padmanabhanagar Pilot · Bengaluru, Karnataka</p>
-                <p className="text-[11px] text-slate-400">Holistic Seva Healthcare Prototype</p>
-              </div>
+            {/* Drawer Footer (Fixed at bottom of drawer) */}
+            <div className="shrink-0 p-4 border-t border-slate-100 bg-slate-50/70 text-xs text-slate-500 space-y-1">
+              <p className="font-semibold text-slate-700">Sri Sathya Sai Organisation</p>
+              <p>Padmanabhanagar Pilot · Bengaluru, Karnataka</p>
+              <p className="text-[11px] text-slate-400">Holistic Seva Healthcare Platform Prototype</p>
             </div>
           </div>
         </div>

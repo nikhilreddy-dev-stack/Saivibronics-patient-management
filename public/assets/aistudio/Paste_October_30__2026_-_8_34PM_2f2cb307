@@ -1,0 +1,930 @@
+# MASTER IMPLEMENTATION PROMPT: SAIVIBRONICS PATIENT MANAGEMENT PLATFORM
+## Existing Project Upgrade Only | Patient Authentication | Medical Registration | Appointment Forms | Separate Staff Portals | Production-Ready Architecture
+
+Act as a senior full-stack engineer, healthcare application architect, product designer, accessibility specialist, and quality-assurance engineer.
+
+You are working on an EXISTING React + TypeScript + Vite + Tailwind CSS project called **Saivibronics Patient Management Platform**, intended for Sri Sathya Sai Organisation.
+
+This is an incremental implementation task. The current application already has a landing page, clinic finder, clinic details, patient dashboard, practitioner dashboard, clinic administration dashboard, organisation administration dashboard, registration, sign-in, appointment booking, a responsive navigation menu, and other existing UI components.
+
+Your job is to improve the specific areas described in this prompt without rebuilding the application from scratch.
+
+The existing application is the source of truth. Inspect its actual files, component structure, routes or view-switching mechanism, TypeScript interfaces, styling conventions, and existing interactions before changing anything.
+
+Do not assume that a feature is absent simply because it is not mentioned in this prompt. Inspect the implementation first.
+
+---
+
+# 1. NON-NEGOTIABLE RULE: PRESERVE THE EXISTING APPLICATION
+
+The existing application must remain intact.
+
+Do not:
+- Generate a new application.
+- Replace the existing project structure wholesale.
+- Rewrite the entire App.tsx unnecessarily.
+- Replace the existing design system with an unrelated design.
+- Remove existing pages or functioning features.
+- Remove the clinic finder or change its existing search behaviour.
+- Remove clinic details, service listings, practitioner information, or appointment booking.
+- Remove patient dashboard tabs, records, appointments, or profile sections.
+- Remove practitioner consultation functionality.
+- Remove clinic administration features.
+- Remove organisation administration features.
+- Remove existing PWA installation functionality.
+- Remove the senior-friendly accessibility toolbar.
+- Remove the high-contrast option, text-size controls, or senior-help action.
+- Remove the existing full-screen navigation drawer.
+- Introduce a new navigation system that conflicts with the existing application.
+- Add unnecessary dependencies.
+- replace working components with static screenshots or decorative mockups.
+- make unrelated changes to pages that are not part of this task.
+- silently change the application's colours, branding, layout, or information architecture across the entire website.
+
+First inspect the current implementation and identify the smallest safe set of changes required.
+
+Preserve existing working features and their current visual styling unless a change is explicitly requested below.
+
+If a component needs modification, prefer updating that component rather than recreating the entire application.
+
+If routing is already implemented, preserve it. If the project still uses conditional rendering, do not perform a wholesale routing migration as part of this task. Any routing change must be narrowly scoped and must preserve every existing navigation destination.
+
+Before implementation, identify the relevant files and their responsibilities. Then make the changes directly in the existing project.
+
+Do not respond with only a plan. Implement the requested changes, run available checks, and fix any regressions introduced by your modifications.
+
+---
+
+# 2. PROJECT PURPOSE AND USER TYPES
+
+Saivibronics is a patient management platform for Sri Sathya Sai Organisation's community healthcare and Vibronics seva activities.
+
+The initial pilot is Padmanabhanagar, Bengaluru, Karnataka, PIN 560070. The architecture must support additional clinics later.
+
+The application has four principal user categories:
+
+1. Public visitors who have not signed in.
+2. Registered patients.
+3. Practitioners.
+4. Clinic and organisation administrators.
+
+The user experience for these categories must be distinct.
+
+Patients should be able to discover clinics, register, sign in, book appointments, view their own permitted medical history, and manage their profile.
+
+Practitioners should eventually have a dedicated professional portal for their assigned patients, appointment queue, consultations, and authorised records.
+
+Administrators should eventually have dedicated administrative portals for clinic operations, practitioner management, appointments, historical records, and multi-clinic oversight.
+
+**The normal patient sign-in experience must not display practitioner, clinic administrator, or organisation administrator dashboard launch cards.**
+
+Staff access must be separate from patient access.
+
+Do not treat a role-preview button as authentication.
+
+---
+
+# 3. FIRST PRIORITY: FIX THE INCORRECT PATIENT SIGN-IN EXPERIENCE
+
+## 3.1 Current problem
+
+The current sign-in page displays a prominent notice similar to:
+
+"Prototype Authentication Notice. Live authentication and database accounts are not connected in this frontend prototype. Submitting simulates sign-in locally to demonstrate the respective dashboard interfaces."
+
+Below it, the page displays four large cards:
+- Patient View
+- Practitioner View
+- Clinic Admin
+- Organisation Admin
+
+These cards launch different dashboards without genuine authentication.
+
+This is unsuitable for the intended patient-facing application.
+
+A normal patient must not be asked to select whether they want to enter a practitioner dashboard or administrator dashboard.
+
+The page should resemble a real patient portal, not a development tool.
+
+## 3.2 Required behaviour
+
+Update the existing sign-in page to provide a clean, patient-focused authentication interface.
+
+The normal patient sign-in page must contain:
+
+- Saivibronics branding.
+- A clear heading such as "Patient Sign In".
+- A brief, welcoming explanation.
+- A mobile number or email input, according to the authentication method currently supported.
+- A password input if password authentication is implemented.
+- A show/hide password control.
+- A clearly visible primary "Sign In" button.
+- A "Create Patient Account" link.
+- A "Forgot Password?" link if password recovery is implemented or can be safely integrated.
+- An option to return to the clinic finder.
+- An accessible error area for validation and authentication errors.
+- A loading state while an authentication request is pending.
+- A success state when authentication succeeds.
+- A sign-out action after a real session is established.
+
+Use appropriate icons and large touch targets. Labels must remain visible rather than relying only on placeholder text.
+
+Do not place the practitioner, clinic administrator, or organisation administrator dashboard cards on this page.
+
+Do not add unnecessary content, excessive explanatory paragraphs, decorative metrics, or a large development notice that dominates the sign-in interface.
+
+The page should feel like part of a polished healthcare application.
+
+## 3.3 Unauthenticated patient behaviour
+
+When a visitor opens the application without an authenticated patient session:
+
+- Do not show a personalised patient name.
+- Do not show a fabricated patient ID.
+- Do not imply that the visitor is signed in.
+- Do not display private medical records.
+- Do not display a patient's private appointment history.
+- Do not display a fictional "next confirmed visit" as though it belongs to the current user.
+- Do not grant access to patient-only actions.
+- Do not allow the user to reach private patient records by manually opening a dashboard URL or selecting a menu item.
+
+Instead, display the appropriate public experience.
+
+The patient navigation option should lead to patient sign-in if the user is not authenticated.
+
+After successful authentication, show the patient dashboard associated with the authenticated account.
+
+When the user signs out, clear the authenticated session and return to an appropriate public page.
+
+The interface must distinguish between:
+- A public visitor.
+- A registered but unauthenticated patient.
+- An authenticated patient.
+- A development demonstration session, if one is retained.
+
+Never represent a development demonstration session as real patient authentication.
+
+## 3.4 Authentication implementation boundary
+
+Inspect the existing project's authentication capabilities before implementing anything.
+
+If a real authentication provider and backend already exist, integrate with them using the existing architecture.
+
+If no authentication backend exists, do not fabricate a working authentication system by merely checking whether input fields are non-empty.
+
+Do not claim that an account has been authenticated simply because the user clicked a button.
+
+Do not store passwords in localStorage, sessionStorage, client-side JSON files, or plaintext browser storage.
+
+Do not hardcode production credentials.
+
+Do not implement fake OTP verification.
+
+Do not present a locally simulated sign-in as a real secure login.
+
+If the project is still frontend-only, build the patient-facing interface and a clearly separated development demonstration mechanism where necessary. Make the boundary explicit in the development configuration, not through an alarming banner that overwhelms the normal sign-in page.
+
+Real authentication must be connected to a trusted authentication service or a properly implemented backend before the system is used with real patients.
+
+Use secure session handling appropriate to the chosen authentication architecture.
+
+The server must verify identity and permissions for every protected request. Hiding buttons in the frontend is not sufficient security.
+
+---
+
+# 4. SEPARATE PRACTITIONER AND ADMINISTRATOR ACCESS
+
+The practitioner and administrator portals must be separate from the normal patient authentication experience.
+
+## 4.1 Remove staff dashboard launch cards from patient sign-in
+
+Remove the four-role quick-launch grid from the ordinary patient sign-in page.
+
+Specifically, remove the prominent:
+- Patient View
+- Practitioner View
+- Clinic Admin
+- Organisation Admin
+
+quick-launch cards from that page.
+
+Do not remove the existing practitioner dashboard, clinic administrator dashboard, or organisation administrator dashboard.
+
+Their removal from the patient sign-in screen must not delete their pages or existing functionality.
+
+## 4.2 Keep the portals available for separate development
+
+Preserve the existing practitioner and administrator dashboard components.
+
+Keep their current functionality intact.
+
+Do not redesign those dashboards as part of this change.
+
+Do not merge them into the patient dashboard.
+
+Do not provide unrestricted access to those dashboards in production.
+
+Create or preserve separate, clearly named staff-access entry points only where appropriate to the existing application architecture.
+
+If a dedicated staff sign-in page does not already exist, prepare a separate staff-access entry point without building an entirely new staff application during this task.
+
+The staff portal can be implemented fully in a later development stage.
+
+For now, ensure that the normal patient sign-in experience does not contain administrative role selectors.
+
+## 4.3 Authorisation requirements
+
+The intended production permission model is:
+
+- Public visitor: public clinic information and public clinic discovery.
+- Patient: access only to their own permitted profile, appointments, and records.
+- Practitioner: access only to patients, appointments, and records authorised for their assigned responsibilities.
+- Clinic administrator: access only to administrative data for the clinic or clinics they manage.
+- Organisation administrator: authorised organisation-wide oversight.
+
+Do not treat a client-side role dropdown as a security boundary.
+
+Do not trust a role value supplied by the browser without server-side verification.
+
+Preserve these permission boundaries in the architecture and UI.
+
+If the backend has not yet been implemented, do not claim that production-grade role-based access control is already operational.
+
+---
+
+# 5. PATIENT REGISTRATION MUST LOOK LIKE A REAL MEDICAL REGISTRATION APPLICATION
+
+Use the supplied patient-registration reference image as a guide to the form's structure.
+
+The reference shows a registration application designed for both tablet and mobile devices. It uses a prominent "Patient Registration" heading, a clear section hierarchy, grouped fields, and a form that adapts to a narrow phone screen.
+
+Use that structure as inspiration, but redesign it for Saivibronics with the existing teal, white, mint, and navy visual identity.
+
+Do not copy the reference image's outdated visual styling literally.
+
+Do not reproduce insurance fields or social security number fields from the reference. Those are not appropriate default requirements for this Indian patient-registration workflow.
+
+Do not invent mandatory medical or identity fields without a defined operational requirement.
+
+## 5.1 Registration page layout
+
+Create or update the existing patient registration page.
+
+The page must have:
+
+1. A compact header consistent with the existing Saivibronics branding.
+2. A clear "Patient Registration" heading.
+3. A short explanation that the form creates a patient account.
+4. A step indicator if the form is divided into multiple steps.
+5. Clearly separated sections.
+6. Visible field labels.
+7. Appropriate required-field indicators.
+8. Inline validation messages.
+9. A clearly visible primary submission button.
+10. A link for existing patients to sign in.
+11. A privacy and data-use explanation appropriate to the current implementation.
+12. A success screen only after the configured registration process actually succeeds.
+
+Keep the form easy to understand for older adults and first-time smartphone users.
+
+Do not create a dense, intimidating wall of fields.
+
+Use a well-spaced single-column layout on phones and a sensible two-column layout on larger screens where appropriate.
+
+## 5.2 Recommended registration sections
+
+Use the following structure, adapting it to existing types and backend capabilities.
+
+### Section A: Basic Patient Information
+
+- Full name.
+- Date of birth, only if needed for the clinic's patient-identification workflow.
+- Gender, only if required by the approved workflow, with appropriate options and a way to decline where operationally acceptable.
+- Preferred language, if supported by the product.
+- Optional accessibility or communication preference, if relevant.
+
+Do not make every optional field mandatory.
+
+### Section B: Contact Information
+
+- Mobile number.
+- Email address, if available.
+- Address or locality, if needed for the service.
+- PIN code, if required.
+- Emergency contact name and number, if required by the approved clinic workflow.
+
+Clearly identify which fields are optional.
+
+Do not expose contact information publicly.
+
+Do not assume that the user's location permission grants permission to save or publish their address.
+
+### Section C: Preferred Clinic
+
+- Preferred clinic selector, using the clinics currently available in the application.
+- Clinic locality or address displayed for confirmation.
+- A way to return to the clinic finder if the desired clinic is not listed.
+
+The preferred clinic must be selected from real configured clinic records when the backend exists.
+
+For a frontend-only prototype, use the existing demonstration dataset and label it appropriately.
+
+Do not hardcode a clinic list into the registration component when the application already has a shared clinic data source.
+
+### Section D: Account Security
+
+Only include fields appropriate to the authentication method actually implemented.
+
+For password-based authentication:
+- Password.
+- Confirm password.
+- Show/hide password control.
+- Password requirements.
+- Inline password-mismatch feedback.
+
+For OTP-based authentication:
+- Request OTP.
+- Verification code input.
+- Resend-code timer.
+- Verification status.
+
+Only implement OTP sending and verification when a real provider or backend supports the flow.
+
+Never simulate successful OTP verification and label it as real verification.
+
+Do not implement two incompatible authentication methods just to make the page appear comprehensive.
+
+### Section E: Consent and Submission
+
+Where appropriate, include:
+- A link to the privacy notice.
+- Consent required for the specific data processing being requested.
+- An explanation of why the data is collected.
+- A clear submission action.
+
+Do not combine unrelated consents into a single ambiguous checkbox.
+
+Do not state that the platform complies with every applicable law unless that has actually been established.
+
+## 5.3 Registration validation
+
+Validate data both in the frontend and, in production, on the server.
+
+Requirements include:
+- Required fields cannot be submitted empty.
+- Mobile numbers must use an appropriate Indian mobile-number validation rule.
+- Email addresses must be validated when provided.
+- Password confirmation must match when password authentication is used.
+- Date-of-birth rules must be reasonable if date of birth is collected.
+- Invalid values must receive understandable inline messages.
+- Submission buttons must show loading states.
+- Duplicate accounts must be handled by the backend without exposing unnecessary personal information.
+- Repeated submissions must not create duplicate patient accounts.
+- Network failures must be explained clearly.
+- User-entered values should be retained after recoverable validation errors where safe.
+- Focus should move to an appropriate error summary or invalid field when needed.
+
+Never show "Registration successful" before the actual configured operation succeeds.
+
+If no backend exists, show a clearly labelled development demonstration result instead of implying that a real patient account has been created.
+
+---
+
+# 6. APPOINTMENT BOOKING MUST USE A CLEAR, FORM-BASED WORKFLOW
+
+The appointment-booking form must follow the same structured, professional approach as the registration form.
+
+Preserve the existing clinic finder and clinic-details booking functionality.
+
+Do not remove the current booking workflow or replace it with a static button.
+
+## 6.1 Booking workflow
+
+Where supported by the current application, the user should be able to:
+
+1. Find a clinic.
+2. Open the clinic's details.
+3. Review available services.
+4. Select a service.
+5. Select a date.
+6. Select an available time slot or appointment session.
+7. Provide the required booking details.
+8. Review the booking summary.
+9. Submit the booking.
+10. Receive a confirmation reflecting the actual result.
+
+For a patient who is not signed in, follow a clear policy:
+- Allow the public to explore clinics and available services.
+- Ask the user to sign in or register before confirming a booking that requires a patient account.
+- Preserve the user's selected clinic and service when directing them to sign in, where practical.
+- Return them to the booking flow after successful authentication.
+
+If guest booking is deliberately supported by the existing approved design, preserve that policy instead of silently changing it. Guest booking must not expose private patient information.
+
+## 6.2 Required booking fields
+
+Use the fields actually needed by the existing booking model.
+
+Depending on the workflow, these may include:
+- Clinic.
+- Seva service.
+- Appointment date.
+- Available appointment slot or session.
+- Patient account or authorised patient identifier.
+- Brief reason for visit, if required and approved.
+- Accessibility or communication assistance request, if supported.
+- Contact confirmation, if necessary.
+
+Do not ask patients to enter their entire medical history in an appointment-booking form.
+
+Do not collect unnecessary sensitive health information.
+
+Do not display a slot as available when it has not been verified against the current booking data.
+
+## 6.3 Booking validation and results
+
+The booking flow must:
+- Validate required fields.
+- Prevent selecting dates or slots that are invalid according to the configured scheduling rules.
+- Display a loading state during submission.
+- Prevent accidental duplicate submission.
+- Display useful validation and server-error messages.
+- Show a confirmation only after the booking operation succeeds.
+- Display the actual appointment reference or token returned by the booking system.
+- Show the selected clinic, service, date, and time.
+- Provide a clear way to return to the patient dashboard or clinic details.
+
+A confirmation number must not be fabricated and represented as a real server-issued booking reference.
+
+If appointments are still held only in browser memory, make that limitation explicit in the development experience.
+
+---
+
+# 7. PREPARE THE APPLICATION FOR REAL CLINIC AND PRACTITIONER DATA
+
+The platform must eventually support real, maintainable data for:
+- Clinics.
+- Clinic addresses and contact details.
+- Clinic operating hours.
+- Services offered at each clinic.
+- Practitioners assigned to clinics.
+- Practitioner qualifications and authorised professional information.
+- Practitioner schedules and availability.
+- Appointment slots.
+- Appointment bookings and cancellation status.
+- Queue tokens.
+- Consultations.
+- Medical records.
+- Approved Vibronics remedy or medication reference information.
+- Prescribed or recommended remedy details, where authorised.
+- Clinic administrators and organisation administrators.
+
+Do not put real patient data, credentials, or confidential clinical information into source files.
+
+## 7.1 Shared data sources
+
+Inspect the existing mock data and TypeScript interfaces.
+
+Avoid introducing duplicate clinic or practitioner datasets inside individual components.
+
+Use the existing shared data architecture wherever possible.
+
+A clinic displayed in the clinic finder should come from the same underlying data source used by clinic details, appointment booking, and clinic administration.
+
+A practitioner displayed on a clinic's details page should correspond to the practitioner's configured clinic assignment.
+
+An appointment must reference a valid patient, clinic, service, and, where applicable, practitioner.
+
+A consultation must reference the correct appointment and authorised patient record.
+
+Avoid inconsistent names, IDs, locations, and service availability across pages.
+
+## 7.2 Production backend boundary
+
+Inspect whether a backend, database, and authentication provider already exist.
+
+If they exist, preserve and integrate with them.
+
+If they do not exist, do not pretend that live data has been implemented by changing the UI.
+
+Prepare a clear integration boundary for future backend work.
+
+The intended production architecture should support:
+- A secure backend API.
+- A persistent database.
+- Server-side validation.
+- Authentication and authorisation.
+- Clinic-scoped data access.
+- Secure document storage.
+- Auditing of sensitive actions.
+- Appropriate backups and recovery.
+- Server-controlled appointment availability.
+- Concurrency-safe booking operations.
+
+PostgreSQL is a suitable future database option, but do not provision infrastructure or introduce unrelated database dependencies as part of this narrowly scoped UI upgrade unless the current project already supports it or it is necessary to implement an explicitly requested capability.
+
+Do not put privileged database credentials in frontend code.
+
+Do not expose private API keys in Vite environment variables that are bundled into the browser.
+
+Do not use localStorage as the production database for patient records.
+
+localStorage may be used for harmless UI preferences or clearly labelled prototype data, but it is not an acceptable secure storage mechanism for real patient medical records.
+
+---
+
+# 8. PATIENT DASHBOARD: PRESERVE ITS FEATURES, FIX ITS IDENTITY STATE
+
+The existing patient dashboard already has a patient welcome section, patient identification information, appointment information, accessibility controls, and other components.
+
+Preserve its existing design and functional sections.
+
+Do not redesign the entire dashboard during this task.
+
+However, correct its authentication-dependent rendering.
+
+## 8.1 When signed out
+
+The private patient dashboard must not render as though a patient is signed in.
+
+Show a patient sign-in prompt or redirect to the patient sign-in page.
+
+Do not display the example identity "Smt. Ananya Rao" as the actual signed-in patient when no authenticated account exists.
+
+Do not show patient IDs, private appointment tokens, medical records, or personal history to an unauthenticated visitor.
+
+## 8.2 When signed in
+
+Use the authenticated patient's actual profile information.
+
+Show the patient's own:
+- Name.
+- Patient identifier, if issued by the backend.
+- Preferred or primary clinic, if configured.
+- Upcoming appointments.
+- Appointment history.
+- Medical records the patient is authorised to view.
+- Profile information.
+
+If a field has no real value, handle the empty state gracefully rather than fabricating one.
+
+## 8.3 Senior-friendly controls
+
+Preserve the existing accessibility toolbar.
+
+Ensure that:
+- Text-size controls actually affect readable content.
+- High-contrast mode changes the interface in a meaningful and consistent way.
+- Buttons remain large enough to tap.
+- Important information remains visible when text is enlarged.
+- Modals and forms do not become clipped when font size changes.
+- Keyboard users can navigate interactive elements.
+- Icons are accompanied by labels wherever the action might otherwise be unclear.
+- Form labels and error messages remain legible.
+- Controls have visible focus indicators.
+
+Do not remove the senior-help action or existing accessibility features.
+
+Do not add audio prescription instructions as part of this task unless the application already has that feature. Keep this upgrade focused on the requested authentication and forms.
+
+---
+
+# 9. PRESERVE THE EXISTING FULL-SCREEN NAVIGATION DRAWER
+
+The existing navigation drawer was previously improved and should remain intact.
+
+Do not replace it with a different menu design.
+
+The menu should:
+- Open from the existing menu button.
+- Occupy the full available screen on mobile devices when open, rather than appearing as an awkward half-width panel.
+- Have a clearly visible close button.
+- Keep all navigation items visible and reachable.
+- Support scrolling if its contents exceed the viewport.
+- Prevent unintended background interaction while open.
+- Close when a navigation destination is selected.
+- Support Escape to close.
+- Have appropriate accessible labels and keyboard focus handling.
+- Preserve the existing Saivibronics branding.
+- Preserve navigation to Home, Find a Clinic, Patient Portal, and the other existing destinations appropriate to the current design.
+
+Do not remove the menu because staff access is being separated from patient sign-in.
+
+Keep navigation changes narrowly scoped.
+
+If the existing drawer is already functioning correctly, leave it unchanged.
+
+---
+
+# 10. VISUAL DESIGN FOR THE REGISTRATION AND SIGN-IN PAGES
+
+The objective is a polished healthcare application, not a plain documentation website.
+
+Use the existing Saivibronics visual identity:
+- Deep teal.
+- White.
+- Light mint.
+- Navy text.
+- Subtle borders.
+- Restrained shadows.
+- Existing icon style.
+
+Do not replace the site's existing design system.
+
+## 10.1 Typography
+
+Use readable, high-contrast typography.
+
+Suggested hierarchy:
+- Page title: approximately 30 to 36 px on desktop and 26 to 30 px on mobile.
+- Section heading: approximately 20 to 24 px.
+- Form labels: approximately 16 px.
+- Body copy: approximately 16 to 18 px.
+- Primary buttons: approximately 16 to 18 px.
+- Supporting information: normally at least 14 px, subject to readability and accessibility requirements.
+
+These are targets, not permission to make every page larger or alter unrelated layouts.
+
+Avoid tiny 11 px or 12 px text for important patient information.
+
+## 10.2 Form controls
+
+Use:
+- Comfortable field heights, approximately 48 to 56 px where appropriate.
+- Clear borders.
+- Rounded corners consistent with the current interface.
+- Sufficient spacing between fields.
+- Visible focus states.
+- Clear required-field indicators.
+- Error messages directly associated with their fields.
+- Buttons with descriptive labels.
+- Loading indicators during asynchronous operations.
+
+Avoid:
+- Excessive gradients.
+- Huge empty areas.
+- Overly decorative backgrounds.
+- Dense text blocks.
+- Tiny icons without labels.
+- Unnecessary animation.
+- Forms that appear as screenshots rather than actual interactive HTML elements.
+
+The form must be functional, keyboard accessible, and responsive.
+
+## 10.3 Mobile and desktop
+
+On phones:
+- Use a single-column form.
+- Avoid horizontal scrolling.
+- Keep fields within the viewport.
+- Ensure buttons are easy to tap.
+- Do not place two-column field layouts where they become cramped.
+- Ensure the keyboard does not permanently hide the active field or submit button.
+
+On tablets and desktop:
+- Use a sensible content width.
+- Group related fields in two columns only when there is sufficient room.
+- Keep the page visually balanced.
+- Do not stretch form fields across excessively wide screens.
+
+Test at a narrow phone width, a tablet width, and a desktop width.
+
+---
+
+# 11. REAL FUNCTIONALITY, NOT DECORATIVE BUTTONS
+
+Every visible control modified as part of this task must have a meaningful behaviour.
+
+Examples:
+
+- "Sign In" submits the configured authentication form.
+- "Create Patient Account" navigates to patient registration.
+- "Forgot Password?" opens the supported recovery flow or an honest not-yet-configured state.
+- "Show Password" toggles password visibility.
+- "Find a Clinic" navigates to the clinic finder.
+- "Book Appointment" enters the existing appointment workflow.
+- "Back to Sign In" navigates correctly.
+- Form validation shows actionable feedback.
+- Loading indicators appear during pending operations.
+- Error messages are visible and accessible.
+- Successful operations display the result returned by the actual configured service.
+
+Do not create decorative controls that do nothing.
+
+Do not silently swallow errors.
+
+Do not display a false success message after a failed network request.
+
+Do not use setTimeout to imitate a real backend request and then describe it as production authentication or persistence.
+
+If a real service is not yet connected, be explicit about that boundary.
+
+---
+
+# 12. DATA PRIVACY AND HEALTHCARE SAFETY
+
+This application may eventually handle sensitive patient information.
+
+Follow these boundaries:
+- Never use real patient information in demonstration data.
+- Do not add confidential patient information to source files.
+- Do not store passwords in the browser.
+- Do not expose patient records through public routes or public APIs.
+- Do not allow patients to access other patients' records.
+- Do not let practitioners access patients outside their authorised scope.
+- Do not let clinic administrators access unrelated clinics.
+- Do not trust frontend role checks as security.
+- Validate all sensitive operations on the server in production.
+- Use secure transport and appropriate session management.
+- Keep audit records for sensitive administrative and clinical operations.
+- Use private document storage with access controls if document uploads are introduced later.
+- Do not send sensitive medical information to an unapproved third-party service.
+- Do not introduce AI diagnosis or automated treatment recommendations.
+
+Any remedy information must remain within the authorised human-led clinical workflow and must not be presented as a substitute for professional medical judgement.
+
+Before production deployment with real patients, the organisation must review applicable Indian privacy, healthcare, data-retention, and operational requirements.
+
+---
+
+# 13. TECHNICAL IMPLEMENTATION RULES
+
+The existing project uses React, TypeScript, Vite, Tailwind CSS, and Lucide icons.
+
+Retain the current framework and build setup.
+
+Before modifying dependencies:
+1. Inspect package.json.
+2. Inspect the actual code imports.
+3. Identify what is already installed.
+4. Reuse existing components and libraries where possible.
+5. Add a dependency only when it is genuinely necessary.
+
+Use TypeScript types that match the existing project.
+
+Avoid:
+- Unnecessary `any`.
+- Duplicate state representing the same data.
+- Duplicated validation logic.
+- Hardcoded user identities.
+- Direct DOM manipulation when React state is appropriate.
+- Repeated copies of the same form markup.
+- Unnecessary new state-management libraries.
+- Replacing existing components with giant monolithic components.
+
+Extract small reusable form components only where this improves maintainability.
+
+Preserve the existing `types.ts` contracts where possible. If a type must change, update all relevant usages consistently.
+
+Reuse existing shared data and navigation helpers.
+
+If the project already has a routing library, preserve its conventions.
+
+Do not assume that adding a new package automatically makes authentication or data persistence secure.
+
+---
+
+# 14. REGRESSION TESTING AND ACCEPTANCE CRITERIA
+
+After implementing the changes, inspect the modified files and verify the following.
+
+## Patient sign-in
+
+- The patient sign-in page no longer displays the four-role dashboard-launch grid.
+- Practitioner and administrator dashboards have not been deleted.
+- The sign-in page remains visually consistent with the existing Saivibronics branding.
+- Form fields have visible labels.
+- Password visibility works if password authentication is used.
+- Invalid input produces clear feedback.
+- Loading and error states are handled.
+- The page does not falsely claim that a user is authenticated.
+
+## Patient identity
+
+- Opening the patient portal while signed out does not display a fabricated signed-in identity.
+- Protected patient information is not displayed to a public visitor.
+- The dashboard uses the authenticated patient's actual profile when authentication is connected.
+- Empty profile and appointment states are handled correctly.
+- Signing out removes access to private patient content.
+
+## Patient registration
+
+- The form resembles a polished medical registration application.
+- The form uses the Saivibronics design system.
+- Fields are grouped into understandable sections.
+- Field validation works.
+- Registration success is not falsely reported.
+- The form works on mobile, tablet, and desktop.
+- Existing clinic data is reused for clinic selection where possible.
+
+## Appointment booking
+
+- The existing clinic finder remains available.
+- The existing clinic details page remains available.
+- The existing appointment-booking flow remains available.
+- Unauthenticated users are handled according to the existing booking policy.
+- The selected clinic and service are preserved during sign-in where practical.
+- Booking validation and result states work.
+- No fake server confirmation is shown.
+
+## Navigation
+
+- The existing full-screen navigation drawer remains functional.
+- The menu is not unintentionally replaced or removed.
+- Existing destinations still work.
+- No unrelated page has disappeared.
+
+## Existing features
+
+Verify that these still work:
+- Home page.
+- Clinic search.
+- Locality and service filters.
+- Clinic details.
+- Existing appointment booking.
+- Patient dashboard tabs.
+- Practitioner dashboard.
+- Clinic administrator dashboard.
+- Organisation administrator dashboard.
+- PWA installation control.
+- Text-size controls.
+- High-contrast mode.
+- Senior-help action.
+
+Do not claim that a check passed unless it was actually performed.
+
+Run the available TypeScript/build checks and resolve errors caused by the changes.
+
+If automated browser tests are available, use them for the key flows.
+
+---
+
+# 15. STRICT SCOPE CONTROL
+
+This is a targeted improvement, not a complete platform rewrite.
+
+Make only the changes required to:
+1. Remove administrative and practitioner role-launch cards from the normal patient sign-in page.
+2. Correct unauthenticated patient-dashboard behaviour.
+3. Improve patient registration into a structured, senior-friendly form.
+4. Improve the appointment form while preserving the existing booking workflow.
+5. Preserve the existing navigation drawer and accessibility features.
+6. Establish an honest boundary between demonstration behaviour and real authentication or backend operations.
+7. Keep the architecture ready for later real clinic, practitioner, appointment, and clinical data integration.
+
+Do not redesign the landing page as part of this task.
+
+Do not change the entire header.
+
+Do not replace the site's colours.
+
+Do not change the clinic finder layout unless a direct change is necessary to preserve functionality.
+
+Do not rebuild the practitioner or administrator dashboards.
+
+Do not add unrelated features.
+
+Do not remove existing functionality to simplify implementation.
+
+If a requested production feature cannot work without a backend, implement the appropriate frontend integration boundary and clearly identify the missing backend dependency rather than simulating a secure production feature.
+
+---
+
+# 16. IMPLEMENTATION ORDER
+
+Follow this order to reduce the risk of regressions.
+
+Step 1: Inspect the current application and locate the sign-in page, registration page, patient dashboard, appointment form, navigation drawer, authentication-related state, shared types, and existing data sources.
+
+Step 2: Identify the smallest set of files that need changes.
+
+Step 3: Remove the four-role quick-launch cards from the ordinary patient sign-in page without deleting staff dashboard components.
+
+Step 4: Correct patient authentication-dependent rendering so a signed-out visitor cannot appear to be a signed-in patient.
+
+Step 5: Improve the patient registration form using the structured medical-registration design described above.
+
+Step 6: Improve the appointment-booking form without breaking the existing clinic-selection and booking flow.
+
+Step 7: Preserve and verify the existing full-screen menu and accessibility controls.
+
+Step 8: Check that the same clinic and practitioner records are used consistently wherever the current shared data architecture allows it.
+
+Step 9: Run build and TypeScript checks. Correct regressions introduced by the changes.
+
+Step 10: Provide a concise implementation summary identifying:
+- Files changed.
+- Behaviours implemented.
+- Existing features preserved.
+- Checks actually run and their results.
+- Features that still require a real authentication provider, backend API, database, or notification service.
+
+Do not stop after describing what should be done. Implement the changes in the existing project.
+
+# FINAL DIRECTIVE
+
+Preserve the application. Improve the requested experiences. Do not rebuild unrelated parts.
+
+The finished result must feel like a coherent, patient-friendly Saivibronics application, with a genuine patient-facing sign-in and registration experience, properly structured appointment forms, and a clear separation between patient access and future staff access.
+
+**A visually convincing prototype is not the same as a production-connected healthcare system. Keep that distinction technically accurate and visible wherever necessary.**
