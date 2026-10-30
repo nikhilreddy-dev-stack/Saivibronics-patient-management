@@ -21,18 +21,26 @@ interface FindClinicPageProps {
   clinics: Clinic[];
   onSelectClinic: (clinicId: string) => void;
   onNavigate: (page: PageId) => void;
+  initialSearchQuery?: string;
 }
 
 export const FindClinicPage: React.FC<FindClinicPageProps> = ({
   clinics,
   onSelectClinic,
   onNavigate,
+  initialSearchQuery = '',
 }) => {
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState(initialSearchQuery);
   const [selectedLocality, setSelectedLocality] = useState('All Localities');
   const [selectedService, setSelectedService] = useState('All Services');
   const [locationNotice, setLocationNotice] = useState<string | null>(null);
   const [showLocationDialog, setShowLocationDialog] = useState(false);
+
+  React.useEffect(() => {
+    if (initialSearchQuery) {
+      setSearchQuery(initialSearchQuery);
+    }
+  }, [initialSearchQuery]);
 
   // Filtered clinics
   const filteredClinics = useMemo(() => {

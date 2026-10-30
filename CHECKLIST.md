@@ -28,7 +28,7 @@
 ### 2. Public Website & Clinic Discovery
 | Feature | Relevant Views | Frontend | Backend | Database | Status | Notes |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| Homepage with brand introduction & discovery actions | `HomePage.tsx` | IMPLEMENTED | N/A | N/A | VERIFIED | Concise hero, discovery search card, 4-step workflow, pilot spotlight |
+| Homepage with brand introduction & discovery actions | `HomePage.tsx` | IMPLEMENTED | N/A | N/A | VERIFIED | Two-column hero, quick-action strip, 4-step care journey, clinic search & preview, patient portal preview, trust principles |
 | Search clinics by name, locality, or PIN (560070) | `FindClinicPage.tsx` | IMPLEMENTED | IN PROGRESS | N/A | TESTED | Real-time text search with instant matching against Bengaluru clinics |
 | Locality and offered seva service filter dropdowns | `FindClinicPage.tsx` | IMPLEMENTED | IN PROGRESS | N/A | TESTED | Filters by Padmanabhanagar, Banashankari, Basavanagudi, Jayanagar |
 | Geolocation with explicit browser permission modal | `FindClinicPage.tsx` | IMPLEMENTED | N/A | N/A | TESTED | Prompts permission dialog; falls back gracefully to manual search |

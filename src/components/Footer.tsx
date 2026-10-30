@@ -65,10 +65,13 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
             <ul className="space-y-1.5 text-sm">
               <li>
                 <button
-                  onClick={() => onNavigate('home')}
+                  onClick={() => {
+                    onNavigate('home');
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  }}
                   className="hover:text-white text-slate-300 py-1 transition-colors cursor-pointer min-h-[36px] flex items-center"
                 >
-                  Home & Overview
+                  Home
                 </button>
               </li>
               <li>
@@ -76,15 +79,20 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
                   onClick={() => onNavigate('find-clinic')}
                   className="hover:text-white text-slate-300 py-1 transition-colors cursor-pointer min-h-[36px] flex items-center"
                 >
-                  Find a Clinic (Bengaluru)
+                  Find a Clinic
                 </button>
               </li>
               <li>
                 <button
-                  onClick={() => onNavigate('register')}
+                  onClick={() => {
+                    onNavigate('home');
+                    setTimeout(() => {
+                      document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' });
+                    }, 150);
+                  }}
                   className="hover:text-white text-slate-300 py-1 transition-colors cursor-pointer min-h-[36px] flex items-center"
                 >
-                  Patient Registration Form
+                  How It Works
                 </button>
               </li>
               <li>
@@ -92,7 +100,28 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
                   onClick={() => onNavigate('signin')}
                   className="hover:text-white text-slate-300 py-1 transition-colors cursor-pointer min-h-[36px] flex items-center"
                 >
-                  Sign-In Portal
+                  Sign In
+                </button>
+              </li>
+              <li>
+                <button
+                  onClick={() => onNavigate('register')}
+                  className="hover:text-white text-slate-300 py-1 transition-colors cursor-pointer min-h-[36px] flex items-center"
+                >
+                  Patient Registration
+                </button>
+              </li>
+              <li>
+                <button
+                  onClick={() => {
+                    onNavigate('home');
+                    setTimeout(() => {
+                      document.getElementById('trust-principles')?.scrollIntoView({ behavior: 'smooth' });
+                    }, 150);
+                  }}
+                  className="hover:text-white text-slate-300 py-1 transition-colors cursor-pointer min-h-[36px] flex items-center"
+                >
+                  Accessibility & Privacy
                 </button>
               </li>
               <li>
@@ -100,15 +129,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
                   onClick={() => onNavigate('patient-dashboard')}
                   className="hover:text-white text-slate-300 py-1 transition-colors cursor-pointer min-h-[36px] flex items-center"
                 >
-                  Patient Dashboard (Senior Grid)
-                </button>
-              </li>
-              <li>
-                <button
-                  onClick={() => onNavigate('practitioner-dashboard')}
-                  className="hover:text-white text-slate-300 py-1 transition-colors cursor-pointer min-h-[36px] flex items-center"
-                >
-                  Practitioner Clinical Console
+                  Patient Portal
                 </button>
               </li>
             </ul>

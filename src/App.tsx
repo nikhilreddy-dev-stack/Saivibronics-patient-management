@@ -30,6 +30,7 @@ import { OrgAdminDashboardPage } from './pages/OrgAdminDashboardPage';
 export default function App() {
   const [currentPage, setCurrentPage] = useState<PageId>('home');
   const [selectedClinicId, setSelectedClinicId] = useState<string>('clinic-padmanabhanagar');
+  const [clinicSearchQuery, setClinicSearchQuery] = useState<string>('');
 
   // Prototype state management (in-memory demonstration storage)
   const [clinics, setClinics] = useState<Clinic[]>(INITIAL_CLINICS);
@@ -43,6 +44,11 @@ export default function App() {
 
   const handleSelectClinic = (clinicId: string) => {
     setSelectedClinicId(clinicId);
+  };
+
+  const handleSearchFromHome = (query: string) => {
+    setClinicSearchQuery(query);
+    setCurrentPage('find-clinic');
   };
 
   const handleBookAppointment = (newAppointment: Appointment) => {
@@ -86,6 +92,7 @@ export default function App() {
           <HomePage
             onNavigate={setCurrentPage}
             onSelectClinic={handleSelectClinic}
+            onSearchClinics={handleSearchFromHome}
           />
         )}
 
@@ -94,6 +101,7 @@ export default function App() {
             clinics={clinics}
             onSelectClinic={handleSelectClinic}
             onNavigate={setCurrentPage}
+            initialSearchQuery={clinicSearchQuery}
           />
         )}
 
