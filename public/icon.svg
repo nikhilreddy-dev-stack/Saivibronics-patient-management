@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="brandGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0f766e" />
+      <stop offset="100%" stop-color="#14b8a6" />
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="128" fill="url(#brandGrad)" />
+  <circle cx="256" cy="256" r="190" fill="none" stroke="#ffffff" stroke-width="8" opacity="0.25" />
+  <!-- Stylized Lotus / Heart Healing Symbol -->
+  <path d="M256 120 C220 180 180 230 180 280 C180 324 214 360 256 360 C298 360 332 324 332 280 C332 230 292 180 256 120 Z" fill="#ffffff" opacity="0.95" />
+  <path d="M256 210 C210 240 140 270 140 310 C140 350 170 375 205 375 C235 375 250 350 256 335 C262 350 277 375 307 375 C342 375 372 350 372 310 C372 270 302 240 256 210 Z" fill="#ffffff" opacity="0.65" />
+  <circle cx="256" cy="275" r="22" fill="#0d9488" />
+  <!-- Small Healing Rays -->
+  <circle cx="256" cy="100" r="10" fill="#fef08a" />
+</svg>

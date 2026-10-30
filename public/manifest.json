@@ -1,0 +1,19 @@
+{
+  "id": "/",
+  "name": "Saivibronics Patient Management Platform",
+  "short_name": "Saivibronics",
+  "description": "Patient Management and Clinic Discovery Platform for Sri Sathya Sai Organisation, piloting in Padmanabhanagar, Bengaluru.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#0d9488",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

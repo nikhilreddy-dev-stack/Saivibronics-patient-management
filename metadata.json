@@ -1,0 +1,6 @@
+{
+  "name": "Saivibronics Patient Management Platform",
+  "description": "A modern, accessible healthcare website prototype for Sri Sathya Sai Organisation, piloting patient management, clinic discovery, and practitioner workflows in Padmanabhanagar, Bengaluru.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

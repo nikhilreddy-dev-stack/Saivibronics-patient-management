@@ -1,0 +1,277 @@
+import { Clinic, Practitioner, Appointment, MedicalRecord, VibronicsRemedy } from '../types';
+
+export const INITIAL_CLINICS: Clinic[] = [
+  {
+    id: 'clinic-padmanabhanagar',
+    name: 'Sri Sathya Sai Vibronics Seva Clinic - Padmanabhanagar',
+    code: 'SSSO-BLR-01',
+    locality: 'Padmanabhanagar',
+    pincode: '560070',
+    address: '14th Main, Near Carmel High School, Padmanabhanagar, Bengaluru, Karnataka 560070',
+    phone: '+91 80 2669 4410 (Demo Only)',
+    operatingHours: 'Mon - Sat: 9:00 AM - 1:00 PM, 4:30 PM - 7:30 PM | Sun: 9:00 AM - 12:00 PM (Seva)',
+    specialties: ['Vibronics 108 Holistic Consultation', 'Chronic Ailment Follow-up', 'Senior Citizen Wellness', 'Preventive Lifestyle Care'],
+    activePractitionersCount: 4,
+    status: 'Active Pilot',
+    image: '/src/assets/images/clinic_padmanabhanagar_1793209989692.jpg',
+    isPilotCenter: true,
+    facilities: ['Wheelchair Ramp & Elevator', 'Air-cooled Seva Waiting Hall', 'Free Remedy Dispensing Counter', 'Elderly Priority Queue'],
+    seniorAccessible: true,
+  },
+  {
+    id: 'clinic-banashankari',
+    name: 'Sri Sathya Sai Seva Samithi Holistic Clinic - Banashankari',
+    code: 'SSSO-BLR-02',
+    locality: 'Banashankari 2nd Stage',
+    pincode: '560085',
+    address: '22nd Cross, 8th Block, Near BDA Complex, Banashankari, Bengaluru, Karnataka 560085',
+    phone: '+91 80 2671 8920 (Demo Only)',
+    operatingHours: 'Tue - Sun: 9:30 AM - 1:30 PM, 5:00 PM - 7:30 PM (Mon Closed)',
+    specialties: ['Holistic Vibronics Care', 'Digestive & Metabolic Harmony', 'Stress & Insomnia Relief', 'Paediatric Seva'],
+    activePractitionersCount: 3,
+    status: 'Operational',
+    image: '/src/assets/images/hero_healthcare_clinic_1793209988820.jpg',
+    isPilotCenter: false,
+    facilities: ['Ground Floor Access', 'Dedicated Consultation Rooms', 'Herbal Water Facility'],
+    seniorAccessible: true,
+  },
+  {
+    id: 'clinic-basavanagudi',
+    name: 'Sri Sathya Sai Wellness Centre - Basavanagudi',
+    code: 'SSSO-BLR-03',
+    locality: 'Basavanagudi',
+    pincode: '560004',
+    address: 'Gandhi Bazaar Main Road, Near National College Metro, Basavanagudi, Bengaluru, Karnataka 560004',
+    phone: '+91 80 2660 3341 (Demo Only)',
+    operatingHours: 'Mon - Fri: 10:00 AM - 2:00 PM, 4:00 PM - 7:00 PM | Sat: 9:00 AM - 1:00 PM',
+    specialties: ['Joint & Mobility Support', 'Ayurvedic & Vibronics Synergy', 'General Wellness Screening'],
+    activePractitionersCount: 3,
+    status: 'Operational',
+    image: '/src/assets/images/consultation_wellness_1793209990719.jpg',
+    isPilotCenter: false,
+    facilities: ['Metro Proximity (<300m)', 'Quiet Meditation Corner', 'Braille Assistance'],
+    seniorAccessible: true,
+  },
+  {
+    id: 'clinic-jayanagar',
+    name: 'Sri Sathya Sai Community Seva Clinic - Jayanagar',
+    code: 'SSSO-BLR-04',
+    locality: 'Jayanagar 4th Block',
+    pincode: '560041',
+    address: '32nd Cross, 11th Main, Near Jayanagar Shopping Complex, Bengaluru, Karnataka 560041',
+    phone: '+91 80 2656 1289 (Demo Only)',
+    operatingHours: 'Wed - Sun: 9:00 AM - 12:30 PM, 4:30 PM - 7:00 PM',
+    specialties: ['Allergy & Respiratory Support', 'Holistic Preventive Care', 'Post-Recovery Rejuvenation'],
+    activePractitionersCount: 2,
+    status: 'Operational',
+    image: '/src/assets/images/hero_healthcare_clinic_1793209988820.jpg',
+    isPilotCenter: false,
+    facilities: ['Ramp Access', 'Free Potentised Remedy Kits', 'Patient Education Kiosk'],
+    seniorAccessible: true,
+  },
+  {
+    id: 'clinic-malleshwaram',
+    name: 'Sri Sathya Sai Seva Kendra - Malleshwaram',
+    code: 'SSSO-BLR-05',
+    locality: 'Malleshwaram',
+    pincode: '560003',
+    address: '8th Cross, Sampige Road, Malleshwaram, Bengaluru, Karnataka 560003',
+    phone: '+91 80 2334 5570 (Demo Only)',
+    operatingHours: 'Mon, Wed, Fri & Sat: 10:00 AM - 1:00 PM, 5:00 PM - 8:00 PM',
+    specialties: ['Vibronics Consultation', 'Cardiac Wellness Lifestyle', 'Senior Care'],
+    activePractitionersCount: 2,
+    status: 'Operational',
+    image: '/src/assets/images/clinic_padmanabhanagar_1793209989692.jpg',
+    isPilotCenter: false,
+    facilities: ['Wheelchair Assistance', 'Dedicated Care Volunteers', 'Drinking Water'],
+    seniorAccessible: true,
+  }
+];
+
+export const PRACTITIONERS: Practitioner[] = [
+  {
+    id: 'prac-1',
+    name: 'Dr. K. S. Ramesh, BAMS, MD (Ayu)',
+    title: 'Senior Vibronics Practitioner & Seva Lead',
+    qualification: 'Certified Sai Vibronics Senior Practitioner (24 yrs)',
+    experienceYears: 24,
+    clinicId: 'clinic-padmanabhanagar',
+    availableDays: ['Monday', 'Wednesday', 'Friday', 'Saturday'],
+    timing: '09:30 AM - 12:30 PM, 05:00 PM - 07:00 PM',
+    specialization: 'Chronic Digestive Disorders & Degenerative Joint Care',
+  },
+  {
+    id: 'prac-2',
+    name: 'Smt. Radha V. Murthy, M.Sc',
+    title: 'Vibronics Holistic Practitioner & Wellness Educator',
+    qualification: 'Certified Sai Vibronics Practitioner (14 yrs)',
+    experienceYears: 14,
+    clinicId: 'clinic-padmanabhanagar',
+    availableDays: ['Tuesday', 'Thursday', 'Saturday', 'Sunday'],
+    timing: '10:00 AM - 01:00 PM',
+    specialization: 'Insomnia, Stress Alleviation & Paediatric Immunity',
+  },
+  {
+    id: 'prac-3',
+    name: 'Dr. Arvind C. Kumar, MBBS, DNB',
+    title: 'Integrative Health Consultant & Seva Volunteer',
+    qualification: 'Allopathic & Certified Vibronics Volunteer (18 yrs)',
+    experienceYears: 18,
+    clinicId: 'clinic-banashankari',
+    availableDays: ['Monday', 'Tuesday', 'Thursday', 'Friday'],
+    timing: '05:00 PM - 07:30 PM',
+    specialization: 'Preventive Cardiac Care & Metabolic Balance',
+  },
+  {
+    id: 'prac-4',
+    name: 'Sri Venkatesh Prasad, B.Pharm',
+    title: 'Certified Vibronics Practitioner',
+    qualification: 'Sai Vibronics Level 3 Practitioner (9 yrs)',
+    experienceYears: 9,
+    clinicId: 'clinic-basavanagudi',
+    availableDays: ['Wednesday', 'Thursday', 'Saturday'],
+    timing: '10:00 AM - 01:30 PM',
+    specialization: 'Skin Health, Allergies & Environmental Sensitivities',
+  }
+];
+
+export const VIBRONICS_REMEDIES: VibronicsRemedy[] = [
+  { code: 'CC4.1', name: 'Digestion Tonic', category: 'Digestive', commonUses: 'Acidity, sluggish metabolism, gentle gut harmony' },
+  { code: 'CC10.1', name: 'Emergency Tonic', category: 'General', commonUses: 'Acute physical or emotional shock, sudden stress, vital energy replenishment' },
+  { code: 'CC12.1', name: 'Adult Tonic', category: 'Vitality', commonUses: 'Age-related fatigue, general debility, sustained immunity support' },
+  { code: 'CC15.1', name: 'Mental & Emotional Balance', category: 'Neurological', commonUses: 'Anxiety, restless sleep, inner calm and peaceful clarity' },
+  { code: 'CC18.1', name: 'Immunity & Infection Tonic', category: 'Immune System', commonUses: 'Seasonal weather transitions, throat tickle, resistance boost' },
+  { code: 'CC20.3', name: 'Arthritis & Joint Support', category: 'Musculoskeletal', commonUses: 'Knee stiffness, joint comfort, senior citizen mobility' },
+  { code: 'CC17.2', name: 'Respiratory Cleanser', category: 'Respiratory', commonUses: 'Urban dust sensitivity, mild wheeze, clear nasal passages' },
+  { code: 'CC21.2', name: 'Skin Calming Formula', category: 'Dermatological', commonUses: 'Itching, dry flaking patches, heat rash soothing' }
+];
+
+export const INITIAL_APPOINTMENTS: Appointment[] = [
+  {
+    id: 'apt-101',
+    tokenNumber: 'P-04',
+    patientName: 'Smt. Ananya Rao',
+    patientId: 'SSSO-BLR-2026-0842',
+    clinicId: 'clinic-padmanabhanagar',
+    clinicName: 'Sri Sathya Sai Vibronics Seva Clinic - Padmanabhanagar',
+    practitionerName: 'Dr. K. S. Ramesh, BAMS, MD (Ayu)',
+    date: '2026-10-30',
+    timeSlot: '10:30 AM - 11:00 AM',
+    status: 'Scheduled',
+    reasonForVisit: 'Monthly review for knee joint comfort and general vitality',
+    notes: 'Patient reports 60% improvement in morning knee stiffness. Continue light walking and warm compress.',
+    remedySummary: 'CC20.3 (Joint Support) + CC12.1 (Vitality Tonic) 3 doses daily in water',
+  },
+  {
+    id: 'apt-102',
+    tokenNumber: 'P-08',
+    patientName: 'Sri M. Nagaraj',
+    patientId: 'SSSO-BLR-2026-1120',
+    clinicId: 'clinic-padmanabhanagar',
+    clinicName: 'Sri Sathya Sai Vibronics Seva Clinic - Padmanabhanagar',
+    practitionerName: 'Smt. Radha V. Murthy, M.Sc',
+    date: '2026-10-28',
+    timeSlot: '11:15 AM - 11:35 AM',
+    status: 'In Consultation',
+    reasonForVisit: 'Restless sleep pattern and work-related tension',
+  },
+  {
+    id: 'apt-103',
+    tokenNumber: 'P-09',
+    patientName: 'Kum. Divya Balakrishnan',
+    patientId: 'SSSO-BLR-2026-1405',
+    clinicId: 'clinic-padmanabhanagar',
+    clinicName: 'Sri Sathya Sai Vibronics Seva Clinic - Padmanabhanagar',
+    practitionerName: 'Dr. K. S. Ramesh, BAMS, MD (Ayu)',
+    date: '2026-10-28',
+    timeSlot: '11:40 AM - 12:00 PM',
+    status: 'Waiting',
+    reasonForVisit: 'Seasonal allergic rhinitis and dust sensitivity',
+  },
+  {
+    id: 'apt-104',
+    tokenNumber: 'P-02',
+    patientName: 'Sri T. S. Raghavan',
+    patientId: 'SSSO-BLR-2026-0691',
+    clinicId: 'clinic-padmanabhanagar',
+    clinicName: 'Sri Sathya Sai Vibronics Seva Clinic - Padmanabhanagar',
+    practitionerName: 'Dr. K. S. Ramesh, BAMS, MD (Ayu)',
+    date: '2026-10-28',
+    timeSlot: '09:30 AM - 09:50 AM',
+    status: 'Completed',
+    reasonForVisit: 'Routine blood pressure review and digestive tonic follow-up',
+    notes: 'Vitals stable. Appetite improved. Refilled 1 month supply of sugar globules potentised remedy.',
+    remedySummary: 'CC4.1 + CC12.1 TDS (three times daily)',
+  },
+  {
+    id: 'apt-105',
+    tokenNumber: 'P-11',
+    patientName: 'Smt. Sunanda Hegde',
+    patientId: 'SSSO-BLR-2026-1744',
+    clinicId: 'clinic-padmanabhanagar',
+    clinicName: 'Sri Sathya Sai Vibronics Seva Clinic - Padmanabhanagar',
+    practitionerName: 'Smt. Radha V. Murthy, M.Sc',
+    date: '2026-10-28',
+    timeSlot: '12:15 PM - 12:35 PM',
+    status: 'Waiting',
+    reasonForVisit: 'General holistic checkup for senior wellness',
+  }
+];
+
+export const INITIAL_MEDICAL_RECORDS: MedicalRecord[] = [
+  {
+    id: 'rec-2026-09',
+    date: '2026-09-24',
+    clinicName: 'Sri Sathya Sai Vibronics Seva Clinic - Padmanabhanagar',
+    practitionerName: 'Dr. K. S. Ramesh',
+    diagnosisSummary: 'Age-related degenerative joint mild discomfort (Bilateral knees) and mild digestive acidity',
+    prescribedRemedies: [
+      'CC20.3 Arthritis & Joint Support (6C potentised globules)',
+      'CC4.1 Digestion Tonic (108 CC combination)'
+    ],
+    followUpAdvice: 'Take 3 globules dry on clean tongue 15 mins before meals. Store remedy container away from direct sunlight, camphor, and mobile radiation.',
+    lifestyleNotes: 'Recommended 20 minutes gentle morning warm sunlight walking and lukewarm water intake.',
+    vitals: {
+      bp: '124/82 mmHg',
+      pulse: '74 bpm',
+      weight: '63.5 kg'
+    }
+  },
+  {
+    id: 'rec-2026-08',
+    date: '2026-08-16',
+    clinicName: 'Sri Sathya Sai Vibronics Seva Clinic - Padmanabhanagar',
+    practitionerName: 'Smt. Radha V. Murthy',
+    diagnosisSummary: 'Seasonal exhaustion and mild sleep disruption during monsoon transition',
+    prescribedRemedies: [
+      'CC15.1 Mental & Emotional Balance',
+      'CC12.1 Adult Vitality Tonic'
+    ],
+    followUpAdvice: 'Take nightly dose at bedtime. Practice 5 minutes of quiet omkar breathing before sleep.',
+    lifestyleNotes: 'Avoid heavy meals post 8:00 PM.',
+    vitals: {
+      bp: '126/84 mmHg',
+      pulse: '76 bpm',
+      weight: '64.0 kg'
+    }
+  }
+];
+
+export const LOCALITIES = [
+  'All Localities',
+  'Padmanabhanagar',
+  'Banashankari 2nd Stage',
+  'Basavanagudi',
+  'Jayanagar 4th Block',
+  'Malleshwaram'
+];
+
+export const ALL_SERVICES = [
+  'All Services',
+  'Vibronics 108 Holistic Consultation',
+  'Senior Citizen Wellness',
+  'Chronic Ailment Follow-up',
+  'Stress & Insomnia Relief',
+  'Joint & Mobility Support',
+  'Paediatric Seva'
+];
