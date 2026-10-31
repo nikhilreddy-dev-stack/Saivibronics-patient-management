@@ -54,11 +54,9 @@ export const SignInPage: React.FC<SignInPageProps> = ({
 
     setLoading(true);
 
-    // Simulate authenticating against registered patient accounts
     setTimeout(() => {
       setLoading(false);
 
-      // Check against registered patient pool
       const matchedPatient = registeredPatients.find((p) => {
         const emailMatch = p.email.toLowerCase() === cleanIdentifier;
         const phoneMatch = p.mobileNumber.replace(/\D/g, '') === cleanIdentifier.replace(/\D/g, '');
@@ -66,20 +64,18 @@ export const SignInPage: React.FC<SignInPageProps> = ({
       });
 
       if (matchedPatient) {
-        setSuccessMessage(`Welcome back, ${matchedPatient.fullName}! Directing to your patient dashboard...`);
+        setSuccessMessage(`Welcome back, ${matchedPatient.fullName}! Directing to your patient portal...`);
         setTimeout(() => {
           onSignInSuccess(matchedPatient);
           onNavigate('patient-dashboard');
-        }, 600);
+        }, 500);
       } else if (cleanIdentifier.includes('ananya') || cleanIdentifier === '9845012345') {
-        // Fallback demo patient
-        setSuccessMessage('Welcome back, Smt. Ananya Rao! Directing to your patient dashboard...');
+        setSuccessMessage('Welcome back, Smt. Ananya Rao! Directing to your patient portal...');
         setTimeout(() => {
           onSignInSuccess(DEMO_PATIENT);
           onNavigate('patient-dashboard');
-        }, 600);
+        }, 500);
       } else {
-        // Create session profile for entered credentials so patient can still access
         const newDemoPatient: PatientProfile = {
           id: `SSSO-BLR-2026-${Math.floor(1000 + Math.random() * 9000)}`,
           fullName: cleanIdentifier.includes('@')
@@ -96,9 +92,9 @@ export const SignInPage: React.FC<SignInPageProps> = ({
         setTimeout(() => {
           onSignInSuccess(newDemoPatient);
           onNavigate('patient-dashboard');
-        }, 600);
+        }, 500);
       }
-    }, 500);
+    }, 400);
   };
 
   const handleFillDemo = () => {
@@ -108,62 +104,62 @@ export const SignInPage: React.FC<SignInPageProps> = ({
   };
 
   return (
-    <div className="max-w-xl mx-auto px-4 sm:px-6 py-10 sm:py-16 space-y-6">
+    <div className="max-w-xl mx-auto px-4 sm:px-6 py-10 sm:py-16 space-y-6 font-sans">
       {/* Return Navigation */}
       <div className="flex items-center justify-between">
         <button
           onClick={() => onNavigate('home')}
-          className="inline-flex items-center gap-2 text-sm font-bold text-teal-800 hover:text-teal-950 transition-colors cursor-pointer min-h-[44px]"
+          className="inline-flex items-center gap-2 text-xs sm:text-sm font-bold text-slate-600 hover:text-blue-600 transition-colors cursor-pointer min-h-[44px]"
         >
-          <ArrowLeft className="w-5 h-5" />
+          <ArrowLeft className="w-4 h-4" />
           <span>Back to Home</span>
         </button>
 
         <button
           onClick={() => onNavigate('find-clinic')}
-          className="text-xs sm:text-sm font-semibold text-slate-500 hover:text-[#007F73] transition-colors"
+          className="text-xs sm:text-sm font-semibold text-slate-500 hover:text-blue-600 transition-colors"
         >
           Find a Clinic
         </button>
       </div>
 
       {/* Main Patient Sign In Card */}
-      <div className="bg-white rounded-3xl border border-slate-200/90 p-6 sm:p-10 shadow-xs space-y-6">
+      <div className="bg-white rounded-2xl border border-slate-200 p-6 sm:p-9 shadow-xs space-y-6">
         {/* Brand Header */}
         <div className="space-y-2">
           <div className="flex items-center gap-3 mb-2">
-            <div className="w-12 h-12 rounded-xl bg-[#007F73] text-white flex items-center justify-center shadow-xs">
-              <HeartHandshake className="w-6 h-6 text-teal-100" />
+            <div className="w-12 h-12 rounded-xl bg-blue-600 text-white flex items-center justify-center shadow-xs">
+              <HeartHandshake className="w-6 h-6 text-teal-200" />
             </div>
             <div>
-              <span className="text-xl font-bold tracking-tight text-[#14243A] block font-['Plus_Jakarta_Sans',sans-serif]">
+              <span className="text-xl font-bold tracking-tight text-slate-900 block font-['Plus_Jakarta_Sans',sans-serif]">
                 Saivibronics
               </span>
-              <span className="text-[10px] font-bold text-[#007F73] tracking-wider uppercase block">
+              <span className="text-[10px] font-bold text-teal-700 tracking-wider uppercase block">
                 Sri Sathya Sai Organisation
               </span>
             </div>
           </div>
 
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-[#14243A] tracking-tight font-['Plus_Jakarta_Sans',sans-serif]">
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight font-['Plus_Jakarta_Sans',sans-serif]">
             Patient Sign In
           </h1>
-          <p className="text-sm sm:text-base text-[#536579] leading-relaxed">
+          <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
             Access your scheduled consultation tokens, medical notes, and holistic Vibronics remedy instructions.
           </p>
         </div>
 
         {/* Feedback Alert Messages */}
         {errorMessage && (
-          <div className="p-3.5 bg-rose-50 text-rose-800 border border-rose-200 rounded-2xl text-sm font-semibold flex items-start gap-2.5">
-            <AlertCircle className="w-5 h-5 text-rose-600 shrink-0 mt-0.5" />
+          <div className="p-3.5 bg-rose-50 text-rose-800 border border-rose-200 rounded-xl text-xs sm:text-sm font-semibold flex items-start gap-2.5">
+            <AlertCircle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
             <span>{errorMessage}</span>
           </div>
         )}
 
         {successMessage && (
-          <div className="p-3.5 bg-emerald-50 text-emerald-800 border border-emerald-200 rounded-2xl text-sm font-semibold flex items-start gap-2.5">
-            <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
+          <div className="p-3.5 bg-emerald-50 text-emerald-800 border border-emerald-200 rounded-xl text-xs sm:text-sm font-semibold flex items-start gap-2.5">
+            <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
             <span>{successMessage}</span>
           </div>
         )}
@@ -172,7 +168,7 @@ export const SignInPage: React.FC<SignInPageProps> = ({
         <form onSubmit={handleSubmit} className="space-y-4 pt-1 text-sm">
           {/* Mobile / Email Input */}
           <div>
-            <label htmlFor="patient-identifier" className="block font-bold text-slate-800 mb-1.5 text-sm">
+            <label htmlFor="patient-identifier" className="block font-bold text-slate-700 mb-1.5 text-xs uppercase tracking-wider">
               Mobile Number or Email Address <span className="text-rose-500">*</span>
             </label>
             <input
@@ -185,20 +181,20 @@ export const SignInPage: React.FC<SignInPageProps> = ({
                 setErrorMessage(null);
               }}
               placeholder="e.g. 9845012345 or ananya.rao@example.com"
-              className="w-full px-4 py-3 bg-slate-50 border border-slate-300 rounded-2xl text-base text-[#14243A] focus:outline-none focus:ring-2 focus:ring-[#007F73] focus:bg-white transition-colors min-h-[48px]"
+              className="w-full px-4 py-3 bg-slate-50 border border-slate-300 rounded-xl text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-colors min-h-[48px]"
             />
           </div>
 
           {/* Password Input */}
           <div>
             <div className="flex items-center justify-between mb-1.5">
-              <label htmlFor="patient-password" className="block font-bold text-slate-800 text-sm">
+              <label htmlFor="patient-password" className="block font-bold text-slate-700 text-xs uppercase tracking-wider">
                 Account Password <span className="text-rose-500">*</span>
               </label>
               <button
                 type="button"
                 onClick={() => setShowForgotPasswordModal(true)}
-                className="text-xs font-semibold text-[#007F73] hover:underline cursor-pointer"
+                className="text-xs font-semibold text-blue-600 hover:underline cursor-pointer"
               >
                 Forgot Password?
               </button>
@@ -214,26 +210,26 @@ export const SignInPage: React.FC<SignInPageProps> = ({
                   setErrorMessage(null);
                 }}
                 placeholder="Enter your password"
-                className="w-full pl-4 pr-12 py-3 bg-slate-50 border border-slate-300 rounded-2xl text-base text-[#14243A] focus:outline-none focus:ring-2 focus:ring-[#007F73] focus:bg-white transition-colors min-h-[48px]"
+                className="w-full pl-4 pr-12 py-3 bg-slate-50 border border-slate-300 rounded-xl text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-colors min-h-[48px]"
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-800 p-1 min-h-[36px] min-w-[36px] flex items-center justify-center cursor-pointer"
+                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 p-1 min-h-[36px] min-w-[36px] flex items-center justify-center cursor-pointer"
                 aria-label={showPassword ? 'Hide password' : 'Show password'}
               >
-                {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
               </button>
             </div>
           </div>
 
           {/* Demonstration Quick Fill Action */}
-          <div className="p-3 bg-teal-50/60 rounded-xl border border-teal-100 flex items-center justify-between text-xs text-[#007F73]">
+          <div className="p-3 bg-blue-50 rounded-xl border border-blue-200 flex items-center justify-between text-xs text-blue-900">
             <span>Demo Patient: ananya.rao@example.com</span>
             <button
               type="button"
               onClick={handleFillDemo}
-              className="font-bold underline hover:text-[#006b60] cursor-pointer"
+              className="font-bold underline hover:text-blue-700 cursor-pointer"
             >
               Fill Demo Credentials
             </button>
@@ -244,20 +240,20 @@ export const SignInPage: React.FC<SignInPageProps> = ({
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3.5 px-6 bg-[#007F73] hover:bg-[#006b60] text-white font-bold text-base rounded-2xl shadow-xs transition-colors flex items-center justify-center gap-2 cursor-pointer min-h-[50px] disabled:opacity-75"
+              className="w-full py-3 px-6 bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm sm:text-base rounded-xl shadow-xs transition-colors flex items-center justify-center gap-2 cursor-pointer min-h-[48px] disabled:opacity-75"
             >
               <span>{loading ? 'Authenticating Patient...' : 'Sign In to Patient Portal'}</span>
-              <ArrowRight className="w-5 h-5" />
+              <ArrowRight className="w-4 h-4" />
             </button>
           </div>
 
           {/* Create Account Link */}
-          <div className="pt-4 border-t border-slate-100 text-center text-sm text-slate-600">
+          <div className="pt-4 border-t border-slate-100 text-center text-xs sm:text-sm text-slate-600">
             <span>New patient to Sri Sathya Sai Seva clinics? </span>
             <button
               type="button"
               onClick={() => onNavigate('register')}
-              className="font-bold text-[#007F73] hover:underline cursor-pointer"
+              className="font-bold text-blue-600 hover:underline cursor-pointer"
             >
               Create Patient Account
             </button>
@@ -270,27 +266,27 @@ export const SignInPage: React.FC<SignInPageProps> = ({
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs">
           <div className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl border border-slate-200 space-y-4">
             <div className="flex items-center justify-between pb-2 border-b border-slate-100">
-              <div className="flex items-center gap-2 font-bold text-slate-900">
-                <HelpCircle className="w-5 h-5 text-[#007F73]" />
+              <div className="flex items-center gap-2 font-bold text-slate-900 text-sm">
+                <HelpCircle className="w-4 h-4 text-blue-600" />
                 <span>Password Recovery Assistance</span>
               </div>
               <button
                 onClick={() => setShowForgotPasswordModal(false)}
                 className="text-slate-400 hover:text-slate-600 p-1"
               >
-                <X className="w-5 h-5" />
+                <X className="w-4 h-4" />
               </button>
             </div>
             <p className="text-xs text-slate-600 leading-relaxed">
               In this community pilot phase, passwords can be reset by providing your registered Indian mobile number at the clinic reception desk, or by contacting the Padmanabhanagar Seva helpline:
             </p>
-            <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 text-xs font-mono font-bold text-[#14243A] flex items-center gap-2">
-              <Phone className="w-4 h-4 text-[#007F73]" />
+            <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 text-xs font-mono font-bold text-slate-900 flex items-center gap-2">
+              <Phone className="w-4 h-4 text-blue-600" />
               <span>+91 80 2669 4410 (Seva Helpline)</span>
             </div>
             <button
               onClick={() => setShowForgotPasswordModal(false)}
-              className="w-full py-2.5 rounded-xl bg-[#007F73] text-white text-xs font-bold hover:bg-[#006b60] transition-colors"
+              className="w-full py-2.5 rounded-xl bg-blue-600 text-white text-xs font-bold hover:bg-blue-700 transition-colors cursor-pointer"
             >
               Understood
             </button>

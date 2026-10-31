@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Appointment, Practitioner, PageId } from '../types';
+import { Appointment, Practitioner, PageId, HistoricalRecord } from '../types';
 import {
   Building2,
   Users,
@@ -21,703 +21,627 @@ import {
   AlertTriangle,
   Paperclip,
   CheckCircle,
-  FileCheck
+  FileCheck,
+  Plus,
+  Download,
+  PhoneCall,
+  UserCheck
 } from 'lucide-react';
-
-export interface DigitisedRecord {
-  id: string;
-  patientId: string;
-  patientName: string;
-  originalDate: string;
-  paperRegisterRef: string;
-  practitionerName: string;
-  notes: string;
-  remedies: string;
-  fileName: string;
-  status: 'Pending Verification' | 'Approved' | 'Returned';
-}
-
-const INITIAL_DIGITISED_RECORDS: DigitisedRecord[] = [
-  {
-    id: 'DIG-2026-001',
-    patientId: 'SSSO-BLR-2026-0842',
-    patientName: 'Smt. Ananya Rao',
-    originalDate: '2024-11-18',
-    paperRegisterRef: 'REG-PAD-2024-VOL-03-P28',
-    practitionerName: 'Dr. K. S. Ramesh',
-    notes: 'Historical record: Chronic lower back stiffness following winter season. Prescribed complementary joint support.',
-    remedies: 'CC20.3 (Joint Support) + CC12.1 (Vitality)',
-    fileName: 'ananya_rao_paper_scan_nov2024.pdf',
-    status: 'Approved',
-  },
-  {
-    id: 'DIG-2026-002',
-    patientId: 'SSSO-BLR-2026-0843',
-    patientName: 'Sri. Gopalakrishna Bhat',
-    originalDate: '2025-01-12',
-    paperRegisterRef: 'REG-PAD-2025-VOL-01-P05',
-    practitionerName: 'Dr. Meera N. Murthy',
-    notes: 'Paper register entry: Acidity and mild digestive disturbance during pilgrimage travel.',
-    remedies: 'CC4.2 (Digestive Balance) TDS',
-    fileName: 'gopalakrishna_paper_scan_jan2025.jpg',
-    status: 'Pending Verification',
-  },
-];
 
 interface ClinicAdminDashboardPageProps {
   appointments: Appointment[];
   practitioners: Practitioner[];
+  historicalRecords?: HistoricalRecord[];
   onNavigate: (page: PageId) => void;
+  onBookAppointment?: (newAppointment: Appointment) => void;
+  onDigitiseRecord?: (recordData: Omit<HistoricalRecord, 'id' | 'dateEntered' | 'verificationStatus'>) => void;
 }
 
 export const ClinicAdminDashboardPage: React.FC<ClinicAdminDashboardPageProps> = ({
   appointments,
   practitioners,
+  historicalRecords = [],
   onNavigate,
+  onBookAppointment,
+  onDigitiseRecord,
 }) => {
-  const [filterShift, setFilterShift] = useState('All');
+  const [activeTab, setActiveTab] = useState<'queue' | 'roster' | 'digitise' | 'reports'>('queue');
   const [dailyTokenLimit, setDailyTokenLimit] = useState(45);
   const [clinicStatus, setClinicStatus] = useState<'Operational' | 'Paused for Seva Break'>('Operational');
-  const [feedback, setFeedback] = useState<string | null>(null);
+  const [feedbackNotice, setFeedbackNotice] = useState<string | null>(null);
 
-  // Historical Paper Records State
-  const [digitisedRecords, setDigitisedRecords] = useState<DigitisedRecord[]>(INITIAL_DIGITISED_RECORDS);
-  const [showDigitiseModal, setShowDigitiseModal] = useState(false);
-  const [digPatientId, setDigPatientId] = useState('SSSO-BLR-2026-0845');
-  const [digPatientName, setDigPatientName] = useState('Sri. Venkatesh Murthy');
-  const [digOriginalDate, setDigOriginalDate] = useState('2024-08-14');
-  const [digPaperRef, setDigPaperRef] = useState('REG-PAD-2024-VOL-02-P19');
-  const [digPractitioner, setDigPractitioner] = useState('Dr. K. S. Ramesh');
-  const [digNotes, setDigNotes] = useState('General weakness and knee strain while walking.');
-  const [digRemedies, setDigRemedies] = useState('CC12.1 (Adult Tonic) + CC20.4 (Muscles & Joints)');
-  const [digUploadedFile, setDigUploadedFile] = useState<string | null>('venkatesh_register_scan_p19.pdf');
-  const [recordFilterStatus, setRecordFilterStatus] = useState<'All' | 'Pending Verification' | 'Approved' | 'Returned'>('All');
+  // Walk-in Token Modal state
+  const [showWalkInModal, setShowWalkInModal] = useState(false);
+  const [walkInPatientName, setWalkInPatientName] = useState('');
+  const [walkInMobile, setWalkInMobile] = useState('');
+  const [walkInAge, setWalkInAge] = useState('68');
+  const [walkInReason, setWalkInReason] = useState('Senior citizen walk-in for joint stiffness checkup');
+  const [walkInPractitioner, setWalkInPractitioner] = useState(practitioners[0]?.name || 'Dr. K. S. Ramesh');
 
-  const completedCount = appointments.filter((a) => a.status === 'Completed').length;
-  const waitingCount = appointments.filter((a) => a.status === 'Waiting').length;
-  const inProgressCount = appointments.filter((a) => a.status === 'In Consultation').length;
+  // Paper Register Digitisation Form state
+  const [patientIdInput, setPatientIdInput] = useState('SSSO-BLR-2026-0842');
+  const [patientNameInput, setPatientNameInput] = useState('Smt. Ananya Rao');
+  const [originalDateInput, setOriginalDateInput] = useState('2024-11-18');
+  const [paperRegisterRefInput, setPaperRegisterRefInput] = useState('REG-PAD-2024-VOL-03-P28');
+  const [remediesInput, setRemediesInput] = useState('CC20.3 (Joint Support) + CC12.1 (Adult Vitality Tonic)');
+  const [notesInput, setNotesInput] = useState('Historical record: Bilateral knee stiffness following winter rains. Complementary holistic support provided.');
+  const [fileNameInput, setFileNameInput] = useState('padmanabhanagar_scan_vol03_p28.pdf');
 
-  const handleUpdateLimit = (delta: number) => {
-    setDailyTokenLimit((prev) => Math.max(10, prev + delta));
-    setFeedback(`Daily token quota updated to ${Math.max(10, dailyTokenLimit + delta)}`);
-    setTimeout(() => setFeedback(null), 3000);
+  const waitingTokens = appointments.filter((a) => a.status === 'Waiting');
+  const inConsultationTokens = appointments.filter((a) => a.status === 'In Consultation');
+  const completedTokens = appointments.filter((a) => a.status === 'Completed');
+
+  const handleCreateWalkInToken = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!walkInPatientName.trim()) return;
+
+    const nextTokenNum = `P-${(appointments.length + 1).toString().padStart(2, '0')}`;
+    const newApt: Appointment = {
+      id: `apt-walkin-${Date.now()}`,
+      tokenNumber: nextTokenNum,
+      patientName: walkInPatientName.trim(),
+      patientId: `SSSO-WALKIN-${Date.now().toString().slice(-4)}`,
+      clinicId: 'clinic-padmanabhanagar',
+      clinicName: 'Sri Sathya Sai Vibronics Seva Clinic - Padmanabhanagar',
+      practitionerName: walkInPractitioner,
+      date: new Date().toISOString().slice(0, 10),
+      timeSlot: '11:45 AM - 12:05 PM',
+      status: 'Waiting',
+      reasonForVisit: walkInReason.trim(),
+    };
+
+    if (onBookAppointment) {
+      onBookAppointment(newApt);
+    }
+    setShowWalkInModal(false);
+    setWalkInPatientName('');
+    setWalkInMobile('');
+    setFeedbackNotice(`Walk-in Token #${nextTokenNum} issued successfully.`);
+    setTimeout(() => setFeedbackNotice(null), 4000);
+  };
+
+  const handleSubmitDigitisedRecord = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!patientNameInput.trim() || !paperRegisterRefInput.trim()) return;
+
+    if (onDigitiseRecord) {
+      onDigitiseRecord({
+        patientId: patientIdInput.trim(),
+        patientName: patientNameInput.trim(),
+        originalVisitDate: originalDateInput,
+        clinicName: 'Sri Sathya Sai Vibronics Seva Clinic - Padmanabhanagar',
+        digitisedSummary: `${remediesInput} - ${notesInput}`,
+        scannedDocRef: fileNameInput || paperRegisterRefInput,
+        enteredBy: 'Clinic Reception Desk (Padmanabhanagar)',
+      });
+    }
+
+    setFeedbackNotice('Paper register record submitted for practitioner dual sign-off.');
+    setTimeout(() => setFeedbackNotice(null), 4000);
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 space-y-8">
-      
-      {/* Title & Navigation */}
-      <div className="space-y-3">
-        <div className="flex items-center gap-2 text-xs sm:text-sm text-slate-500 font-medium">
-          <button onClick={() => onNavigate('home')} className="hover:text-teal-700 cursor-pointer">
-            Home
-          </button>
-          <span>/</span>
-          <span className="text-slate-900 font-bold">Clinic Administrator</span>
-        </div>
-
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div>
-            <div className="flex items-center gap-2 mb-1">
-              <span className="bg-teal-50 border border-teal-200 text-teal-800 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
-                Clinic Operations Console
-              </span>
-              <span className="text-xs sm:text-sm text-slate-500 font-mono font-bold">Unit: SSSO-BLR-01</span>
-            </div>
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
-              Padmanabhanagar Pilot Seva Desk
-            </h1>
-            <p className="text-sm text-slate-600 mt-0.5">
-              14th Main, Near Carmel High School, Padmanabhanagar, Bengaluru 560070
-            </p>
-          </div>
-
-          <div className="flex flex-wrap items-center gap-3">
-            <button
-              onClick={() => setShowDigitiseModal(true)}
-              className="px-5 py-3 bg-teal-700 hover:bg-teal-800 text-white rounded-2xl text-sm font-bold transition-colors flex items-center gap-2 cursor-pointer min-h-[44px] shadow-2xs"
-            >
-              <FileUp className="w-4 h-4 text-teal-200" />
-              <span>Digitise Paper Record</span>
-            </button>
-
-            <button
-              onClick={() => onNavigate('org-admin-dashboard')}
-              className="px-5 py-3 bg-slate-900 hover:bg-slate-800 text-white rounded-2xl text-sm font-bold transition-colors flex items-center gap-2 cursor-pointer min-h-[44px]"
-            >
-              <Layers className="w-4 h-4 text-teal-300" />
-              <span>Organisation View</span>
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* Demonstration Notice */}
-      <div className="p-4 bg-amber-50 rounded-2xl border border-amber-200 text-xs sm:text-sm text-amber-950 flex items-start gap-3">
-        <ShieldAlert className="w-5 h-5 text-amber-700 shrink-0 mt-0.5" />
-        <div className="leading-relaxed">
-          <strong>Clinic Admin Demonstration View:</strong> Operational figures, token volumes, and practitioner rosters reflect fictional pilot data for Sri Sathya Sai Seva Clinic Padmanabhanagar. Adjustments are kept in local session state.
-        </div>
-      </div>
-
-      {feedback && (
-        <div className="p-4 bg-teal-50 border border-teal-300 rounded-2xl text-sm text-teal-950 flex items-center gap-2 font-bold shadow-2xs">
-          <CheckCircle2 className="w-5 h-5 text-teal-600 shrink-0" />
-          <span>{feedback}</span>
-        </div>
-      )}
-
-      {/* 4 KPI Summary Cards (Desktop Dashboard style) */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-        <div className="bg-white rounded-3xl border border-slate-200 p-6 space-y-2 shadow-2xs">
-          <div className="flex items-center justify-between text-slate-500 text-xs font-bold uppercase tracking-wider">
-            <span>Today&apos;s Appointments</span>
-            <CalendarCheck2 className="w-5 h-5 text-teal-600" />
-          </div>
-          <div className="text-3xl font-extrabold text-slate-900 font-mono tabular-nums">
-            {appointments.length}
-          </div>
-          <div className="text-xs text-slate-600 flex items-center gap-2 font-medium">
-            <span className="text-teal-700 font-bold">{completedCount} Completed</span>
-            <span>·</span>
-            <span className="text-amber-700 font-bold">{waitingCount} Waiting</span>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-3xl border border-slate-200 p-6 space-y-2 shadow-2xs">
-          <div className="flex items-center justify-between text-slate-500 text-xs font-bold uppercase tracking-wider">
-            <span>Practitioners on Duty</span>
-            <Users className="w-5 h-5 text-teal-600" />
-          </div>
-          <div className="text-3xl font-extrabold text-slate-900 font-mono tabular-nums">
-            {practitioners.length}
-          </div>
-          <div className="text-xs text-slate-500">
-            Certified senior volunteers
-          </div>
-        </div>
-
-        <div className="bg-white rounded-3xl border border-slate-200 p-6 space-y-2 shadow-2xs">
-          <div className="flex items-center justify-between text-slate-500 text-xs font-bold uppercase tracking-wider">
-            <span>Registered Patients</span>
-            <Building2 className="w-5 h-5 text-teal-600" />
-          </div>
-          <div className="text-3xl font-extrabold text-slate-900 font-mono tabular-nums">
-            482
-          </div>
-          <div className="text-xs text-slate-500">
-            Padmanabhanagar registry
-          </div>
-        </div>
-
-        <div className="bg-white rounded-3xl border border-slate-200 p-6 space-y-2 shadow-2xs">
-          <div className="flex items-center justify-between text-slate-500 text-xs font-bold uppercase tracking-wider">
-            <span>Daily Token Quota</span>
-            <Clock className="w-5 h-5 text-teal-600" />
-          </div>
-          <div className="flex items-center justify-between">
-            <span className="text-3xl font-extrabold text-slate-900 font-mono tabular-nums">
-              {dailyTokenLimit}
-            </span>
-            <div className="flex items-center gap-1.5">
-              <button
-                type="button"
-                onClick={() => handleUpdateLimit(-5)}
-                className="w-8 h-8 rounded-xl bg-slate-100 hover:bg-slate-200 text-sm font-bold text-slate-700 flex items-center justify-center cursor-pointer min-h-[32px] min-w-[32px]"
-                aria-label="Decrease daily quota"
-              >
-                -
-              </button>
-              <button
-                type="button"
-                onClick={() => handleUpdateLimit(5)}
-                className="w-8 h-8 rounded-xl bg-slate-100 hover:bg-slate-200 text-sm font-bold text-slate-700 flex items-center justify-center cursor-pointer min-h-[32px] min-w-[32px]"
-                aria-label="Increase daily quota"
-              >
-                +
-              </button>
-            </div>
-          </div>
-          <div className="text-xs text-slate-600">
-            Capacity: <strong className="text-teal-800">{clinicStatus}</strong>
-          </div>
-        </div>
-      </div>
-
-      {/* Practitioner Schedules & Allocations */}
-      <div className="bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-xs space-y-4 p-6 sm:p-8">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-4">
-          <div>
-            <h3 className="text-lg font-bold text-slate-900">
-              Practitioner Room Allocations & Schedules
-            </h3>
-            <p className="text-sm text-slate-500">
-              Assigned consultation rooms at Padmanabhanagar Seva Clinic
-            </p>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-slate-600 font-bold">Filter Day:</span>
-            <select
-              value={filterShift}
-              onChange={(e) => setFilterShift(e.target.value)}
-              className="px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-sm text-slate-800 cursor-pointer min-h-[40px]"
-            >
-              <option value="All">All Days</option>
-              <option value="Monday">Monday</option>
-              <option value="Wednesday">Wednesday</option>
-              <option value="Saturday">Saturday</option>
-              <option value="Sunday">Sunday</option>
-            </select>
-          </div>
-        </div>
-
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm text-left">
-            <thead className="bg-slate-50 text-slate-600 uppercase tracking-wider text-xs border-y border-slate-200">
-              <tr>
-                <th className="py-3.5 px-4 font-bold">Practitioner</th>
-                <th className="py-3.5 px-4 font-bold">Assigned Room</th>
-                <th className="py-3.5 px-4 font-bold">Available Days</th>
-                <th className="py-3.5 px-4 font-bold">Consultation Shift</th>
-                <th className="py-3.5 px-4 font-bold">Primary Specialty</th>
-                <th className="py-3.5 px-4 text-right font-bold">Status</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
-              {practitioners
-                .filter((p) => filterShift === 'All' || p.availableDays.includes(filterShift))
-                .map((prac, idx) => (
-                  <tr key={prac.id} className="hover:bg-slate-50/70 transition-colors">
-                    <td className="py-4 px-4 font-bold text-slate-900">
-                      {prac.name}
-                      <span className="block text-xs text-slate-400 font-normal">{prac.title}</span>
-                    </td>
-                    <td className="py-4 px-4 font-mono font-bold text-slate-700">
-                      Room 0{idx + 1}
-                    </td>
-                    <td className="py-4 px-4 text-slate-600">
-                      {prac.availableDays.join(', ')}
-                    </td>
-                    <td className="py-4 px-4 text-slate-600">
-                      {prac.timing}
-                    </td>
-                    <td className="py-4 px-4 text-slate-600">
-                      {prac.specialization}
-                    </td>
-                    <td className="py-4 px-4 text-right">
-                      <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-800 border border-emerald-200">
-                        Active on Roster
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      {/* Live Reception Queue Table */}
-      <div className="bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-xs space-y-4 p-6 sm:p-8">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-4">
-          <div>
-            <h3 className="text-lg font-bold text-slate-900">
-              Live Token Queue & Reception Dispensing
-            </h3>
-            <p className="text-sm text-slate-500">
-              Real-time token distribution for Padmanabhanagar clinic
-            </p>
-          </div>
-
-          <button
-            onClick={() => onNavigate('practitioner-dashboard')}
-            className="px-5 py-2.5 bg-teal-50 border border-teal-200 text-teal-800 hover:bg-teal-100 text-sm font-bold rounded-xl transition-colors cursor-pointer min-h-[44px]"
-          >
-            Open Practitioner View
-          </button>
-        </div>
-
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm text-left">
-            <thead className="bg-slate-50 text-slate-600 uppercase tracking-wider text-xs border-y border-slate-200">
-              <tr>
-                <th className="py-3.5 px-4 font-bold">Token #</th>
-                <th className="py-3.5 px-4 font-bold">Patient Name</th>
-                <th className="py-3.5 px-4 font-bold">Time Slot</th>
-                <th className="py-3.5 px-4 font-bold">Assigned Practitioner</th>
-                <th className="py-3.5 px-4 font-bold">Status</th>
-                <th className="py-3.5 px-4 font-bold">Notes / Remedies</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
-              {appointments.map((apt) => (
-                <tr key={apt.id} className="hover:bg-slate-50/70 transition-colors">
-                  <td className="py-4 px-4 font-mono font-bold text-slate-900">
-                    {apt.tokenNumber}
-                  </td>
-                  <td className="py-4 px-4 font-bold text-slate-900">
-                    {apt.patientName}
-                    <span className="block text-xs text-slate-400 font-mono font-normal">{apt.patientId}</span>
-                  </td>
-                  <td className="py-4 px-4 text-slate-600 font-mono">
-                    {apt.timeSlot}
-                  </td>
-                  <td className="py-4 px-4 text-slate-700 font-medium">
-                    {apt.practitionerName}
-                  </td>
-                  <td className="py-4 px-4">
-                    <span
-                      className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${
-                        apt.status === 'Completed'
-                          ? 'bg-slate-100 text-slate-700'
-                          : apt.status === 'In Consultation'
-                          ? 'bg-teal-700 text-white'
-                          : 'bg-amber-100 text-amber-900'
-                      }`}
-                    >
-                      {apt.status}
-                    </span>
-                  </td>
-                  <td className="py-4 px-4 text-slate-600 max-w-xs truncate">
-                    {apt.remedySummary || apt.reasonForVisit}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      {/* Historical Paper Record Digitisation & Verification Section (Requirement 7) */}
-      <div className="bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-xs space-y-6 p-6 sm:p-8">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-4">
-          <div className="space-y-1">
-            <div className="flex items-center gap-2">
-              <span className="px-3 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-900 border border-amber-200 uppercase tracking-wider">
-                Phase 2 Clinical Archiving
-              </span>
-              <span className="text-xs text-slate-500 font-semibold">Dual Sign-Off Protocol</span>
-            </div>
-            <h3 className="text-xl font-bold text-slate-900">
-              Historical Paper Records & Verification Queue
-            </h3>
-            <p className="text-sm text-slate-500">
-              Digitised entries from physical clinic registers prior to digital platform launch
-            </p>
-          </div>
-
-          <div className="flex flex-wrap items-center gap-2">
-            {(['All', 'Pending Verification', 'Approved', 'Returned'] as const).map((st) => (
-              <button
-                key={st}
-                type="button"
-                onClick={() => setRecordFilterStatus(st)}
-                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-colors cursor-pointer min-h-[36px] ${
-                  recordFilterStatus === st
-                    ? 'bg-teal-700 text-white shadow-2xs'
-                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                }`}
-              >
-                {st}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm text-left">
-            <thead className="bg-slate-50 text-slate-600 uppercase tracking-wider text-xs border-y border-slate-200">
-              <tr>
-                <th className="py-3.5 px-4 font-bold">Record / Paper Ref</th>
-                <th className="py-3.5 px-4 font-bold">Patient Details</th>
-                <th className="py-3.5 px-4 font-bold">Original Date</th>
-                <th className="py-3.5 px-4 font-bold">Reviewing Practitioner</th>
-                <th className="py-3.5 px-4 font-bold">Remedies / Clinical Notes</th>
-                <th className="py-3.5 px-4 font-bold">Scan Attachment</th>
-                <th className="py-3.5 px-4 font-bold">Status</th>
-                <th className="py-3.5 px-4 text-right font-bold">Verification Action</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
-              {digitisedRecords
-                .filter((r) => recordFilterStatus === 'All' || r.status === recordFilterStatus)
-                .map((rec) => (
-                  <tr key={rec.id} className="hover:bg-slate-50/70 transition-colors">
-                    <td className="py-4 px-4 font-mono font-bold text-slate-900">
-                      <div>{rec.id}</div>
-                      <span className="text-xs text-slate-400 font-normal">{rec.paperRegisterRef}</span>
-                    </td>
-                    <td className="py-4 px-4">
-                      <strong className="text-slate-900 block font-bold">{rec.patientName}</strong>
-                      <span className="text-xs text-slate-400 font-mono">{rec.patientId}</span>
-                    </td>
-                    <td className="py-4 px-4 text-slate-600 font-mono text-xs">
-                      {rec.originalDate}
-                    </td>
-                    <td className="py-4 px-4 text-slate-700 font-medium">
-                      {rec.practitionerName}
-                    </td>
-                    <td className="py-4 px-4 max-w-xs text-slate-600 text-xs">
-                      <div className="font-bold text-teal-900">{rec.remedies}</div>
-                      <div className="truncate mt-0.5">{rec.notes}</div>
-                    </td>
-                    <td className="py-4 px-4">
-                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-100 text-slate-700 text-xs font-mono font-medium border border-slate-200">
-                        <Paperclip className="w-3.5 h-3.5 text-teal-600" />
-                        <span className="max-w-[100px] truncate">{rec.fileName}</span>
-                      </span>
-                    </td>
-                    <td className="py-4 px-4">
-                      <span
-                        className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${
-                          rec.status === 'Approved'
-                            ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
-                            : rec.status === 'Pending Verification'
-                            ? 'bg-amber-50 text-amber-800 border border-amber-200'
-                            : 'bg-rose-50 text-rose-800 border border-rose-200'
-                        }`}
-                      >
-                        {rec.status}
-                      </span>
-                    </td>
-                    <td className="py-4 px-4 text-right">
-                      {rec.status === 'Pending Verification' ? (
-                        <div className="flex items-center justify-end gap-1.5">
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setDigitisedRecords((prev) =>
-                                prev.map((r) => (r.id === rec.id ? { ...r, status: 'Approved' } : r))
-                              );
-                              setFeedback(`Record ${rec.id} approved and merged into patient history.`);
-                              setTimeout(() => setFeedback(null), 3000);
-                            }}
-                            className="px-2.5 py-1.5 bg-emerald-700 hover:bg-emerald-800 text-white rounded-lg text-xs font-bold transition-colors cursor-pointer min-h-[32px]"
-                            title="Approve digitized entry"
-                          >
-                            Approve
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setDigitisedRecords((prev) =>
-                                prev.map((r) => (r.id === rec.id ? { ...r, status: 'Returned' } : r))
-                              );
-                              setFeedback(`Record ${rec.id} returned to receptionist for correction.`);
-                              setTimeout(() => setFeedback(null), 3000);
-                            }}
-                            className="px-2.5 py-1.5 bg-slate-100 hover:bg-rose-100 text-slate-600 hover:text-rose-700 rounded-lg text-xs font-bold transition-colors cursor-pointer min-h-[32px]"
-                            title="Return for revision"
-                          >
-                            Return
-                          </button>
-                        </div>
-                      ) : (
-                        <span className="text-xs text-slate-400 font-medium">Verified by Staff</span>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-            </tbody>
-          </table>
-        </div>
-
-        <div className="p-4 bg-teal-50/70 rounded-2xl border border-teal-200 text-xs text-teal-950 flex items-start gap-3">
-          <ShieldAlert className="w-5 h-5 text-teal-700 shrink-0 mt-0.5" />
-          <div className="leading-relaxed">
-            <strong>Human Auditor Assurance:</strong> In accordance with Sri Sathya Sai Seva medical compliance, all scanned paper consultations require human review and approval by a certified practitioner before appearing in the patient&apos;s active medical records.
-          </div>
-        </div>
-      </div>
-
-      {/* Digitisation Entry Modal */}
-      {showDigitiseModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs">
-          <div className="w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-3xl bg-white p-6 sm:p-8 shadow-2xl border border-slate-200 space-y-6">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-4">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-2xl bg-teal-50 text-teal-700 flex items-center justify-center border border-teal-200">
-                  <FileUp className="w-6 h-6" />
+    <div className="min-h-screen bg-slate-50 text-slate-800 font-sans pb-16">
+      {/* Top Clinic Header */}
+      <div className="bg-white border-b border-slate-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-2xl bg-indigo-600 text-white flex items-center justify-center font-bold text-lg shadow-xs">
+                <Building2 className="w-6 h-6 text-indigo-100" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <h1 className="text-xl font-bold text-slate-900 font-['Plus_Jakarta_Sans',sans-serif]">
+                    Padmanabhanagar Pilot Reception & Clinic Desk
+                  </h1>
+                  <span className="px-2.5 py-0.5 rounded-full bg-indigo-50 border border-indigo-200 text-indigo-800 text-xs font-bold">
+                    Primary Pilot Center
+                  </span>
                 </div>
-                <div>
-                  <h3 className="text-xl font-bold text-slate-900">
-                    Digitise Historical Paper Record
-                  </h3>
-                  <p className="text-xs text-slate-500">
-                    Extract physical register entry & attach scanned PDF / Image
-                  </p>
+                <p className="text-xs text-slate-500 font-medium">
+                  Center Code: <span className="font-mono font-semibold text-slate-700">SSSO-BLR-01</span> · Pincode: 560070 · 4 Active Practitioners
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2.5">
+              <button
+                onClick={() => setShowWalkInModal(true)}
+                className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs sm:text-sm font-bold flex items-center gap-1.5 shadow-xs transition-colors cursor-pointer"
+              >
+                <Plus className="w-4 h-4" />
+                <span>Issue Walk-in Seva Token</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Admin Navigation Tabs */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center gap-1 overflow-x-auto border-t border-slate-100 pt-1">
+            <button
+              onClick={() => setActiveTab('queue')}
+              className={`px-4 py-3 text-xs sm:text-sm font-bold border-b-2 cursor-pointer transition-colors whitespace-nowrap flex items-center gap-2 ${
+                activeTab === 'queue'
+                  ? 'border-indigo-600 text-indigo-600 bg-indigo-50/50'
+                  : 'border-transparent text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              <Users className="w-4 h-4" />
+              <span>Reception Token Queue ({appointments.length})</span>
+            </button>
+
+            <button
+              onClick={() => setActiveTab('roster')}
+              className={`px-4 py-3 text-xs sm:text-sm font-bold border-b-2 cursor-pointer transition-colors whitespace-nowrap flex items-center gap-2 ${
+                activeTab === 'roster'
+                  ? 'border-indigo-600 text-indigo-600 bg-indigo-50/50'
+                  : 'border-transparent text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              <CalendarCheck2 className="w-4 h-4" />
+              <span>Doctor Roster & Rooms</span>
+            </button>
+
+            <button
+              onClick={() => setActiveTab('digitise')}
+              className={`px-4 py-3 text-xs sm:text-sm font-bold border-b-2 cursor-pointer transition-colors whitespace-nowrap flex items-center gap-2 ${
+                activeTab === 'digitise'
+                  ? 'border-indigo-600 text-indigo-600 bg-indigo-50/50'
+                  : 'border-transparent text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              <FileUp className="w-4 h-4" />
+              <span>Paper Register Digitisation</span>
+            </button>
+
+            <button
+              onClick={() => setActiveTab('reports')}
+              className={`px-4 py-3 text-xs sm:text-sm font-bold border-b-2 cursor-pointer transition-colors whitespace-nowrap flex items-center gap-2 ${
+                activeTab === 'reports'
+                  ? 'border-indigo-600 text-indigo-600 bg-indigo-50/50'
+                  : 'border-transparent text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              <FileText className="w-4 h-4" />
+              <span>Daily Seva Metrics & Export</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 space-y-6">
+        {feedbackNotice && (
+          <div className="p-4 bg-teal-50 border border-teal-300 rounded-2xl text-teal-900 flex items-center gap-3 shadow-2xs">
+            <CheckCircle className="w-5 h-5 text-teal-600 shrink-0" />
+            <span className="text-sm font-semibold">{feedbackNotice}</span>
+          </div>
+        )}
+
+        {/* TAB 1: RECEPTION TOKEN QUEUE */}
+        {activeTab === 'queue' && (
+          <div className="space-y-6">
+            {/* Queue Overview Cards */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+              <div className="p-4 bg-white rounded-2xl border border-slate-200 shadow-2xs">
+                <span className="text-xs font-semibold text-slate-500 uppercase">Tokens Issued</span>
+                <p className="text-2xl font-bold text-slate-900 mt-1">{appointments.length} / {dailyTokenLimit}</p>
+                <span className="text-[11px] text-slate-400">{dailyTokenLimit - appointments.length} slots remaining</span>
+              </div>
+              <div className="p-4 bg-white rounded-2xl border border-slate-200 shadow-2xs">
+                <span className="text-xs font-semibold text-amber-700 uppercase">Waiting in Lounge</span>
+                <p className="text-2xl font-bold text-amber-700 mt-1">{waitingTokens.length}</p>
+                <span className="text-[11px] text-slate-400">Tokens ready for call</span>
+              </div>
+              <div className="p-4 bg-white rounded-2xl border border-slate-200 shadow-2xs">
+                <span className="text-xs font-semibold text-indigo-700 uppercase">In Consultation Rooms</span>
+                <p className="text-2xl font-bold text-indigo-700 mt-1">{inConsultationTokens.length}</p>
+                <span className="text-[11px] text-slate-400">Rooms 1 & 2 occupied</span>
+              </div>
+              <div className="p-4 bg-white rounded-2xl border border-slate-200 shadow-2xs">
+                <span className="text-xs font-semibold text-emerald-700 uppercase">Completed Today</span>
+                <p className="text-2xl font-bold text-emerald-700 mt-1">{completedTokens.length}</p>
+                <span className="text-[11px] text-slate-400">Prescriptions dispensed</span>
+              </div>
+            </div>
+
+            {/* Token Limit Controller */}
+            <div className="p-4 bg-white rounded-2xl border border-slate-200 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-xs sm:text-sm">
+              <div className="flex items-center gap-3">
+                <span className="font-bold text-slate-900">Daily Seva Token Quota:</span>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => setDailyTokenLimit(Math.max(20, dailyTokenLimit - 5))}
+                    className="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 rounded-lg font-bold"
+                  >
+                    -
+                  </button>
+                  <span className="font-mono font-bold text-indigo-600 px-2">{dailyTokenLimit} tokens</span>
+                  <button
+                    onClick={() => setDailyTokenLimit(dailyTokenLimit + 5)}
+                    className="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 rounded-lg font-bold"
+                  >
+                    +
+                  </button>
                 </div>
               </div>
-              <button
-                type="button"
-                onClick={() => setShowDigitiseModal(false)}
-                className="text-slate-400 hover:text-slate-700 p-2 min-h-[44px] min-w-[44px] cursor-pointer"
-              >
-                <X className="w-6 h-6" />
-              </button>
+
+              <div className="flex items-center gap-2">
+                <span className="text-slate-500">Clinic Status:</span>
+                <span className="px-2.5 py-1 bg-emerald-50 text-emerald-800 border border-emerald-200 rounded-lg font-bold text-xs">
+                  {clinicStatus}
+                </span>
+              </div>
             </div>
 
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                if (!digPatientName.trim() || !digPaperRef.trim()) return;
+            {/* Tokens Table */}
+            <div className="bg-white rounded-3xl border border-slate-200 shadow-xs overflow-hidden">
+              <div className="p-5 border-b border-slate-100 flex items-center justify-between">
+                <div>
+                  <h3 className="text-base font-bold text-slate-900">Live Reception Tokens List</h3>
+                  <p className="text-xs text-slate-500">Real-time status updates across Padmanabhanagar rooms</p>
+                </div>
+              </div>
 
-                const newRec: DigitisedRecord = {
-                  id: `DIG-2026-00${digitisedRecords.length + 1}`,
-                  patientId: digPatientId.trim(),
-                  patientName: digPatientName.trim(),
-                  originalDate: digOriginalDate,
-                  paperRegisterRef: digPaperRef.trim(),
-                  practitionerName: digPractitioner,
-                  notes: digNotes.trim(),
-                  remedies: digRemedies.trim(),
-                  fileName: digUploadedFile || 'scanned_paper_entry.pdf',
-                  status: 'Pending Verification',
-                };
+              <div className="divide-y divide-slate-100">
+                {appointments.map((apt) => (
+                  <div
+                    key={apt.id}
+                    className="p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-slate-50 transition-colors"
+                  >
+                    <div className="flex items-start gap-3.5">
+                      <div className="w-12 h-12 rounded-xl bg-indigo-50 border border-indigo-200 text-indigo-900 flex flex-col items-center justify-center font-bold shrink-0">
+                        <span className="text-[10px] text-indigo-400 uppercase">Token</span>
+                        <span className="text-sm font-mono">{apt.tokenNumber}</span>
+                      </div>
 
-                setDigitisedRecords([newRec, ...digitisedRecords]);
-                setShowDigitiseModal(false);
-                setFeedback(`Historical record ${newRec.id} for ${newRec.patientName} submitted for verification.`);
-                setTimeout(() => setFeedback(null), 4000);
-              }}
-              className="space-y-4"
-            >
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2">
+                          <h4 className="text-sm font-bold text-slate-900">{apt.patientName}</h4>
+                          <span className="text-xs font-mono text-slate-400">({apt.patientId})</span>
+                          <span
+                            className={`px-2 py-0.5 rounded text-[11px] font-bold ${
+                              apt.status === 'In Consultation'
+                                ? 'bg-indigo-100 text-indigo-800'
+                                : apt.status === 'Waiting'
+                                ? 'bg-amber-100 text-amber-800'
+                                : apt.status === 'Completed'
+                                ? 'bg-emerald-100 text-emerald-800'
+                                : 'bg-slate-100 text-slate-700'
+                            }`}
+                          >
+                            {apt.status}
+                          </span>
+                        </div>
+                        <p className="text-xs text-slate-600">
+                          <strong>Doctor:</strong> {apt.practitionerName} · <strong>Slot:</strong> {apt.timeSlot}
+                        </p>
+                        <p className="text-xs text-slate-500">
+                          <strong>Reason:</strong> {apt.reasonForVisit}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2 sm:self-center shrink-0">
+                      <button
+                        onClick={() => {
+                          setFeedbackNotice(`Calling Token #${apt.tokenNumber} to Consultation Room 1.`);
+                          setTimeout(() => setFeedbackNotice(null), 3000);
+                        }}
+                        className="px-3.5 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-semibold transition-colors cursor-pointer flex items-center gap-1.5"
+                      >
+                        <PhoneCall className="w-3.5 h-3.5" />
+                        <span>Call to Room</span>
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* TAB 2: DOCTOR ROSTER & ROOMS */}
+        {activeTab === 'roster' && (
+          <div className="space-y-6">
+            <div>
+              <h2 className="text-xl font-bold text-slate-900">Practitioner Roster & Room Allocation</h2>
+              <p className="text-xs text-slate-500">Padmanabhanagar Pilot Active Seva Doctors</p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <div className="p-6 bg-white rounded-3xl border border-slate-200 shadow-xs space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-teal-50 text-teal-700 border border-teal-200 flex items-center justify-center font-bold">
+                      R1
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-bold text-slate-900">Dr. K. S. Ramesh, BAMS, MD (Ayu)</h4>
+                      <p className="text-xs text-slate-500">Room 1 · Vibronics Level 3</p>
+                    </div>
+                  </div>
+                  <span className="px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-xs font-bold">
+                    Active
+                  </span>
+                </div>
+
+                <div className="p-3.5 bg-slate-50 rounded-2xl border border-slate-100 text-xs text-slate-700 space-y-1">
+                  <p><strong>Timing:</strong> 09:30 AM - 01:00 PM</p>
+                  <p><strong>Specialization:</strong> Chronic Arthritic & Joint Care, Vitality Tonics</p>
+                  <p><strong>Queue:</strong> 3 patients waiting in reception</p>
+                </div>
+              </div>
+
+              <div className="p-6 bg-white rounded-3xl border border-slate-200 shadow-xs space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-sky-50 text-sky-700 border border-sky-200 flex items-center justify-center font-bold">
+                      R2
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-bold text-slate-900">Smt. Radha V. Murthy, M.Sc</h4>
+                      <p className="text-xs text-slate-500">Room 2 · Senior Vibronics Practitioner</p>
+                    </div>
+                  </div>
+                  <span className="px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-xs font-bold">
+                    Active
+                  </span>
+                </div>
+
+                <div className="p-3.5 bg-slate-50 rounded-2xl border border-slate-100 text-xs text-slate-700 space-y-1">
+                  <p><strong>Timing:</strong> 10:00 AM - 01:00 PM</p>
+                  <p><strong>Specialization:</strong> Stress, Insomnia, Neurological Calm & Immunity</p>
+                  <p><strong>Queue:</strong> 1 patient waiting in reception</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* TAB 3: PAPER REGISTER DIGITISATION WORKFLOW */}
+        {activeTab === 'digitise' && (
+          <div className="space-y-6">
+            <div>
+              <h2 className="text-xl font-bold text-slate-900">Paper Register Historical Record Digitisation</h2>
+              <p className="text-xs text-slate-500">
+                Enter legacy paper consultation cards into digital format for practitioner verification and dual sign-off.
+              </p>
+            </div>
+
+            <form onSubmit={handleSubmitDigitisedRecord} className="p-6 sm:p-8 bg-white rounded-3xl border border-slate-200 shadow-xs space-y-6">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-1">
-                  <label className="text-xs font-bold text-slate-700 block">
-                    Patient ID
-                  </label>
+                <div>
+                  <label className="text-xs font-semibold text-slate-700 block mb-1">Patient UHID / ID</label>
                   <input
                     type="text"
+                    value={patientIdInput}
+                    onChange={(e) => setPatientIdInput(e.target.value)}
+                    className="w-full px-3.5 py-2 rounded-xl border border-slate-200 text-xs sm:text-sm font-mono"
                     required
-                    value={digPatientId}
-                    onChange={(e) => setDigPatientId(e.target.value)}
-                    className="w-full px-4 py-3 rounded-xl border border-slate-300 text-sm font-mono focus:ring-2 focus:ring-teal-600 focus:outline-none min-h-[44px]"
                   />
                 </div>
 
-                <div className="space-y-1">
-                  <label className="text-xs font-bold text-slate-700 block">
-                    Patient Full Name
-                  </label>
+                <div>
+                  <label className="text-xs font-semibold text-slate-700 block mb-1">Patient Full Name</label>
                   <input
                     type="text"
+                    value={patientNameInput}
+                    onChange={(e) => setPatientNameInput(e.target.value)}
+                    className="w-full px-3.5 py-2 rounded-xl border border-slate-200 text-xs sm:text-sm"
                     required
-                    value={digPatientName}
-                    onChange={(e) => setDigPatientName(e.target.value)}
-                    className="w-full px-4 py-3 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-teal-600 focus:outline-none min-h-[44px]"
                   />
                 </div>
 
-                <div className="space-y-1">
-                  <label className="text-xs font-bold text-slate-700 block">
-                    Original Paper Visit Date
-                  </label>
+                <div>
+                  <label className="text-xs font-semibold text-slate-700 block mb-1">Original Physical Visit Date</label>
                   <input
                     type="date"
+                    value={originalDateInput}
+                    onChange={(e) => setOriginalDateInput(e.target.value)}
+                    className="w-full px-3.5 py-2 rounded-xl border border-slate-200 text-xs sm:text-sm"
                     required
-                    value={digOriginalDate}
-                    onChange={(e) => setDigOriginalDate(e.target.value)}
-                    className="w-full px-4 py-3 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-teal-600 focus:outline-none min-h-[44px]"
                   />
                 </div>
 
-                <div className="space-y-1">
-                  <label className="text-xs font-bold text-slate-700 block">
-                    Physical Paper Register Ref / Volume
-                  </label>
+                <div>
+                  <label className="text-xs font-semibold text-slate-700 block mb-1">Paper Register Reference (Vol & Page #)</label>
                   <input
                     type="text"
+                    value={paperRegisterRefInput}
+                    onChange={(e) => setPaperRegisterRefInput(e.target.value)}
+                    placeholder="e.g. REG-PAD-2024-VOL-03-P28"
+                    className="w-full px-3.5 py-2 rounded-xl border border-slate-200 text-xs sm:text-sm font-mono"
                     required
-                    placeholder="e.g. REG-PAD-2024-VOL-02-P19"
-                    value={digPaperRef}
-                    onChange={(e) => setDigPaperRef(e.target.value)}
-                    className="w-full px-4 py-3 rounded-xl border border-slate-300 text-sm font-mono focus:ring-2 focus:ring-teal-600 focus:outline-none min-h-[44px]"
                   />
                 </div>
               </div>
 
-              <div className="space-y-1">
-                <label className="text-xs font-bold text-slate-700 block">
-                  Attending / Reviewing Practitioner
-                </label>
+              <div>
+                <label className="text-xs font-semibold text-slate-700 block mb-1">Historical Prescribed Remedies (from paper card)</label>
+                <input
+                  type="text"
+                  value={remediesInput}
+                  onChange={(e) => setRemediesInput(e.target.value)}
+                  className="w-full px-3.5 py-2 rounded-xl border border-slate-200 text-xs sm:text-sm"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="text-xs font-semibold text-slate-700 block mb-1">Clinical Notes & Findings</label>
+                <textarea
+                  rows={3}
+                  value={notesInput}
+                  onChange={(e) => setNotesInput(e.target.value)}
+                  className="w-full px-3.5 py-2 rounded-xl border border-slate-200 text-xs sm:text-sm"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="text-xs font-semibold text-slate-700 block mb-1">Scanned Document Attachment Reference</label>
+                <input
+                  type="text"
+                  value={fileNameInput}
+                  onChange={(e) => setFileNameInput(e.target.value)}
+                  className="w-full px-3.5 py-2 rounded-xl border border-slate-200 text-xs sm:text-sm font-mono"
+                />
+              </div>
+
+              <div className="flex items-center justify-between pt-2 border-t border-slate-100">
+                <span className="text-xs text-slate-500">Record will be marked &ldquo;Pending Verification&rdquo; for doctor review</span>
+                <button
+                  type="submit"
+                  className="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 shadow-xs transition-colors cursor-pointer"
+                >
+                  <UploadCloud className="w-4 h-4" />
+                  <span>Submit for Dual Sign-Off</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        )}
+
+        {/* TAB 4: DAILY SEVA METRICS & EXPORT */}
+        {activeTab === 'reports' && (
+          <div className="space-y-6">
+            <div>
+              <h2 className="text-xl font-bold text-slate-900">Padmanabhanagar Daily Seva Summary</h2>
+              <p className="text-xs text-slate-500">End-of-day statistics and voluntary service reporting</p>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div className="p-5 bg-white rounded-2xl border border-slate-200">
+                <span className="text-xs text-slate-500 font-semibold uppercase">Total Seva Beneficiaries</span>
+                <p className="text-3xl font-bold text-slate-900 mt-2">{appointments.length}</p>
+                <p className="text-xs text-slate-400 mt-1">100% Free holistic consultations</p>
+              </div>
+              <div className="p-5 bg-white rounded-2xl border border-slate-200">
+                <span className="text-xs text-slate-500 font-semibold uppercase">Senior Citizens Attended</span>
+                <p className="text-3xl font-bold text-slate-900 mt-2">7</p>
+                <p className="text-xs text-slate-400 mt-1">Wheelchair / fast-track desk assistance</p>
+              </div>
+              <div className="p-5 bg-white rounded-2xl border border-slate-200">
+                <span className="text-xs text-slate-500 font-semibold uppercase">Remedy Phials Dispensed</span>
+                <p className="text-3xl font-bold text-slate-900 mt-2">18</p>
+                <p className="text-xs text-slate-400 mt-1">Free sugar globules potentised medicines</p>
+              </div>
+            </div>
+
+            <div className="p-6 bg-white rounded-3xl border border-slate-200 shadow-xs flex items-center justify-between">
+              <div>
+                <h4 className="text-sm font-bold text-slate-900">Export Daily Consultation Log</h4>
+                <p className="text-xs text-slate-500">Download formatted CSV with tokens, patient UHIDs, and remedies</p>
+              </div>
+
+              <button
+                onClick={() => {
+                  setFeedbackNotice('Daily Padmanabhanagar Seva CSV report generated and downloaded.');
+                  setTimeout(() => setFeedbackNotice(null), 3000);
+                }}
+                className="px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs sm:text-sm font-bold flex items-center gap-1.5 transition-colors cursor-pointer shadow-xs"
+              >
+                <Download className="w-4 h-4" />
+                <span>Export Daily Log (CSV)</span>
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* WALK-IN SEVA TOKEN MODAL */}
+      {showWalkInModal && (
+        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl max-w-md w-full p-6 space-y-4 shadow-xl border border-slate-200">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
+                <Plus className="w-5 h-5 text-indigo-600" />
+                <span>Issue Walk-in Seva Token</span>
+              </h3>
+              <button
+                onClick={() => setShowWalkInModal(false)}
+                className="p-1 rounded-lg text-slate-400 hover:text-slate-700 cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleCreateWalkInToken} className="space-y-4 text-xs sm:text-sm">
+              <div>
+                <label className="text-xs font-semibold text-slate-700 block mb-1">Patient Full Name</label>
+                <input
+                  type="text"
+                  value={walkInPatientName}
+                  onChange={(e) => setWalkInPatientName(e.target.value)}
+                  placeholder="e.g. Sri Venkatesh Murthy"
+                  className="w-full px-3 py-2 rounded-xl border border-slate-200"
+                  required
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs font-semibold text-slate-700 block mb-1">Mobile Number</label>
+                  <input
+                    type="tel"
+                    value={walkInMobile}
+                    onChange={(e) => setWalkInMobile(e.target.value)}
+                    placeholder="98801 12345"
+                    className="w-full px-3 py-2 rounded-xl border border-slate-200"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs font-semibold text-slate-700 block mb-1">Age</label>
+                  <input
+                    type="number"
+                    value={walkInAge}
+                    onChange={(e) => setWalkInAge(e.target.value)}
+                    className="w-full px-3 py-2 rounded-xl border border-slate-200"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="text-xs font-semibold text-slate-700 block mb-1">Assign Doctor</label>
                 <select
-                  value={digPractitioner}
-                  onChange={(e) => setDigPractitioner(e.target.value)}
-                  className="w-full px-4 py-3 rounded-xl border border-slate-300 text-sm bg-white focus:ring-2 focus:ring-teal-600 focus:outline-none min-h-[44px]"
+                  value={walkInPractitioner}
+                  onChange={(e) => setWalkInPractitioner(e.target.value)}
+                  className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-white"
                 >
                   {practitioners.map((p) => (
                     <option key={p.id} value={p.name}>
-                      {p.name} ({p.title})
+                      {p.name} ({p.clinicId})
                     </option>
                   ))}
                 </select>
               </div>
 
-              <div className="space-y-1">
-                <label className="text-xs font-bold text-slate-700 block">
-                  Extracted Vibronics Remedies Written in Register
-                </label>
+              <div>
+                <label className="text-xs font-semibold text-slate-700 block mb-1">Chief Reason for Consultation</label>
                 <input
                   type="text"
+                  value={walkInReason}
+                  onChange={(e) => setWalkInReason(e.target.value)}
+                  className="w-full px-3 py-2 rounded-xl border border-slate-200"
                   required
-                  placeholder="e.g. CC12.1 + CC20.3 (Joint Support)"
-                  value={digRemedies}
-                  onChange={(e) => setDigRemedies(e.target.value)}
-                  className="w-full px-4 py-3 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-teal-600 focus:outline-none min-h-[44px]"
                 />
               </div>
 
-              <div className="space-y-1">
-                <label className="text-xs font-bold text-slate-700 block">
-                  Extracted Clinical Observations & Symptoms
-                </label>
-                <textarea
-                  rows={3}
-                  required
-                  value={digNotes}
-                  onChange={(e) => setDigNotes(e.target.value)}
-                  className="w-full px-4 py-3 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-teal-600 focus:outline-none leading-relaxed"
-                />
-              </div>
-
-              {/* Scanned Document Dropzone */}
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-slate-700 block">
-                  Attach Scanned Paper Sheet (PDF / JPEG / PNG)
-                </label>
-                <div className="border-2 border-dashed border-teal-200 rounded-2xl p-6 text-center bg-teal-50/40 hover:bg-teal-50/70 transition-colors">
-                  <UploadCloud className="w-8 h-8 text-teal-600 mx-auto mb-2" />
-                  <p className="text-xs sm:text-sm font-bold text-slate-800">
-                    {digUploadedFile ? (
-                      <span className="text-teal-800 flex items-center justify-center gap-1.5">
-                        <FileCheck className="w-4 h-4 text-emerald-600" />
-                        <span>Ready: {digUploadedFile}</span>
-                      </span>
-                    ) : (
-                      'Drag & drop scanned file here, or click to browse'
-                    )}
-                  </p>
-                  <p className="text-xs text-slate-500 mt-1">
-                    Maximum scan file size: 10 MB (Prototype stores reference in session)
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-center justify-end gap-3 pt-3">
+              <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
                 <button
                   type="button"
-                  onClick={() => setShowDigitiseModal(false)}
-                  className="px-5 py-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-sm cursor-pointer min-h-[44px]"
+                  onClick={() => setShowWalkInModal(false)}
+                  className="px-4 py-2 rounded-xl border border-slate-200 text-slate-700 text-xs font-semibold cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-6 py-3 rounded-xl bg-teal-700 hover:bg-teal-800 text-white font-bold text-sm cursor-pointer min-h-[44px] shadow-sm flex items-center gap-2"
+                  className="px-5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold shadow-xs cursor-pointer"
                 >
-                  <FileUp className="w-4 h-4" />
-                  <span>Submit for Verification</span>
+                  Confirm Token
                 </button>
               </div>
             </form>

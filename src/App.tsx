@@ -4,13 +4,27 @@
  */
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { PageId, Clinic, Appointment, MedicalRecord, PatientProfile } from './types';
+import {
+  PageId,
+  Clinic,
+  Appointment,
+  MedicalRecord,
+  PatientProfile,
+  PrescriptionRecord,
+  ChatMessage,
+  HistoricalRecord,
+  AuditLogEntry,
+} from './types';
 import {
   INITIAL_CLINICS,
   PRACTITIONERS,
   INITIAL_APPOINTMENTS,
   INITIAL_MEDICAL_RECORDS,
   DEMO_PATIENT,
+  INITIAL_PRESCRIPTIONS,
+  INITIAL_MESSAGES,
+  INITIAL_HISTORICAL_RECORDS,
+  INITIAL_AUDIT_LOGS,
 } from './data/mockData';
 
 import { Header } from './components/Header';
@@ -46,13 +60,17 @@ export default function App() {
   const [clinicSearchQuery, setClinicSearchQuery] = useState<string>('');
   const [clinicSearchService, setClinicSearchService] = useState<string>('All Services');
 
-  // Shared in-memory data state
+  // Shared platform state
   const [clinics, setClinics] = useState<Clinic[]>(INITIAL_CLINICS);
   const [appointments, setAppointments] = useState<Appointment[]>(INITIAL_APPOINTMENTS);
   const [medicalRecords, setMedicalRecords] = useState<MedicalRecord[]>(INITIAL_MEDICAL_RECORDS);
+  const [prescriptions, setPrescriptions] = useState<PrescriptionRecord[]>(INITIAL_PRESCRIPTIONS);
+  const [messages, setMessages] = useState<ChatMessage[]>(INITIAL_MESSAGES);
+  const [historicalRecords, setHistoricalRecords] = useState<HistoricalRecord[]>(INITIAL_HISTORICAL_RECORDS);
+  const [auditLogs, setAuditLogs] = useState<AuditLogEntry[]>(INITIAL_AUDIT_LOGS);
 
   // Authentication states
-  const [authenticatedPatient, setAuthenticatedPatient] = useState<PatientProfile | null>(null);
+  const [authenticatedPatient, setAuthenticatedPatient] = useState<PatientProfile | null>(DEMO_PATIENT);
   const [registeredPatients, setRegisteredPatients] = useState<PatientProfile[]>([DEMO_PATIENT]);
   const [isPractitionerAuthenticated, setIsPractitionerAuthenticated] = useState<boolean>(true);
   const [adminRole, setAdminRole] = useState<'clinic-admin' | 'org-admin'>('clinic-admin');
@@ -105,6 +123,18 @@ export default function App() {
 
   const handleBookAppointment = (newAppointment: Appointment) => {
     setAppointments((prev) => [newAppointment, ...prev]);
+    // Log audit
+    const newAudit: AuditLogEntry = {
+      id: `aud-${Date.now()}`,
+      timestamp: new Date().toISOString().replace('T', ' ').slice(0, 19),
+      user: newAppointment.patientName,
+      userRole: 'Patient / Reception',
+      action: 'Token Scheduled',
+      details: `Token #${newAppointment.tokenNumber} scheduled for ${newAppointment.practitionerName}`,
+      clinic: newAppointment.clinicName,
+      result: 'Success',
+    };
+    setAuditLogs((prev) => [newAudit, ...prev]);
   };
 
   const handleCancelAppointment = (appointmentId: string) => {
@@ -121,6 +151,144 @@ export default function App() {
 
   const handleAddClinic = (newClinic: Clinic) => {
     setClinics((prev) => [newClinic, ...prev]);
+    const newAudit: AuditLogEntry = {
+      id: `aud-${Date.now()}`,
+      timestamp: new Date().toISOString().replace('T', ' ').slice(0, 19),
+      user: 'state.coordinator@saivibronics.org',
+      userRole: 'Organisation Administrator',
+      action: 'Register Clinic',
+      details: `Added new center ${newClinic.name} (${newClinic.code})`,
+      clinic: newClinic.name,
+      result: 'Success',
+    };
+    setAuditLogs((prev) => [newAudit, ...prev]);
+  };
+
+  // Practitioner Prescribing action -> updates appointment, medicalRecords, and prescriptions
+  const handleCreatePrescription = (newRx: PrescriptionRecord) => {
+    setPrescriptions((prev) => [newRx, ...prev]);
+
+    // Mark matching appointment as Completed
+    setAppointments((prev) =>
+      prev.map((apt) =>
+        apt.id === newRx.appointmentId
+          ? {
+              ...apt,
+              status: 'Completed',
+              notes: newRx.clinicalNotes,
+              remedySummary: newRx.remedies.map((r) => `${r.code} (${r.name})`).join(' + '),
+            }
+          : apt
+      )
+    );
+
+    // Add corresponding patient medical record
+    const newRecord: MedicalRecord = {
+      id: `rec-${Date.now().toString().slice(-6)}`,
+      date: newRx.date,
+      clinicName: newRx.clinicName,
+      practitionerName: newRx.practitionerName,
+      diagnosisSummary: newRx.patientConcern,
+      prescribedRemedies: newRx.remedies.map(
+        (r) => `${r.code} ${r.name} - ${r.dosage} (${r.frequency})`
+      ),
+      followUpAdvice: newRx.followUpInstructions || 'Take remedies as directed before meals.',
+      lifestyleNotes: 'Maintain gentle hydration and avoid exposing sugar globules to strong aromas or radiation.',
+      vitals: {
+        bp: '124/82 mmHg',
+        pulse: '74 bpm',
+        weight: '63.5 kg',
+      },
+    };
+    setMedicalRecords((prev) => [newRecord, ...prev]);
+
+    // Add Audit Log
+    const newAudit: AuditLogEntry = {
+      id: `aud-${Date.now()}`,
+      timestamp: new Date().toISOString().replace('T', ' ').slice(0, 19),
+      user: 'dr.ramesh@saivibronics-seva.org',
+      userRole: 'Senior Practitioner',
+      action: 'Finalise Prescription',
+      details: `Digital prescription ${newRx.id} issued for ${newRx.patientName} (${newRx.patientId})`,
+      clinic: newRx.clinicName,
+      result: 'Success',
+    };
+    setAuditLogs((prev) => [newAudit, ...prev]);
+  };
+
+  // Live messaging action
+  const handleSendMessage = (text: string, senderRole: 'patient' | 'practitioner') => {
+    const isPatient = senderRole === 'patient';
+    const newMsg: ChatMessage = {
+      id: `msg-${Date.now()}`,
+      conversationId: 'conv-0842-prac1',
+      senderRole,
+      senderName: isPatient ? (authenticatedPatient?.fullName || 'Smt. Ananya Rao') : 'Dr. K. S. Ramesh, BAMS',
+      receiverRole: isPatient ? 'practitioner' : 'patient',
+      receiverName: isPatient ? 'Dr. K. S. Ramesh, BAMS' : (authenticatedPatient?.fullName || 'Smt. Ananya Rao'),
+      text,
+      timestamp: 'Just now',
+      read: !isPatient,
+    };
+    setMessages((prev) => [...prev, newMsg]);
+  };
+
+  // Historical record digitisation
+  const handleDigitiseRecord = (
+    recordData: Omit<HistoricalRecord, 'id' | 'dateEntered' | 'verificationStatus'>
+  ) => {
+    const newRecord: HistoricalRecord = {
+      ...recordData,
+      id: `hist-${Date.now().toString().slice(-6)}`,
+      dateEntered: new Date().toISOString().slice(0, 10),
+      verificationStatus: 'Pending Verification',
+    };
+    setHistoricalRecords((prev) => [newRecord, ...prev]);
+
+    const newAudit: AuditLogEntry = {
+      id: `aud-${Date.now()}`,
+      timestamp: new Date().toISOString().replace('T', ' ').slice(0, 19),
+      user: 'admin.padmanabhanagar@saivibronics.org',
+      userRole: 'Clinic Administrator',
+      action: 'Historical Record Digitisation',
+      details: `Submitted paper record for ${newRecord.patientName} (${newRecord.patientId})`,
+      clinic: 'Padmanabhanagar Pilot',
+      result: 'Success',
+    };
+    setAuditLogs((prev) => [newAudit, ...prev]);
+  };
+
+  // Historical record dual sign-off
+  const handleVerifyHistoricalRecord = (
+    recordId: string,
+    status: 'Approved' | 'Returned',
+    notes?: string
+  ) => {
+    setHistoricalRecords((prev) =>
+      prev.map((rec) =>
+        rec.id === recordId
+          ? {
+              ...rec,
+              verificationStatus: status,
+              verifiedBy: 'Dr. K. S. Ramesh, BAMS, MD (Ayu)',
+              approvalNotes: notes,
+              dateVerified: new Date().toISOString().slice(0, 10),
+            }
+          : rec
+      )
+    );
+
+    const newAudit: AuditLogEntry = {
+      id: `aud-${Date.now()}`,
+      timestamp: new Date().toISOString().replace('T', ' ').slice(0, 19),
+      user: 'dr.ramesh@saivibronics-seva.org',
+      userRole: 'Senior Practitioner',
+      action: `Dual Sign-Off: ${status}`,
+      details: `Sign-off completed for paper record ${recordId}`,
+      clinic: 'Padmanabhanagar Pilot',
+      result: 'Success',
+    };
+    setAuditLogs((prev) => [newAudit, ...prev]);
   };
 
   // Patient Authentication Handlers
@@ -205,21 +373,21 @@ export default function App() {
     }
 
     return (
-      <div className="min-h-screen flex flex-col bg-slate-900 text-slate-100 font-sans">
-        {/* Dedicated Practitioner Top Bar */}
-        <header className="sticky top-0 z-40 bg-slate-950/95 border-b border-slate-800 backdrop-blur-md px-4 sm:px-6 py-3.5 flex items-center justify-between shadow-md">
+      <div className="min-h-screen flex flex-col bg-slate-50 text-slate-800 font-sans">
+        {/* Crisp Light Practitioner Top Bar */}
+        <header className="sticky top-0 z-40 bg-white/95 border-b border-slate-200 backdrop-blur-md px-4 sm:px-6 py-3.5 flex items-center justify-between shadow-2xs">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-teal-600 text-white flex items-center justify-center shadow-xs">
               <Stethoscope className="w-5 h-5 text-teal-100" />
             </div>
             <div>
-              <div className="text-base font-bold text-white font-['Plus_Jakarta_Sans',sans-serif]">
+              <div className="text-base font-bold text-slate-900 font-['Plus_Jakarta_Sans',sans-serif]">
                 Saivibronics Clinical Portal
               </div>
-              <div className="text-[11px] text-teal-400 font-semibold tracking-wide flex items-center gap-1.5">
+              <div className="text-[11px] text-teal-700 font-semibold tracking-wide flex items-center gap-1.5">
                 <span>Dr. K. S. Ramesh, BAMS, MD (Ayu)</span>
-                <span className="text-slate-600">·</span>
-                <span>Padmanabhanagar Center</span>
+                <span className="text-slate-300">·</span>
+                <span>Padmanabhanagar Center (Room 1)</span>
               </div>
             </div>
           </div>
@@ -227,15 +395,15 @@ export default function App() {
           <div className="flex items-center gap-2.5">
             <button
               onClick={() => navigateTo('/')}
-              className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-400 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer"
+              className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors cursor-pointer"
               title="View Public Website"
             >
-              <ExternalLink className="w-3.5 h-3.5" />
+              <ExternalLink className="w-3.5 h-3.5 text-slate-400" />
               <span>Public Website</span>
             </button>
             <button
               onClick={handlePractitionerSignOut}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold text-rose-300 bg-rose-950/50 hover:bg-rose-900/60 border border-rose-800 transition-colors cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold text-rose-700 bg-rose-50 hover:bg-rose-100 border border-rose-200 transition-colors cursor-pointer"
             >
               <LogOut className="w-3.5 h-3.5" />
               <span>Sign Out</span>
@@ -246,8 +414,14 @@ export default function App() {
         <main className="flex-1">
           <PractitionerDashboardPage
             appointments={appointments}
+            prescriptions={prescriptions}
+            messages={messages}
+            historicalRecords={historicalRecords}
             onNavigate={(page) => navigateTo(page)}
             onUpdateAppointment={handleUpdateAppointment}
+            onCreatePrescription={handleCreatePrescription}
+            onSendMessage={(text) => handleSendMessage(text, 'practitioner')}
+            onVerifyHistoricalRecord={handleVerifyHistoricalRecord}
           />
         </main>
       </div>
@@ -270,24 +444,24 @@ export default function App() {
     }
 
     return (
-      <div className="min-h-screen flex flex-col bg-slate-950 text-slate-100 font-sans">
-        {/* Dedicated Administration Top Bar */}
-        <header className="sticky top-0 z-40 bg-slate-900/95 border-b border-slate-800 backdrop-blur-md px-4 sm:px-6 py-3.5 flex items-center justify-between shadow-md">
+      <div className="min-h-screen flex flex-col bg-slate-50 text-slate-800 font-sans">
+        {/* Crisp Light Administration Top Bar */}
+        <header className="sticky top-0 z-40 bg-white/95 border-b border-slate-200 backdrop-blur-md px-4 sm:px-6 py-3.5 flex items-center justify-between shadow-2xs">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center shadow-xs">
               <Building2 className="w-5 h-5 text-indigo-100" />
             </div>
             <div>
-              <div className="text-base font-bold text-white font-['Plus_Jakarta_Sans',sans-serif]">
+              <div className="text-base font-bold text-slate-900 font-['Plus_Jakarta_Sans',sans-serif]">
                 Saivibronics Administration Console
               </div>
-              <div className="text-[11px] text-indigo-300 font-semibold tracking-wide flex items-center gap-1.5">
+              <div className="text-[11px] text-indigo-700 font-semibold tracking-wide flex items-center gap-1.5">
                 <span>
                   {adminRole === 'clinic-admin'
                     ? 'Padmanabhanagar Pilot Reception'
                     : 'Karnataka State Coordinator'}
                 </span>
-                <span className="text-slate-600">·</span>
+                <span className="text-slate-300">·</span>
                 <span className="capitalize">{adminRole.replace('-', ' ')}</span>
               </div>
             </div>
@@ -297,25 +471,25 @@ export default function App() {
             {/* Prototype Role Switcher for Admin Level Testing */}
             <button
               onClick={() => setAdminRole((prev) => (prev === 'clinic-admin' ? 'org-admin' : 'clinic-admin'))}
-              className="px-2.5 py-1.5 rounded-lg bg-indigo-950/70 border border-indigo-700 text-indigo-200 text-xs font-semibold hover:bg-indigo-900 transition-colors flex items-center gap-1.5 cursor-pointer"
+              className="px-2.5 py-1.5 rounded-lg bg-indigo-50 border border-indigo-200 text-indigo-800 text-xs font-semibold hover:bg-indigo-100 transition-colors flex items-center gap-1.5 cursor-pointer"
               title="Toggle between Clinic Reception and State Network Coordinator views"
             >
-              <Layers className="w-3.5 h-3.5 text-indigo-300" />
+              <Layers className="w-3.5 h-3.5 text-indigo-600" />
               <span className="hidden sm:inline">Switch to {adminRole === 'clinic-admin' ? 'Org Admin' : 'Clinic Desk'}</span>
             </button>
 
             <button
               onClick={() => navigateTo('/')}
-              className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-400 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer"
+              className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors cursor-pointer"
               title="View Public Website"
             >
-              <ExternalLink className="w-3.5 h-3.5" />
+              <ExternalLink className="w-3.5 h-3.5 text-slate-400" />
               <span>Public Website</span>
             </button>
 
             <button
               onClick={handleAdminSignOut}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold text-rose-300 bg-rose-950/50 hover:bg-rose-900/60 border border-rose-800 transition-colors cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold text-rose-700 bg-rose-50 hover:bg-rose-100 border border-rose-200 transition-colors cursor-pointer"
             >
               <LogOut className="w-3.5 h-3.5" />
               <span>Sign Out</span>
@@ -328,11 +502,15 @@ export default function App() {
             <ClinicAdminDashboardPage
               appointments={appointments}
               practitioners={PRACTITIONERS}
+              historicalRecords={historicalRecords}
               onNavigate={(page) => navigateTo(page)}
+              onBookAppointment={handleBookAppointment}
+              onDigitiseRecord={handleDigitiseRecord}
             />
           ) : (
             <OrgAdminDashboardPage
               clinics={clinics}
+              auditLogs={auditLogs}
               onNavigate={(page) => navigateTo(page)}
               onAddClinic={handleAddClinic}
             />
@@ -411,6 +589,9 @@ export default function App() {
           <PatientDashboardPage
             appointments={appointments}
             medicalRecords={medicalRecords}
+            prescriptions={prescriptions}
+            messages={messages}
+            onSendMessage={(text) => handleSendMessage(text, 'patient')}
             onNavigate={navigateTo}
             onCancelAppointment={handleCancelAppointment}
             authenticatedPatient={authenticatedPatient}

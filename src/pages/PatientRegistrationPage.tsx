@@ -184,7 +184,7 @@ export const PatientRegistrationPage: React.FC<PatientRegistrationPageProps> = (
         {/* Header with Saivibronics Branding */}
         <div className="space-y-2">
           <div className="flex items-center gap-3 mb-2">
-            <div className="w-12 h-12 rounded-xl bg-[#007F73] text-white flex items-center justify-center shadow-xs">
+            <div className="w-12 h-12 rounded-xl bg-blue-600 text-white flex items-center justify-center shadow-xs">
               <HeartHandshake className="w-6 h-6 text-teal-100" />
             </div>
             <div>
@@ -588,7 +588,7 @@ export const PatientRegistrationPage: React.FC<PatientRegistrationPageProps> = (
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full sm:w-auto px-8 py-3.5 bg-[#007F73] hover:bg-[#006b60] text-white font-bold text-base rounded-2xl shadow-xs transition-colors flex items-center justify-center gap-2 cursor-pointer min-h-[50px] disabled:opacity-75"
+                className="w-full sm:w-auto px-8 py-3.5 bg-blue-600 hover:bg-[#006b60] text-white font-bold text-base rounded-2xl shadow-xs transition-colors flex items-center justify-center gap-2 cursor-pointer min-h-[50px] disabled:opacity-75"
               >
                 <span>{isSubmitting ? 'Creating Patient Profile...' : 'Complete Registration'}</span>
                 <ArrowRight className="w-5 h-5" />
@@ -642,7 +642,7 @@ export const PatientRegistrationPage: React.FC<PatientRegistrationPageProps> = (
               <button
                 type="button"
                 onClick={() => onNavigate('patient-dashboard')}
-                className="w-full sm:w-auto px-8 py-3.5 bg-[#007F73] hover:bg-[#006b60] text-white font-bold text-sm sm:text-base rounded-2xl shadow-xs transition-colors flex items-center justify-center gap-2 cursor-pointer min-h-[48px]"
+                className="w-full sm:w-auto px-8 py-3.5 bg-blue-600 hover:bg-[#006b60] text-white font-bold text-sm sm:text-base rounded-2xl shadow-xs transition-colors flex items-center justify-center gap-2 cursor-pointer min-h-[48px]"
               >
                 <span>Proceed to Patient Dashboard</span>
                 <ArrowRight className="w-5 h-5" />

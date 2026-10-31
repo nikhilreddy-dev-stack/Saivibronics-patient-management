@@ -1,0 +1,1188 @@
+# SAIVIBRONICS PATIENT MANAGEMENT PLATFORM
+## COMPLETE UI/UX REDESIGN, THREE-PORTAL ARCHITECTURE AND FUNCTIONAL WORKFLOW IMPLEMENTATION
+
+You are working on an existing React + TypeScript + Vite project called **Saivibronics Patient Management Platform**, developed for Sri Sathya Sai Organisation.
+
+Your task is to transform the existing application into a polished, modern, professional and user-friendly healthcare management platform.
+
+This is an improvement and structured expansion of an EXISTING PROJECT. It is NOT permission to discard the existing application and generate a completely unrelated replacement.
+
+Read every requirement carefully before making changes.
+
+# PART 1: MOST IMPORTANT DEVELOPMENT RULES
+
+1. Inspect the existing source code, components, routes, data structures and current functionality before editing anything.
+2. Understand the existing implementation of all three portals.
+3. Preserve existing working features, business logic, forms, clinic data structures and reusable components wherever possible.
+4. Improve and reorganise existing components instead of unnecessarily recreating them.
+5. Do not remove functionality simply because the current implementation looks different from the desired reference.
+6. Do not replace functional screens with static screenshots or decorative mockups.
+7. All visible buttons, navigation items, tabs, filters, forms and actions must have meaningful working interactions.
+8. Do not introduce unnecessary dependencies or perform a complete architecture rewrite.
+9. Maintain TypeScript correctness and responsive behaviour.
+10. Do not introduce broken routes, blank screens, duplicate components or non-functional buttons.
+11. Do not change the application's fundamental purpose or organisation identity.
+12. Do not invent clinical information or automatically generate diagnoses or prescriptions.
+13. Do not claim that authentication, database persistence, messaging or notifications are production-ready unless they are genuinely implemented.
+
+Before editing, identify which existing components can be reused.
+
+The existing project includes patient, practitioner, clinic administrator and organisation administrator functionality. Preserve and improve these capabilities.
+
+# PART 2: COMPLETE VISUAL REDESIGN
+
+The existing green-heavy visual design and current dark navy/bright blue administration interface are not acceptable.
+
+Redesign the visual identity of the entire application.
+
+## 2.1 New visual direction
+
+Use the following design language:
+
+- Clean white backgrounds.
+- Very light cool-grey or neutral backgrounds for secondary sections.
+- Deep navy or charcoal for headings and important text.
+- Professional blue as the primary interface accent.
+- Subtle teal accents to retain a healthcare identity.
+- Soft green only for positive statuses and successful actions.
+- Soft amber for pending statuses and warnings.
+- Muted red for errors and destructive actions.
+- Subtle borders and shadows.
+- Rounded but restrained card corners.
+- Consistent spacing and alignment.
+- Professional, readable typography.
+- Consistent iconography.
+
+The overall appearance should resemble a modern, professionally designed healthcare SaaS platform.
+
+Take visual inspiration from the supplied ClinicPro and Health Platform administration dashboard references.
+
+Take patient dashboard inspiration from the supplied HealthCare+ reference.
+
+Take inspiration from the supplied clinic finder, registration and online appointment booking references.
+
+These references are design inspiration, not instructions to copy their branding, names or unrelated functionality.
+
+## 2.2 Strict visual restrictions
+
+Avoid:
+- Excessive green backgrounds.
+- Large dark navy sections dominating every screen.
+- Bright glowing blue effects.
+- Excessive gradients.
+- Glowing borders.
+- Oversized decorative headings.
+- Randomly coloured cards.
+- Inconsistent icon styles.
+- Excessive empty space.
+- Tiny text.
+- Cluttered layouts.
+- Too many unnecessary dashboard cards.
+- Buttons with inconsistent shapes and colours.
+
+Use a consistent design system across the entire platform.
+
+The three portals should look related but should have layouts suited to their individual purposes.
+
+## 2.3 Typography and accessibility
+
+- Use a highly readable modern font.
+- Maintain consistent heading sizes.
+- Use comfortable line spacing.
+- Ensure sufficient contrast.
+- Avoid tiny labels.
+- Use readable text in tables and forms.
+- Make buttons large enough for touch interaction.
+- Add accessible labels to icon-only controls.
+- Provide visible keyboard focus states.
+
+Senior citizens must be able to understand and operate the patient-facing interface without difficulty.
+
+# PART 3: THREE COMPLETELY SEPARATE PORTALS
+
+The platform must have three distinct experiences.
+
+1. Public website and patient portal.
+2. Practitioner portal.
+3. Administration portal.
+
+All three will eventually use the same shared backend and database, but each must have its own interface, navigation, login experience and permissions.
+
+IMPORTANT:
+
+The practitioner and administration portals must NOT appear in the public website's navigation.
+
+Do not add administrator or practitioner options to the public patient sign-in page.
+
+Do not create a public role selector that allows visitors to select administrator or practitioner.
+
+Do not expose internal staff access through the public website.
+
+Use separate entry routes:
+
+PUBLIC:
+- /
+- /clinics
+- /clinics/:clinicId
+- /register
+- /signin
+- /dashboard/patient
+
+PRACTITIONER:
+- /practitioner
+- /practitioner/signin
+- /practitioner/dashboard
+
+ADMINISTRATION:
+- /admin
+- /admin/signin
+- /admin/dashboard
+
+Adapt these routes to the existing routing implementation without unnecessarily breaking existing navigation.
+
+If dedicated routes already exist, preserve and improve them.
+
+Do not require separate code repositories just to create separate portals.
+
+# PART 4: PUBLIC WEBSITE AND PATIENT-FACING EXPERIENCE
+
+The public website must look like a real, trustworthy healthcare booking platform.
+
+It must be welcoming, clean and easy to navigate.
+
+## 4.1 Public header
+
+Create a professional header containing:
+
+- Saivibronics logo.
+- Sri Sathya Sai Organisation identification.
+- Home.
+- Find a Clinic.
+- How It Works.
+- Patient Sign In.
+- Book Appointment.
+- PWA Install action where appropriate.
+- Mobile menu button.
+
+Do not include:
+- Practitioner Portal.
+- Administration Portal.
+- Clinic Admin.
+- Organisation Admin.
+- Staff role selectors.
+
+## 4.2 Landing page
+
+Completely improve the visual appearance of the current landing page.
+
+Keep its purpose and existing useful content, but improve its presentation.
+
+Include:
+
+1. Professional hero section.
+2. Clear headline explaining the service.
+3. Short supporting description.
+4. Prominent Find a Clinic button.
+5. Prominent Book an Appointment button.
+6. Patient Sign In option.
+7. Clinic search section.
+8. Nearby clinic discovery.
+9. Services information.
+10. How the service works.
+11. Organisation information.
+12. Contact and support information.
+13. Professional footer.
+
+The hero must not be excessively tall.
+
+The first screen should immediately communicate what the platform offers.
+
+Use appropriate healthcare imagery or restrained illustrations only where they improve the experience.
+
+Do not overcrowd the landing page.
+
+## 4.3 Clinic discovery
+
+Preserve and improve the existing clinic finder.
+
+Use the supplied clinic finder reference as inspiration.
+
+Provide:
+
+- Search by clinic name.
+- Search by locality or area.
+- Search by available service.
+- Current-location search after explicit user permission.
+- Manual location selection.
+- Nearby clinics.
+- Distance information when available.
+- Clinic opening hours.
+- Available services.
+- Practitioner availability where supported.
+- View Clinic Details.
+- Book Appointment.
+- Directions.
+
+Use a list-and-map layout on desktop where a map integration is available.
+
+On mobile, use a practical layout that does not make the map unusable.
+
+Do not invent real-time locations or availability. Clearly distinguish actual connected information from demonstration data.
+
+## 4.4 Clinic details
+
+Each clinic should have a detailed profile containing:
+
+- Clinic name.
+- Address.
+- Contact information.
+- Operating hours.
+- Available services.
+- Practitioner roster.
+- Practitioner profiles.
+- Available appointment slots.
+- Directions.
+- Book Appointment action.
+
+Preserve the existing clinic data model wherever possible.
+
+## 4.5 Appointment booking
+
+Use the supplied online booking calendar reference.
+
+Build a guided booking process:
+
+STEP 1: Select clinic.
+
+STEP 2: Select service, if applicable.
+
+STEP 3: Select practitioner or choose an available practitioner according to the clinic's booking rules.
+
+STEP 4: Select appointment date.
+
+STEP 5: Display available appointment slots.
+
+STEP 6: Select a slot.
+
+STEP 7: Confirm patient details.
+
+STEP 8: Review booking details.
+
+STEP 9: Confirm appointment.
+
+STEP 10: Display booking confirmation and appointment reference.
+
+Clearly show unavailable dates and slots.
+
+Prevent users from selecting unavailable slots.
+
+Support appointment cancellation and rescheduling according to the existing application structure.
+
+Do not create fake real-time availability.
+
+# PART 5: PATIENT REGISTRATION AND SIGN-IN
+
+Create a simple, professional and accessible patient registration experience.
+
+Use the supplied patient registration reference as inspiration.
+
+Registration should include appropriate fields:
+
+- Full name.
+- Date of birth.
+- Gender, where required.
+- Mobile number.
+- Email address, where applicable.
+- Address.
+- Locality.
+- Emergency contact.
+- Relevant additional details approved for registration.
+
+Do not collect unnecessary sensitive information.
+
+Use proper field labels, validation and helpful error messages.
+
+Make the registration process comfortable on mobile screens.
+
+After successful registration, the patient should be directed to their patient dashboard.
+
+Patient sign-in must remain patient-specific.
+
+Do not show practitioner or administrator sign-in links here.
+
+# PART 6: PATIENT PORTAL AFTER LOGIN
+
+THIS IS ONE OF THE MOST IMPORTANT PARTS OF THE IMPLEMENTATION.
+
+The patient portal must provide a complete, organised and simple personal healthcare experience.
+
+Use the supplied HealthCare+ patient dashboard reference as the main design inspiration.
+
+The patient must feel that they are using a personal healthcare account, not an administrative dashboard.
+
+## 6.1 Patient portal layout
+
+Use a clean layout with:
+
+- Compact header.
+- Patient greeting.
+- Profile access.
+- Notification icon.
+- Appointment booking button.
+- Clear sidebar on desktop.
+- Simple mobile bottom navigation or mobile menu.
+
+Suggested sidebar navigation:
+
+1. Dashboard.
+2. Find Clinics.
+3. Appointments.
+4. Medical Records.
+5. Prescriptions and Remedy Instructions.
+6. Messages.
+7. Notifications.
+8. My Profile.
+9. Help and Support.
+
+Do not overload the sidebar.
+
+Use clear labels and recognisable icons.
+
+## 6.2 Patient dashboard
+
+Display:
+
+### Welcome section
+
+Example:
+
+"Welcome back, [Patient Name]"
+
+Include a short, friendly message.
+
+### Upcoming appointment
+
+Display the next appointment prominently.
+
+Show:
+- Clinic.
+- Practitioner.
+- Date.
+- Time.
+- Appointment status.
+- Appointment reference.
+- View Details.
+- Reschedule.
+- Cancel, when permitted.
+
+### Quick actions
+
+Provide clear actions:
+
+- Book Appointment.
+- Find Nearby Clinic.
+- View Medical Records.
+- View Prescriptions.
+- Contact Practitioner.
+
+### Recent activity
+
+Display:
+- Recently completed visits.
+- Recently added medical records.
+- Recent prescriptions.
+- Appointment updates.
+
+### Notifications
+
+Display relevant appointment and account notifications.
+
+Do not fill the dashboard with meaningless statistics.
+
+Prioritise actions patients actually need.
+
+## 6.3 Appointment management
+
+Create a dedicated appointments section.
+
+Separate:
+- Upcoming.
+- Completed.
+- Cancelled.
+
+Each appointment should show relevant information and its status.
+
+Allow appropriate actions:
+- View details.
+- Reschedule.
+- Cancel.
+
+Display clear confirmation before destructive actions.
+
+## 6.4 Medical records
+
+Create an organised medical-records section.
+
+Patients should be able to access their permitted records.
+
+Include:
+- Visit date.
+- Clinic.
+- Practitioner.
+- Consultation summary.
+- Clinical notes approved for patient visibility.
+- Relevant attachments where available.
+- Associated prescription.
+
+Allow patients to open and read records comfortably.
+
+Do not expose internal administrative notes or private practitioner-only information.
+
+## 6.5 Prescriptions and remedy instructions
+
+Provide a dedicated section.
+
+Display finalised records containing:
+
+- Consultation date.
+- Practitioner.
+- Remedy or prescribed item.
+- Dosage.
+- Frequency.
+- Duration.
+- Instructions.
+- Precautions.
+- Follow-up recommendations.
+
+Allow patients to view and download their available prescription or consultation document.
+
+Do not automatically generate medical advice.
+
+## 6.6 Patient profile
+
+Include:
+- Personal details.
+- Contact details.
+- Address.
+- Emergency contact.
+- Account settings.
+- Accessibility preferences.
+
+Allow editing only of permitted information.
+
+Keep sensitive changes appropriately controlled.
+
+## 6.7 Patient-practitioner messaging
+
+Create a dedicated Messages section.
+
+Do not place random floating chat buttons across the website.
+
+The patient should be able to:
+
+- Open their message inbox.
+- View existing conversations.
+- See the associated practitioner.
+- Open a conversation.
+- Send messages.
+- Read previous messages.
+- View timestamps.
+- See unread-message indicators.
+
+Conversations must be associated with the appropriate patient and practitioner.
+
+Messaging should be accessible from the patient portal's navigation and, where useful, from an appointment detail page.
+
+Do not turn the messaging feature into a distracting pop-up.
+
+Display a clear notice that messaging is not an emergency service.
+
+# PART 7: PRACTITIONER PORTAL
+
+The practitioner portal must be redesigned substantially.
+
+The existing practitioner dashboard is not sufficiently organised around an individual practitioner's workflow.
+
+Use the supplied medical management and healthcare dashboard references for inspiration.
+
+The practitioner portal must function as a personal clinical workspace.
+
+## 7.1 Practitioner identity and login
+
+Each practitioner must have an individual account.
+
+After login, identify the authenticated practitioner.
+
+Example:
+
+Dr. K. S. Ramesh
+Senior Sai Vibronics Practitioner
+Padmanabhanagar Clinic
+
+The dashboard must display information belonging to that practitioner.
+
+CRITICAL:
+
+If Dr. Ramesh logs in, he must see his own schedule, patients and consultations.
+
+If another practitioner logs in, that practitioner must see their own authorised information.
+
+Do not display a generic dashboard that mixes every practitioner's appointments.
+
+Do not allow practitioners to switch to clinic administrator or organisation administrator.
+
+Remove:
+- Switch to Clinic Admin.
+- Switch to Org Admin.
+- Public Website buttons.
+- Unnecessary role-switching controls.
+
+Do not expose another practitioner's private information.
+
+## 7.2 Practitioner dashboard
+
+Include:
+
+### Welcome and identity
+
+- Practitioner name.
+- Professional designation.
+- Assigned clinic.
+- Consultation room.
+- Profile access.
+
+### Daily overview
+
+Display:
+- Today's appointments.
+- Upcoming patients.
+- Waiting patients.
+- Patients currently in consultation.
+- Completed consultations.
+
+These numbers must be derived from the practitioner's authorised appointment data.
+
+### Today's schedule
+
+Display a clear chronological appointment list.
+
+Each entry should contain:
+
+- Appointment time.
+- Patient name.
+- Patient reference.
+- Appointment status.
+- Reason for visit, if available.
+- View Patient.
+- Open Consultation.
+
+Include filters:
+- Today.
+- Tomorrow.
+- This week.
+- Custom date.
+
+### Calendar
+
+Provide a calendar showing the practitioner's schedule.
+
+Show available and occupied time slots.
+
+Allow authorised schedule and availability management.
+
+Do not let practitioners modify another practitioner's schedule.
+
+## 7.3 Individual patient workspace
+
+When the practitioner selects a patient, open a dedicated patient workspace.
+
+Display:
+
+### Patient information
+
+- Patient name.
+- Patient reference ID.
+- Age or date of birth where permitted.
+- Relevant contact details where authorised.
+- Current appointment.
+- Appointment history.
+
+### Medical history
+
+Organise the patient's permitted information into clear sections:
+
+1. Previous consultations.
+2. Previous clinical notes.
+3. Previous prescriptions.
+4. Relevant medical history.
+5. Recorded allergies or precautions, where available.
+6. Historical paper records that have been digitised and approved.
+
+Use a clear timeline where appropriate.
+
+Do not mix unrelated patients' records.
+
+## 7.4 Digital consultation and prescription creation
+
+THIS FEATURE IS MANDATORY.
+
+Create a proper digital consultation workspace.
+
+The practitioner should be able to open an appointment and record the consultation in a structured manner.
+
+Include the following sections:
+
+### A. Patient's stated concern
+
+A text area for the patient's reason for visiting.
+
+### B. Clinical assessment and notes
+
+A structured text area for the practitioner's observations and assessment.
+
+### C. Remedy selection
+
+Connect to the existing approved Sai Vibronics remedy catalogue.
+
+Preserve existing remedy data and codes.
+
+Allow the practitioner to:
+- Search remedies.
+- Select a remedy.
+- Add multiple remedies.
+- Remove an item before finalisation.
+- View the selected items.
+
+### D. Dosage and instructions
+
+For each selected remedy, provide appropriate fields:
+
+- Dosage.
+- Frequency.
+- Duration.
+- Method of use.
+- Additional instructions.
+- Precautions, where applicable.
+
+Do not automatically invent dosage values.
+
+Only authorised practitioners should enter and finalise clinical instructions.
+
+### E. Follow-up
+
+Include:
+- Follow-up date, if required.
+- Follow-up instructions.
+- Additional notes.
+
+### F. Save and finalise
+
+Provide clearly differentiated actions:
+
+- Save Draft.
+- Update Draft.
+- Preview Consultation.
+- Finalise Consultation.
+
+Show a confirmation before finalisation.
+
+Once finalised, preserve the record and its history.
+
+Do not silently overwrite previous consultations.
+
+## 7.5 Digital prescription document
+
+After finalisation, create an organised, printable and downloadable consultation/prescription document.
+
+It should include:
+
+- Platform and clinic identity.
+- Patient details.
+- Practitioner details.
+- Consultation date.
+- Consultation reference.
+- Clinical notes intended for patient visibility.
+- Selected remedies.
+- Dosage and frequency.
+- Duration.
+- Instructions.
+- Precautions.
+- Follow-up information.
+
+Maintain a professional, clean document layout.
+
+The patient should be able to access the appropriate finalised record from their patient portal.
+
+The practitioner should be able to view the consultation history.
+
+## 7.6 Patient-practitioner messaging
+
+Create a dedicated Messages section within the practitioner portal.
+
+The practitioner should be able to:
+
+- View their authorised patient conversations.
+- Open an individual conversation.
+- Read previous messages.
+- Respond to patients.
+- See unread messages.
+- See timestamps.
+- Navigate to the relevant patient record where authorised.
+
+Do not scatter chat buttons around the practitioner dashboard.
+
+Keep conversations associated with the correct practitioner-patient relationship.
+
+Do not expose messages belonging to another practitioner.
+
+# PART 8: ADMINISTRATION PORTAL
+
+The administration portal must look like a professional clinic-management SaaS application.
+
+Use the supplied ClinicPro and Health Platform dashboard references.
+
+Do not use the current cluttered dark navy dashboard as the design baseline.
+
+Use a clean, light interface with a structured sidebar, top navigation and organised content panels.
+
+There are two administrator levels:
+
+1. Clinic Administrator.
+2. Organisation Administrator.
+
+They must have different permissions and responsibilities.
+
+## 8.1 Administration layout
+
+Create:
+
+### Left sidebar
+
+Organised navigation with clear icons and labels.
+
+### Top bar
+
+Include:
+- Global search, where permitted.
+- Notifications.
+- Current administrator profile.
+- Current clinic or organisation context.
+- Account settings.
+
+Do not add practitioner role switching.
+
+Do not add unnecessary public website buttons.
+
+The administration portal must feel like a dedicated operational application.
+
+## 8.2 Clinic administrator dashboard
+
+A clinic administrator should manage their assigned clinic.
+
+The dashboard should contain:
+
+### Overview cards
+
+- Today's appointments.
+- Registered patients.
+- Practitioners on duty.
+- Waiting patients.
+- Daily token capacity.
+- Completed consultations.
+
+### Appointment management
+
+- View today's appointments.
+- Search patients.
+- Filter by date.
+- Filter by practitioner.
+- View appointment status.
+- Manage cancellations.
+- Manage rescheduling.
+- Manage reception queue.
+
+### Patient management
+
+- Search patients.
+- View patient profiles according to permissions.
+- Register new patients.
+- Update permitted patient details.
+- View appointment history.
+- Access permitted medical records.
+
+### Practitioner management
+
+- View assigned practitioners.
+- Manage practitioner profiles where authorised.
+- Assign practitioners to the clinic.
+- Manage consultation rooms.
+- View practitioner schedules.
+- Manage availability where authorised.
+
+### Clinic operations
+
+- Clinic information.
+- Operating hours.
+- Available services.
+- Room allocation.
+- Daily token quota.
+- Reception workflow.
+- Clinic-level reports.
+
+### Historical record digitisation
+
+Preserve and improve the existing paper-record digitisation feature.
+
+Provide:
+- Patient identification.
+- Historical record reference.
+- Original visit date.
+- Record entry.
+- Scan attachment where supported.
+- Practitioner review.
+- Verification status.
+- Approval workflow.
+
+Support a dual sign-off process where required.
+
+Clearly distinguish:
+- Pending verification.
+- Approved.
+- Rejected or returned for correction.
+
+Do not treat unverified historical records as approved clinical records.
+
+## 8.3 Organisation administrator dashboard
+
+Organisation administrators require an organisation-wide view.
+
+Include:
+
+### Organisation overview
+
+- Total clinics.
+- Total registered patients.
+- Total practitioners.
+- Appointment overview.
+- Clinic activity.
+- Organisation-wide reports.
+
+### Clinic management
+
+- View all authorised clinics.
+- Add a clinic.
+- Edit clinic details.
+- Manage clinic status.
+- Assign clinic administrators.
+- View clinic-level performance.
+
+### Practitioner management
+
+- View practitioners across the organisation.
+- Manage practitioner accounts and assignments.
+- View authorised professional information.
+- Manage practitioner access.
+
+### User and permission management
+
+- Clinic administrators.
+- Organisation administrators.
+- Practitioners.
+- Patients.
+
+Provide role-based permissions.
+
+Do not grant clinic administrators organisation-wide access.
+
+### Reports
+
+Provide:
+- Clinic-wise appointments.
+- Patient registrations.
+- Practitioner activity.
+- Historical digitisation status.
+- Operational statistics.
+
+Support exports where appropriate.
+
+### Audit logs
+
+Maintain an organised record of important administrative activities.
+
+Where backend support exists, record:
+- User.
+- Action.
+- Date and time.
+- Affected record.
+- Relevant clinic.
+- Result.
+
+# PART 9: SHARED WORKFLOWS BETWEEN PORTALS
+
+The three portals must represent different views of the same healthcare operation.
+
+The following workflows are essential.
+
+## Workflow 1: Patient registration
+
+1. Patient registers through the public website.
+2. Patient account is created.
+3. Patient can sign in.
+4. Patient dashboard displays their own information.
+5. Patient can book an appointment.
+
+## Workflow 2: Appointment booking
+
+1. Patient selects a clinic.
+2. Patient selects an available appointment.
+3. Booking is created.
+4. Practitioner sees the appointment in their schedule.
+5. Clinic administrator sees it in clinic operations.
+6. Patient sees it in upcoming appointments.
+
+## Workflow 3: Consultation
+
+1. Practitioner signs in.
+2. Practitioner sees their own schedule.
+3. Practitioner opens an assigned patient.
+4. Practitioner reviews permitted history.
+5. Practitioner enters consultation notes.
+6. Practitioner adds remedy details and dosage.
+7. Practitioner saves and finalises the consultation.
+8. The finalised record becomes available to the patient according to permissions.
+9. The administration portal displays appropriate operational status.
+
+## Workflow 4: Messaging
+
+1. Patient opens Messages.
+2. Patient sends a message through an authorised conversation.
+3. The associated practitioner sees the message.
+4. Practitioner replies.
+5. Patient sees the reply.
+6. Relevant unread indicators update.
+
+## Workflow 5: Historical record digitisation
+
+1. Authorised staff enter a historical paper record.
+2. The record is associated with the correct patient.
+3. Supporting scan is attached where available.
+4. The record enters verification.
+5. Authorised practitioner reviews it.
+6. Approval or correction status is recorded.
+7. Approved information becomes available to authorised users.
+
+# PART 10: SECURITY AND DATA HANDLING
+
+This is a healthcare platform, so privacy and access control are essential.
+
+Implement frontend permission boundaries without pretending that frontend checks alone provide security.
+
+Requirements for the eventual production backend:
+
+- Individual authentication.
+- Server-enforced role-based access control.
+- Clinic-level data scoping.
+- Organisation-level permissions.
+- Secure session handling.
+- Input validation.
+- Protected clinical records.
+- Audit logs.
+- Secure file access.
+- Appropriate privacy controls.
+
+IMPORTANT:
+
+Hiding a button or URL does not provide real security.
+
+LocalStorage, URL query parameters and frontend role selectors must never be treated as proof of authentication.
+
+If the current project still has only mock data and client-side state, preserve an honest demonstration mode.
+
+Do not falsely claim that:
+- Authentication is production-secure.
+- Data is permanently saved.
+- Messaging is live.
+- Prescriptions are securely stored.
+- Notifications are delivered in real time.
+
+Do not expose sensitive patient data through public routes.
+
+Do not create real patient records from fabricated demonstration information.
+
+# PART 11: RESPONSIVE DESIGN AND PWA
+
+The application must work well on:
+
+- Desktop.
+- Laptop.
+- Tablet.
+- Android phones.
+- Small mobile screens.
+
+Do not simply shrink the desktop interface.
+
+Create responsive layouts for each portal.
+
+### Desktop
+
+- Proper sidebar.
+- Organised content grid.
+- Readable tables.
+- Consistent top navigation.
+
+### Tablet
+
+- Collapsible sidebar.
+- Responsive cards.
+- Usable forms and tables.
+
+### Mobile
+
+- Compact header.
+- Touch-friendly navigation.
+- Stacked dashboard cards.
+- Mobile-friendly forms.
+- Readable patient records.
+- Usable booking calendar.
+- No horizontal overflow.
+- No clipped buttons.
+- No half-screen menu drawers when a full-screen navigation drawer is required.
+
+Preserve existing PWA functionality and improve it where necessary.
+
+# PART 12: FUNCTIONALITY AND INTERACTION REQUIREMENTS
+
+Every visible action must work.
+
+Examples:
+
+- Sidebar navigation must open the correct section.
+- Search must filter relevant records.
+- Appointment filters must work.
+- Booking must validate inputs.
+- Prescription items must be addable and removable.
+- Consultation drafts must be editable.
+- Finalisation must require confirmation.
+- Messages must appear in the correct conversation.
+- Patient records must open.
+- Notifications must be dismissible where appropriate.
+- Administrator filters must work.
+- Clinic forms must validate.
+- Role-specific pages must not expose unrelated data.
+
+If a function requires a backend that does not yet exist, create a clearly identified prototype interaction without misrepresenting it as production functionality.
+
+Do not create decorative buttons that do nothing.
+
+# PART 13: PRESERVE THE EXISTING PROJECT
+
+Before implementation, inspect the existing files.
+
+Pay particular attention to:
+
+- src/App.tsx
+- src/types.ts
+- src/data/mockData.ts
+- src/components/Header.tsx
+- src/components/Footer.tsx
+- src/components/DemoBanner.tsx
+- src/pages/HomePage.tsx
+- src/pages/FindClinicPage.tsx
+- src/pages/ClinicDetailsPage.tsx
+- src/pages/PatientRegistrationPage.tsx
+- src/pages/SignInPage.tsx
+- src/pages/PatientDashboardPage.tsx
+- src/pages/PractitionerDashboardPage.tsx
+- src/pages/ClinicAdminDashboardPage.tsx
+- src/pages/OrgAdminDashboardPage.tsx
+
+Also inspect any additional components or routes that have been created since the earlier audit.
+
+Do not assume the file structure is unchanged.
+
+Reuse existing data structures where possible.
+
+Do not delete working components just to simplify implementation.
+
+Keep the current clinic and practitioner demonstration data where it remains useful, but clearly label demonstration information.
+
+# PART 14: FINAL QUALITY CHECK
+
+After making changes, test the application.
+
+Verify:
+
+1. Public homepage loads correctly.
+2. Public navigation contains no staff/admin links.
+3. Clinic search still works.
+4. Clinic details still open.
+5. Appointment booking still works.
+6. Patient registration still works.
+7. Patient sign-in still works.
+8. Patient dashboard shows patient-specific information.
+9. Patient appointments and records are organised.
+10. Practitioner sign-in is separate.
+11. Practitioner dashboard is individualised.
+12. Practitioner sees only their authorised patients and appointments.
+13. Practitioner consultation workflow works.
+14. Digital prescription preview and finalisation work.
+15. Patient can access the appropriate finalised consultation record.
+16. Messaging is organised within both portals.
+17. Clinic administrator has clinic-level functionality.
+18. Organisation administrator has organisation-level functionality.
+19. Historical record digitisation remains available.
+20. Unnecessary cross-portal switching is removed.
+21. Mobile layouts are usable.
+22. Browser refresh does not cause unexpected route failures.
+23. Direct route navigation works.
+24. Browser back and forward navigation work where supported.
+25. No existing features have been silently removed.
+26. No TypeScript or build errors are introduced.
+
+# PART 15: IMPLEMENTATION REPORT
+
+After implementation, provide a clear report containing:
+
+1. Files modified.
+2. New components created.
+3. Existing components reused.
+4. Features implemented.
+5. Features preserved.
+6. Routes created or modified.
+7. Functionality that works only in demonstration mode.
+8. Features that still require a real backend.
+9. Security limitations.
+10. Build and type-check results.
+11. Any remaining issues.
+
+If the full scope cannot be completed in one implementation pass, prioritise completing the three portal structures and core workflows correctly rather than generating superficial screens for every feature.
+
+Do not silently omit requirements.
+
+Clearly identify unfinished items.
+
+# FINAL INSTRUCTION
+
+The final result must look and feel like a professionally designed, modern healthcare management platform.
+
+The public website must be welcoming and patient-focused.
+
+The patient portal must be simple, personal and accessible.
+
+The practitioner portal must be a proper individual clinical workspace with schedules, patient histories, digital consultation records, prescriptions and organised messaging.
+
+The administration portal must be a comprehensive clinic and organisation management system.
+
+All three must share a consistent visual identity while maintaining completely separate navigation and appropriate access boundaries.
+
+Preserve the existing project and improve it intelligently.
+
+Do not regenerate the application from scratch.
+
+Do not sacrifice functionality for appearance.
+
+Do not sacrifice usability for decorative design.
+
+Do not sacrifice patient privacy for convenience.
+
+Follow every requirement above carefully.

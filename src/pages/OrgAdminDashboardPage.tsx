@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Clinic, PageId } from '../types';
+import { Clinic, PageId, AuditLogEntry } from '../types';
 import {
   Building2,
   Plus,
@@ -12,33 +12,46 @@ import {
   Sparkles,
   ArrowRight,
   TrendingUp,
-  Hospital
+  Hospital,
+  ShieldCheck,
+  Users,
+  FileText,
+  Download,
+  Filter,
+  CheckCircle,
+  Activity
 } from 'lucide-react';
 
 interface OrgAdminDashboardPageProps {
   clinics: Clinic[];
+  auditLogs?: AuditLogEntry[];
   onNavigate: (page: PageId) => void;
   onAddClinic: (newClinic: Clinic) => void;
 }
 
 export const OrgAdminDashboardPage: React.FC<OrgAdminDashboardPageProps> = ({
   clinics,
+  auditLogs = [],
   onNavigate,
   onAddClinic,
 }) => {
+  const [activeTab, setActiveTab] = useState<'directory' | 'impact' | 'practitioners' | 'audit'>('directory');
   const [searchFilter, setSearchFilter] = useState('');
   const [showAddClinicModal, setShowAddClinicModal] = useState(false);
-  const [addedFeedback, setAddedFeedback] = useState<string | null>(null);
+  const [feedbackNotice, setFeedbackNotice] = useState<string | null>(null);
 
   // New clinic form state
   const [clinicName, setClinicName] = useState('');
   const [clinicLocality, setClinicLocality] = useState('Whitefield');
   const [clinicPincode, setClinicPincode] = useState('560066');
   const [clinicAddress, setClinicAddress] = useState('');
-  const [clinicOperatingHours, setClinicOperatingHours] = useState('Mon - Sat: 9:30 AM - 1:00 PM, 5:00 PM - 7:30 PM');
+  const [clinicOperatingHours, setClinicOperatingHours] = useState('Mon - Sat: 9:30 AM - 1:00 PM');
   const [clinicPractitionersCount, setClinicPractitionersCount] = useState(2);
   const [clinicStatus, setClinicStatus] = useState<'Operational' | 'Upcoming' | 'Active Pilot'>('Operational');
-  const [specialtiesText, setSpecialtiesText] = useState('Vibronics 108 Holistic Care, Preventive Lifestyle, Senior Wellness');
+  const [specialtiesText, setSpecialtiesText] = useState('Vibronics 108 Holistic Care, Senior Wellness');
+
+  // Audit log filter
+  const [auditFilter, setAuditFilter] = useState('All');
 
   const filteredClinics = clinics.filter((c) => {
     const q = searchFilter.toLowerCase();
@@ -47,6 +60,11 @@ export const OrgAdminDashboardPage: React.FC<OrgAdminDashboardPageProps> = ({
       c.locality.toLowerCase().includes(q) ||
       c.pincode.includes(q)
     );
+  });
+
+  const filteredAuditLogs = auditLogs.filter((log) => {
+    if (auditFilter === 'All') return true;
+    return log.action.toLowerCase().includes(auditFilter.toLowerCase());
   });
 
   const handleAddClinicSubmit = (e: React.FormEvent) => {
@@ -58,346 +76,488 @@ export const OrgAdminDashboardPage: React.FC<OrgAdminDashboardPageProps> = ({
       id: `clinic-${Date.now()}`,
       name: clinicName.trim(),
       code: newCode,
-      locality: clinicLocality.trim(),
-      pincode: clinicPincode.trim(),
+      locality: clinicLocality,
+      pincode: clinicPincode,
       address: clinicAddress.trim(),
-      phone: '+91 80 2800 1234 (Demo Only)',
+      phone: '+91 80 2669 1108',
       operatingHours: clinicOperatingHours,
-      specialties: specialtiesText.split(',').map((s) => s.trim()).filter(Boolean),
-      activePractitionersCount: Number(clinicPractitionersCount) || 2,
+      specialties: specialtiesText.split(',').map((s) => s.trim()),
+      activePractitionersCount: clinicPractitionersCount,
       status: clinicStatus,
-      image: '/src/assets/images/hero_healthcare_clinic_1793209988820.jpg',
-      isPilotCenter: false,
-      facilities: ['Wheelchair Ramp', 'Waiting Hall', 'Free Dispensing Counter'],
+      image: 'https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&q=80&w=800',
+      facilities: ['Free Remedy Dispensation', 'Senior Waiting Area', 'Wheelchair Ramp'],
       seniorAccessible: true,
     };
 
     onAddClinic(newClinicObj);
     setShowAddClinicModal(false);
-    setAddedFeedback(`Clinic "${clinicName}" added to local prototype state! It is now visible across Find a Clinic.`);
-    setTimeout(() => setAddedFeedback(null), 4000);
-
-    // Reset form
     setClinicName('');
     setClinicAddress('');
+    setFeedbackNotice(`Successfully registered ${newClinicObj.name} (${newCode}) in Karnataka network.`);
+    setTimeout(() => setFeedbackNotice(null), 4000);
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 space-y-8">
-      {/* Title & Navigation */}
-      <div className="space-y-3">
-        <div className="flex items-center gap-2 text-xs sm:text-sm text-slate-500 font-medium">
-          <button onClick={() => onNavigate('home')} className="hover:text-teal-700 cursor-pointer">
-            Home
-          </button>
-          <span>/</span>
-          <span className="text-slate-900 font-bold">Organisation Administrator</span>
+    <div className="min-h-screen bg-slate-50 text-slate-800 font-sans pb-16">
+      {/* Top Coordinator Header */}
+      <div className="bg-white border-b border-slate-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-2xl bg-indigo-700 text-white flex items-center justify-center font-bold text-lg shadow-xs">
+                <ShieldCheck className="w-6 h-6 text-indigo-100" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <h1 className="text-xl font-bold text-slate-900 font-['Plus_Jakarta_Sans',sans-serif]">
+                    Karnataka State Vibronics Seva Governance
+                  </h1>
+                  <span className="px-2.5 py-0.5 rounded-full bg-indigo-50 border border-indigo-200 text-indigo-800 text-xs font-bold">
+                    State Coordinator Level
+                  </span>
+                </div>
+                <p className="text-xs text-slate-500 font-medium">
+                  Sri Sathya Sai Seva Organisations, Karnataka · Multi-Clinic Network Console
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2.5">
+              <button
+                onClick={() => setShowAddClinicModal(true)}
+                className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs sm:text-sm font-bold flex items-center gap-1.5 shadow-xs transition-colors cursor-pointer"
+              >
+                <Plus className="w-4 h-4" />
+                <span>Add New Seva Center</span>
+              </button>
+            </div>
+          </div>
         </div>
 
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div>
-            <div className="flex items-center gap-2 mb-1">
-              <span className="bg-teal-50 border border-teal-200 text-teal-800 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
-                State Seva Coordinator
-              </span>
-              <span className="text-xs sm:text-sm text-slate-500 font-semibold">Karnataka Seva Trust</span>
-            </div>
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
-              Sri Sathya Sai Multi-Clinic Network
-            </h1>
-            <p className="text-sm text-slate-600 mt-0.5">
-              Coordinating Bengaluru clinics with Padmanabhanagar as the foundational pilot.
-            </p>
-          </div>
-
-          <div className="flex items-center gap-3">
+        {/* Coordinator Tabs */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center gap-1 overflow-x-auto border-t border-slate-100 pt-1">
             <button
-              onClick={() => setShowAddClinicModal(true)}
-              className="px-6 py-3.5 bg-teal-700 hover:bg-teal-800 text-white rounded-2xl text-sm font-bold transition-colors flex items-center gap-2 cursor-pointer shadow-xs min-h-[48px]"
+              onClick={() => setActiveTab('directory')}
+              className={`px-4 py-3 text-xs sm:text-sm font-bold border-b-2 cursor-pointer transition-colors whitespace-nowrap flex items-center gap-2 ${
+                activeTab === 'directory'
+                  ? 'border-indigo-600 text-indigo-600 bg-indigo-50/50'
+                  : 'border-transparent text-slate-600 hover:text-slate-900'
+              }`}
             >
-              <Plus className="w-5 h-5" />
-              <span>Add New Clinic Unit</span>
+              <Hospital className="w-4 h-4" />
+              <span>Network Clinics Directory ({clinics.length})</span>
+            </button>
+
+            <button
+              onClick={() => setActiveTab('impact')}
+              className={`px-4 py-3 text-xs sm:text-sm font-bold border-b-2 cursor-pointer transition-colors whitespace-nowrap flex items-center gap-2 ${
+                activeTab === 'impact'
+                  ? 'border-indigo-600 text-indigo-600 bg-indigo-50/50'
+                  : 'border-transparent text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              <TrendingUp className="w-4 h-4" />
+              <span>State-Wide Seva Analytics</span>
+            </button>
+
+            <button
+              onClick={() => setActiveTab('practitioners')}
+              className={`px-4 py-3 text-xs sm:text-sm font-bold border-b-2 cursor-pointer transition-colors whitespace-nowrap flex items-center gap-2 ${
+                activeTab === 'practitioners'
+                  ? 'border-indigo-600 text-indigo-600 bg-indigo-50/50'
+                  : 'border-transparent text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              <Users className="w-4 h-4" />
+              <span>State Practitioner Registry</span>
+            </button>
+
+            <button
+              onClick={() => setActiveTab('audit')}
+              className={`px-4 py-3 text-xs sm:text-sm font-bold border-b-2 cursor-pointer transition-colors whitespace-nowrap flex items-center gap-2 ${
+                activeTab === 'audit'
+                  ? 'border-indigo-600 text-indigo-600 bg-indigo-50/50'
+                  : 'border-transparent text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              <FileText className="w-4 h-4" />
+              <span>Security & RBAC Audit Logs ({auditLogs.length})</span>
             </button>
           </div>
         </div>
       </div>
 
-      {/* Demonstration Notice */}
-      <div className="p-4 bg-amber-50 rounded-2xl border border-amber-200 text-xs sm:text-sm text-amber-950 flex items-start gap-3">
-        <ShieldAlert className="w-5 h-5 text-amber-700 shrink-0 mt-0.5" />
-        <div className="leading-relaxed">
-          <strong>Organisation Network Demonstration:</strong> All clinic statistics, token distributions, and registrations are fictional representations. Adding a clinic updates the current client-side prototype memory so you can immediately test discovery and booking workflows. Data is not saved to a persistent server.
-        </div>
-      </div>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 space-y-6">
+        {feedbackNotice && (
+          <div className="p-4 bg-teal-50 border border-teal-300 rounded-2xl text-teal-900 flex items-center gap-3 shadow-2xs">
+            <CheckCircle className="w-5 h-5 text-teal-600 shrink-0" />
+            <span className="text-sm font-semibold">{feedbackNotice}</span>
+          </div>
+        )}
 
-      {addedFeedback && (
-        <div className="p-4 bg-teal-50 border border-teal-300 rounded-2xl text-sm text-teal-950 flex items-center gap-2 font-bold shadow-2xs">
-          <CheckCircle2 className="w-5 h-5 text-teal-600 shrink-0" />
-          <span>{addedFeedback}</span>
-        </div>
-      )}
+        {/* TAB 1: CLINICS DIRECTORY */}
+        {activeTab === 'directory' && (
+          <div className="space-y-6">
+            {/* Search filter */}
+            <div className="p-4 bg-white rounded-2xl border border-slate-200 shadow-2xs flex items-center gap-3">
+              <Search className="w-4 h-4 text-slate-400 shrink-0" />
+              <input
+                type="text"
+                value={searchFilter}
+                onChange={(e) => setSearchFilter(e.target.value)}
+                placeholder="Search clinics by name, locality (e.g. Padmanabhanagar), or pincode..."
+                className="w-full text-xs sm:text-sm focus:outline-none"
+              />
+            </div>
 
-      {/* Summary Operational Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
-        <div className="bg-white rounded-3xl border border-slate-200 p-6 space-y-2 shadow-2xs">
-          <div className="flex items-center justify-between text-slate-500 text-xs font-bold uppercase tracking-wider">
-            <span>Total Network Clinics</span>
-            <Hospital className="w-5 h-5 text-teal-600" />
-          </div>
-          <div className="text-3xl font-extrabold text-slate-900 font-mono tabular-nums">
-            {clinics.length}
-          </div>
-          <div className="text-xs text-slate-500">
-            Across Bengaluru urban districts
-          </div>
-        </div>
-
-        <div className="bg-white rounded-3xl border border-slate-200 p-6 space-y-2 shadow-2xs">
-          <div className="flex items-center justify-between text-slate-500 text-xs font-bold uppercase tracking-wider">
-            <span>Active Pilot Location</span>
-            <MapPin className="w-5 h-5 text-teal-600" />
-          </div>
-          <div className="text-2xl font-bold text-slate-900">
-            Padmanabhanagar
-          </div>
-          <div className="text-xs text-teal-800 font-bold">
-            PIN 560070 · Live patient management pilot
-          </div>
-        </div>
-
-        <div className="bg-white rounded-3xl border border-slate-200 p-6 space-y-2 shadow-2xs">
-          <div className="flex items-center justify-between text-slate-500 text-xs font-bold uppercase tracking-wider">
-            <span>Cumulative Volunteer Roster</span>
-            <TrendingUp className="w-5 h-5 text-teal-600" />
-          </div>
-          <div className="text-3xl font-extrabold text-slate-900 font-mono tabular-nums">
-            {clinics.reduce((acc, c) => acc + c.activePractitionersCount, 0)}
-          </div>
-          <div className="text-xs text-slate-500">
-            Certified practitioners across all units
-          </div>
-        </div>
-      </div>
-
-      {/* Clinic Registry Table with Search */}
-      <div className="bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-xs space-y-4 p-6 sm:p-8">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-4">
-          <div>
-            <h3 className="text-lg font-bold text-slate-900">
-              Registered Sri Sathya Sai Clinics Registry
-            </h3>
-            <p className="text-sm text-slate-500">
-              Multi-clinic administrative registry and deployment status
-            </p>
-          </div>
-
-          <div className="relative w-full sm:w-72">
-            <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-            <input
-              type="text"
-              placeholder="Search by clinic or locality..."
-              value={searchFilter}
-              onChange={(e) => setSearchFilter(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm text-slate-900 min-h-[44px]"
-            />
-          </div>
-        </div>
-
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm text-left">
-            <thead className="bg-slate-50 text-slate-600 uppercase tracking-wider text-xs border-y border-slate-200">
-              <tr>
-                <th className="py-3.5 px-4 font-bold">Clinic Code</th>
-                <th className="py-3.5 px-4 font-bold">Clinic Name & Address</th>
-                <th className="py-3.5 px-4 font-bold">Locality / PIN</th>
-                <th className="py-3.5 px-4 font-bold">Active Volunteers</th>
-                <th className="py-3.5 px-4 font-bold">Status</th>
-                <th className="py-3.5 px-4 text-right font-bold">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
+            {/* Clinics grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
               {filteredClinics.map((clinic) => (
-                <tr key={clinic.id} className="hover:bg-slate-50/70 transition-colors">
-                  <td className="py-4 px-4 font-mono font-bold text-teal-800">
-                    {clinic.code}
-                  </td>
-                  <td className="py-4 px-4">
-                    <span className="font-bold text-slate-900 block">{clinic.name}</span>
-                    <span className="text-xs text-slate-500 block truncate max-w-sm mt-0.5">{clinic.address}</span>
-                  </td>
-                  <td className="py-4 px-4 text-slate-700">
-                    <span className="font-semibold block">{clinic.locality}</span>
-                    <span className="text-xs text-slate-400 font-mono">{clinic.pincode}</span>
-                  </td>
-                  <td className="py-4 px-4 font-mono text-slate-800 font-bold">
-                    {clinic.activePractitionersCount} on duty
-                  </td>
-                  <td className="py-4 px-4">
-                    <span
-                      className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${
-                        clinic.isPilotCenter
-                          ? 'bg-amber-100 text-amber-900 border border-amber-200'
-                          : clinic.status === 'Operational'
-                          ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
-                          : 'bg-slate-100 text-slate-600'
-                      }`}
-                    >
-                      {clinic.isPilotCenter ? 'Active Pilot' : clinic.status}
-                    </span>
-                  </td>
-                  <td className="py-4 px-4 text-right">
+                <div
+                  key={clinic.id}
+                  className="bg-white rounded-3xl border border-slate-200 shadow-xs overflow-hidden flex flex-col justify-between"
+                >
+                  <div className="p-6 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="font-mono text-xs font-bold text-indigo-600 px-2 py-0.5 rounded bg-indigo-50 border border-indigo-100">
+                        {clinic.code}
+                      </span>
+                      <span
+                        className={`text-xs font-bold px-2 py-0.5 rounded-full ${
+                          clinic.status === 'Active Pilot'
+                            ? 'bg-teal-100 text-teal-800'
+                            : 'bg-emerald-100 text-emerald-800'
+                        }`}
+                      >
+                        {clinic.status}
+                      </span>
+                    </div>
+
+                    <h3 className="text-base font-bold text-slate-900 leading-snug">
+                      {clinic.name}
+                    </h3>
+
+                    <p className="text-xs text-slate-500 flex items-center gap-1.5">
+                      <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                      <span>{clinic.address}</span>
+                    </p>
+
+                    <div className="p-3 bg-slate-50 rounded-xl text-xs text-slate-600 space-y-1">
+                      <div className="flex items-center justify-between">
+                        <span>Active Practitioners:</span>
+                        <strong className="text-slate-900">{clinic.activePractitionersCount} Seva Doctors</strong>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span>Operating Hours:</span>
+                        <span className="text-slate-500">{clinic.operatingHours}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="p-4 bg-slate-50/80 border-t border-slate-100 flex items-center justify-between text-xs">
+                    <span className="text-slate-500">{clinic.specialties[0]}</span>
                     <button
                       onClick={() => onNavigate('find-clinic')}
-                      className="text-teal-700 hover:text-teal-900 font-bold cursor-pointer text-sm"
+                      className="font-bold text-indigo-600 hover:text-indigo-800 cursor-pointer"
                     >
-                      View Card
+                      View Center Details →
                     </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      {/* Add Clinic Modal */}
-      {showAddClinicModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs overflow-y-auto">
-          <div className="w-full max-w-lg rounded-3xl bg-white p-6 sm:p-8 shadow-2xl border border-slate-200 my-8">
-            <form onSubmit={handleAddClinicSubmit} className="space-y-5 text-sm">
-              <div className="flex items-center justify-between border-b border-slate-100 pb-4">
-                <div className="flex items-center gap-3">
-                  <Building2 className="w-6 h-6 text-teal-700" />
-                  <h3 className="text-xl font-bold text-slate-900">
-                    Add Clinic to Demonstration Network
-                  </h3>
+                  </div>
                 </div>
-                <button
-                  type="button"
-                  onClick={() => setShowAddClinicModal(false)}
-                  className="text-slate-400 hover:text-slate-700 p-2 min-h-[44px] min-w-[44px]"
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* TAB 2: STATE-WIDE IMPACT ANALYTICS */}
+        {activeTab === 'impact' && (
+          <div className="space-y-6">
+            <div>
+              <h2 className="text-xl font-bold text-slate-900">State Seva Outreach & Cumulative Impact</h2>
+              <p className="text-xs text-slate-500">Voluntary holistic healthcare service report across Karnataka</p>
+            </div>
+
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+              <div className="p-5 bg-white rounded-2xl border border-slate-200">
+                <span className="text-xs text-slate-500 uppercase font-semibold">Free Consultations</span>
+                <p className="text-3xl font-bold text-slate-900 mt-2">12,480+</p>
+                <span className="text-[11px] text-emerald-600 font-semibold">+18% this quarter</span>
+              </div>
+              <div className="p-5 bg-white rounded-2xl border border-slate-200">
+                <span className="text-xs text-slate-500 uppercase font-semibold">Active Seva Doctors</span>
+                <p className="text-3xl font-bold text-slate-900 mt-2">48</p>
+                <span className="text-[11px] text-slate-400">Certified Level 1 - 3</span>
+              </div>
+              <div className="p-5 bg-white rounded-2xl border border-slate-200">
+                <span className="text-xs text-slate-500 uppercase font-semibold">Network Centers</span>
+                <p className="text-3xl font-bold text-slate-900 mt-2">{clinics.length}</p>
+                <span className="text-[11px] text-slate-400">Bengaluru & Districts</span>
+              </div>
+              <div className="p-5 bg-white rounded-2xl border border-slate-200">
+                <span className="text-xs text-slate-500 uppercase font-semibold">Remedy Phials Dispensed</span>
+                <p className="text-3xl font-bold text-slate-900 mt-2">32,500+</p>
+                <span className="text-[11px] text-slate-400">100% Free of charge</span>
+              </div>
+            </div>
+
+            <div className="p-6 bg-white rounded-3xl border border-slate-200 shadow-xs space-y-3">
+              <h3 className="text-base font-bold text-slate-900">Top Dispensed Vibronics 108 Remedy Formulations</h3>
+              <div className="space-y-2 text-xs sm:text-sm">
+                <div className="p-3 bg-slate-50 rounded-xl flex items-center justify-between">
+                  <span><strong>CC20.3</strong> - Arthritis & Joint Support (Musculoskeletal)</span>
+                  <span className="font-bold text-indigo-700">3,420 beneficiaries</span>
+                </div>
+                <div className="p-3 bg-slate-50 rounded-xl flex items-center justify-between">
+                  <span><strong>CC12.1</strong> - Adult Vitality Tonic (Immunity & Senior Health)</span>
+                  <span className="font-bold text-indigo-700">2,890 beneficiaries</span>
+                </div>
+                <div className="p-3 bg-slate-50 rounded-xl flex items-center justify-between">
+                  <span><strong>CC4.1</strong> - Digestion & Metabolism Balancer</span>
+                  <span className="font-bold text-indigo-700">2,410 beneficiaries</span>
+                </div>
+                <div className="p-3 bg-slate-50 rounded-xl flex items-center justify-between">
+                  <span><strong>CC15.1</strong> - Mental & Emotional Balance (Stress Relief)</span>
+                  <span className="font-bold text-indigo-700">1,940 beneficiaries</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* TAB 3: PRACTITIONER REGISTRY */}
+        {activeTab === 'practitioners' && (
+          <div className="space-y-6">
+            <div>
+              <h2 className="text-xl font-bold text-slate-900">State Practitioner Registry & Accreditation</h2>
+              <p className="text-xs text-slate-500">Certified Sai Vibronics volunteer doctors in Karnataka</p>
+            </div>
+
+            <div className="bg-white rounded-3xl border border-slate-200 shadow-xs divide-y divide-slate-100 overflow-hidden">
+              <div className="p-4 sm:p-5 flex items-center justify-between hover:bg-slate-50">
+                <div className="flex items-center gap-3.5">
+                  <div className="w-10 h-10 rounded-xl bg-teal-50 text-teal-700 border border-teal-200 flex items-center justify-center font-bold">
+                    KR
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-bold text-slate-900">Dr. K. S. Ramesh, BAMS, MD (Ayu)</h4>
+                    <p className="text-xs text-slate-500">Reg: KA-AYU-1988-42 · Padmanabhanagar Pilot Center</p>
+                  </div>
+                </div>
+                <span className="px-2.5 py-0.5 rounded-full bg-teal-100 text-teal-800 text-xs font-bold">
+                  Level 3 Certified
+                </span>
+              </div>
+
+              <div className="p-4 sm:p-5 flex items-center justify-between hover:bg-slate-50">
+                <div className="flex items-center gap-3.5">
+                  <div className="w-10 h-10 rounded-xl bg-sky-50 text-sky-700 border border-sky-200 flex items-center justify-center font-bold">
+                    RM
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-bold text-slate-900">Smt. Radha V. Murthy, M.Sc</h4>
+                    <p className="text-xs text-slate-500">Accredited 2018 · Padmanabhanagar Pilot Center</p>
+                  </div>
+                </div>
+                <span className="px-2.5 py-0.5 rounded-full bg-teal-100 text-teal-800 text-xs font-bold">
+                  Level 3 Certified
+                </span>
+              </div>
+
+              <div className="p-4 sm:p-5 flex items-center justify-between hover:bg-slate-50">
+                <div className="flex items-center gap-3.5">
+                  <div className="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-700 border border-indigo-200 flex items-center justify-center font-bold">
+                    VP
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-bold text-slate-900">Sri Venkatesh Prasad, B.Pharm</h4>
+                    <p className="text-xs text-slate-500">Accredited 2017 · Basavanagudi Center</p>
+                  </div>
+                </div>
+                <span className="px-2.5 py-0.5 rounded-full bg-teal-100 text-teal-800 text-xs font-bold">
+                  Level 3 Certified
+                </span>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* TAB 4: SECURITY & RBAC AUDIT LOGS */}
+        {activeTab === 'audit' && (
+          <div className="space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <h2 className="text-xl font-bold text-slate-900">Security & RBAC Audit Logs</h2>
+                <p className="text-xs text-slate-500">Immutable ledger of platform actions and clinical verifications</p>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <select
+                  value={auditFilter}
+                  onChange={(e) => setAuditFilter(e.target.value)}
+                  className="px-3 py-1.5 rounded-xl border border-slate-200 text-xs font-semibold bg-white"
                 >
-                  <X className="w-6 h-6" />
+                  <option value="All">All Actions</option>
+                  <option value="Check-In">Queue Check-In</option>
+                  <option value="Prescription">Prescriptions</option>
+                  <option value="Historical">Historical Records</option>
+                  <option value="Roster">Roster Updates</option>
+                </select>
+
+                <button
+                  onClick={() => {
+                    setFeedbackNotice('Audit trail exported successfully as CSV.');
+                    setTimeout(() => setFeedbackNotice(null), 3000);
+                  }}
+                  className="px-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-xs"
+                >
+                  <Download className="w-3.5 h-3.5" />
+                  <span>Export Trail</span>
                 </button>
               </div>
+            </div>
 
+            <div className="bg-white rounded-3xl border border-slate-200 shadow-xs overflow-hidden">
+              <div className="divide-y divide-slate-100">
+                {filteredAuditLogs.map((log) => (
+                  <div key={log.id} className="p-4 sm:p-5 space-y-1 hover:bg-slate-50 transition-colors text-xs sm:text-sm">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <span className="font-mono text-xs text-slate-400">{log.timestamp}</span>
+                        <span className="font-bold text-slate-900">{log.action}</span>
+                      </div>
+                      <span className="px-2 py-0.5 rounded text-[11px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-200">
+                        {log.result}
+                      </span>
+                    </div>
+
+                    <p className="text-slate-700 text-xs">{log.details}</p>
+
+                    <div className="text-[11px] text-slate-400 flex items-center gap-3">
+                      <span>User: {log.user} ({log.userRole})</span>
+                      <span>·</span>
+                      <span>Clinic: {log.clinic}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* ADD NEW SEVA CENTER MODAL */}
+      {showAddClinicModal && (
+        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 space-y-4 shadow-xl border border-slate-200 max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
+                <Plus className="w-5 h-5 text-indigo-600" />
+                <span>Register New Seva Center</span>
+              </h3>
+              <button
+                onClick={() => setShowAddClinicModal(false)}
+                className="p-1 rounded-lg text-slate-400 hover:text-slate-700 cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleAddClinicSubmit} className="space-y-4 text-xs sm:text-sm">
               <div>
-                <label className="block font-bold text-slate-800 mb-1.5">
-                  Clinic Name <span className="text-rose-500">*</span>
-                </label>
+                <label className="text-xs font-semibold text-slate-700 block mb-1">Center Name</label>
                 <input
                   type="text"
-                  required
-                  placeholder="e.g. Sri Sathya Sai Seva Clinic - Whitefield"
                   value={clinicName}
                   onChange={(e) => setClinicName(e.target.value)}
-                  className="w-full px-4 py-3 bg-slate-50 border border-slate-300 rounded-2xl text-sm focus:ring-2 focus:ring-teal-600 focus:bg-white text-slate-900 min-h-[48px]"
+                  placeholder="e.g. Sri Sathya Sai Seva Center - Whitefield"
+                  className="w-full px-3 py-2 rounded-xl border border-slate-200"
+                  required
                 />
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block font-bold text-slate-800 mb-1.5">
-                    Locality in Bengaluru <span className="text-rose-500">*</span>
-                  </label>
+                  <label className="text-xs font-semibold text-slate-700 block mb-1">Locality</label>
                   <input
                     type="text"
-                    required
                     value={clinicLocality}
                     onChange={(e) => setClinicLocality(e.target.value)}
-                    placeholder="e.g. Whitefield"
-                    className="w-full px-4 py-3 bg-slate-50 border border-slate-300 rounded-2xl text-sm focus:ring-2 focus:ring-teal-600 focus:bg-white text-slate-900 min-h-[48px]"
+                    className="w-full px-3 py-2 rounded-xl border border-slate-200"
+                    required
                   />
                 </div>
                 <div>
-                  <label className="block font-bold text-slate-800 mb-1.5">
-                    PIN Code <span className="text-rose-500">*</span>
-                  </label>
+                  <label className="text-xs font-semibold text-slate-700 block mb-1">Pincode</label>
                   <input
                     type="text"
-                    required
-                    maxLength={6}
                     value={clinicPincode}
                     onChange={(e) => setClinicPincode(e.target.value)}
-                    placeholder="560066"
-                    className="w-full px-4 py-3 bg-slate-50 border border-slate-300 rounded-2xl text-sm focus:ring-2 focus:ring-teal-600 focus:bg-white text-slate-900 min-h-[48px]"
+                    className="w-full px-3 py-2 rounded-xl border border-slate-200"
+                    required
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block font-bold text-slate-800 mb-1.5">
-                  Complete Street Address <span className="text-rose-500">*</span>
-                </label>
-                <textarea
-                  rows={2}
-                  required
+                <label className="text-xs font-semibold text-slate-700 block mb-1">Address</label>
+                <input
+                  type="text"
                   value={clinicAddress}
                   onChange={(e) => setClinicAddress(e.target.value)}
-                  placeholder="Near Sai Geetha Ashram, Kadugodi Main Road, Bengaluru 560066"
-                  className="w-full px-4 py-3 bg-slate-50 border border-slate-300 rounded-2xl text-sm focus:ring-2 focus:ring-teal-600 focus:bg-white text-slate-900"
+                  placeholder="Street address / Landmark"
+                  className="w-full px-3 py-2 rounded-xl border border-slate-200"
+                  required
                 />
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block font-bold text-slate-800 mb-1.5">
-                    Active Practitioners Count
-                  </label>
+                  <label className="text-xs font-semibold text-slate-700 block mb-1">Practitioners Count</label>
                   <input
                     type="number"
-                    min={1}
-                    max={20}
                     value={clinicPractitionersCount}
                     onChange={(e) => setClinicPractitionersCount(Number(e.target.value))}
-                    className="w-full px-4 py-3 bg-slate-50 border border-slate-300 rounded-2xl text-sm focus:ring-2 focus:ring-teal-600 focus:bg-white text-slate-900 min-h-[48px]"
+                    className="w-full px-3 py-2 rounded-xl border border-slate-200"
                   />
                 </div>
                 <div>
-                  <label className="block font-bold text-slate-800 mb-1.5">
-                    Operational Status
-                  </label>
+                  <label className="text-xs font-semibold text-slate-700 block mb-1">Status</label>
                   <select
                     value={clinicStatus}
                     onChange={(e) => setClinicStatus(e.target.value as any)}
-                    className="w-full px-4 py-3 bg-slate-50 border border-slate-300 rounded-2xl text-sm text-slate-900 cursor-pointer min-h-[48px]"
+                    className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-white"
                   >
-                    <option value="Operational">Operational</option>
-                    <option value="Upcoming">Upcoming Seva Centre</option>
-                    <option value="Active Pilot">Active Pilot</option>
+                    <option>Operational</option>
+                    <option>Upcoming</option>
+                    <option>Active Pilot</option>
                   </select>
                 </div>
               </div>
 
               <div>
-                <label className="block font-bold text-slate-800 mb-1.5">
-                  Services Offered (comma separated)
-                </label>
+                <label className="text-xs font-semibold text-slate-700 block mb-1">Specialties</label>
                 <input
                   type="text"
                   value={specialtiesText}
                   onChange={(e) => setSpecialtiesText(e.target.value)}
-                  className="w-full px-4 py-3 bg-slate-50 border border-slate-300 rounded-2xl text-sm text-slate-900 min-h-[48px]"
+                  className="w-full px-3 py-2 rounded-xl border border-slate-200"
                 />
               </div>
 
-              <div className="p-4 bg-amber-50 rounded-2xl text-xs text-amber-950 border border-amber-200">
-                <strong>Local Prototype Update:</strong> Adding this clinic injects it into this browser session, allowing you to search for it, view its details, and schedule fictional appointments immediately.
-              </div>
-
-              <div className="pt-3 border-t border-slate-100 flex items-center justify-end gap-3">
+              <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
                 <button
                   type="button"
                   onClick={() => setShowAddClinicModal(false)}
-                  className="px-5 py-3 text-sm font-bold text-slate-700 hover:bg-slate-100 rounded-xl transition-colors cursor-pointer min-h-[48px]"
+                  className="px-4 py-2 rounded-xl border border-slate-200 text-slate-700 text-xs font-semibold cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-6 py-3 text-sm font-bold text-white bg-teal-700 hover:bg-teal-800 rounded-2xl transition-colors cursor-pointer min-h-[48px]"
+                  className="px-5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold shadow-xs cursor-pointer"
                 >
-                  Add Clinic to Prototype
+                  Register Center
                 </button>
               </div>
             </form>

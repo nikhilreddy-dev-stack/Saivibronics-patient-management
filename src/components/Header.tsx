@@ -83,14 +83,14 @@ export const Header: React.FC<HeaderProps> = ({
               className="flex items-center gap-2.5 sm:gap-3 text-left group cursor-pointer shrink-0 min-h-[48px]"
               aria-label="Saivibronics Home"
             >
-              <div className="w-10 h-10 rounded-xl bg-[#007F73] text-white flex items-center justify-center shadow-xs group-hover:bg-[#006b60] transition-colors shrink-0">
-                <HeartHandshake className="w-5 h-5 text-teal-100" />
+              <div className="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center shadow-xs group-hover:bg-blue-700 transition-colors shrink-0">
+                <HeartHandshake className="w-5 h-5 text-teal-200" />
               </div>
               <div className="leading-tight">
-                <span className="text-lg sm:text-xl font-bold tracking-tight text-[#14243A] block font-['Plus_Jakarta_Sans',sans-serif]">
+                <span className="text-lg sm:text-xl font-bold tracking-tight text-slate-900 block font-['Plus_Jakarta_Sans',sans-serif]">
                   Saivibronics
                 </span>
-                <span className="text-[10px] sm:text-[11px] font-bold text-[#007F73] tracking-wider uppercase block">
+                <span className="text-[10px] sm:text-[11px] font-bold text-teal-700 tracking-wider uppercase block">
                   Sri Sathya Sai Organisation
                 </span>
               </div>
@@ -105,8 +105,8 @@ export const Header: React.FC<HeaderProps> = ({
                 onClick={() => handleNavigate('home')}
                 className={`px-3 py-1.5 rounded-lg text-sm font-semibold transition-colors cursor-pointer min-h-[40px] flex items-center ${
                   currentPage === 'home'
-                    ? 'text-[#007F73] font-bold bg-[#E9F8F4]'
-                    : 'text-[#536579] hover:text-[#007F73] hover:bg-slate-50'
+                    ? 'text-blue-600 font-bold bg-blue-50'
+                    : 'text-slate-600 hover:text-blue-600 hover:bg-slate-50'
                 }`}
               >
                 Home
@@ -115,15 +115,15 @@ export const Header: React.FC<HeaderProps> = ({
                 onClick={() => handleNavigate('find-clinic')}
                 className={`px-3 py-1.5 rounded-lg text-sm font-semibold transition-colors cursor-pointer min-h-[40px] flex items-center ${
                   currentPage === 'find-clinic'
-                    ? 'text-[#007F73] font-bold bg-[#E9F8F4]'
-                    : 'text-[#536579] hover:text-[#007F73] hover:bg-slate-50'
+                    ? 'text-blue-600 font-bold bg-blue-50'
+                    : 'text-slate-600 hover:text-blue-600 hover:bg-slate-50'
                 }`}
               >
                 Find a Clinic
               </button>
               <button
                 onClick={handleScrollToHowItWorks}
-                className="px-3 py-1.5 rounded-lg text-sm font-semibold text-[#536579] hover:text-[#007F73] hover:bg-slate-50 transition-colors cursor-pointer min-h-[40px] flex items-center"
+                className="px-3 py-1.5 rounded-lg text-sm font-semibold text-slate-600 hover:text-blue-600 hover:bg-slate-50 transition-colors cursor-pointer min-h-[40px] flex items-center"
               >
                 How It Works
               </button>
@@ -131,8 +131,8 @@ export const Header: React.FC<HeaderProps> = ({
                 onClick={() => handleNavigate('patient-dashboard')}
                 className={`px-3 py-1.5 rounded-lg text-sm font-semibold transition-colors cursor-pointer min-h-[40px] flex items-center ${
                   currentPage === 'patient-dashboard'
-                    ? 'text-[#007F73] font-bold bg-[#E9F8F4]'
-                    : 'text-[#536579] hover:text-[#007F73] hover:bg-slate-50'
+                    ? 'text-blue-600 font-bold bg-blue-50'
+                    : 'text-slate-600 hover:text-blue-600 hover:bg-slate-50'
                 }`}
               >
                 Patient Portal
@@ -151,10 +151,10 @@ export const Header: React.FC<HeaderProps> = ({
                 <div className="hidden sm:flex items-center gap-1.5 shrink-0">
                   <button
                     onClick={() => onNavigate('patient-dashboard')}
-                    className="inline-flex items-center gap-2 px-3 py-1.5 text-xs sm:text-sm font-semibold text-[#007F73] bg-[#E9F8F4] hover:bg-teal-100 rounded-xl transition-colors cursor-pointer min-h-[44px]"
+                    className="inline-flex items-center gap-2 px-3 py-1.5 text-xs sm:text-sm font-semibold text-blue-700 bg-blue-50 hover:bg-blue-100 rounded-xl transition-colors cursor-pointer min-h-[44px]"
                     title="Open Patient Portal"
                   >
-                    <span className="w-6 h-6 rounded-full bg-[#007F73] text-white flex items-center justify-center text-xs font-bold">
+                    <span className="w-6 h-6 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs font-bold">
                       {authenticatedPatient.fullName.charAt(0)}
                     </span>
                     <span className="max-w-[120px] truncate">{authenticatedPatient.fullName.split(' ')[0]}</span>
@@ -173,9 +173,9 @@ export const Header: React.FC<HeaderProps> = ({
               ) : (
                 <button
                   onClick={() => onNavigate('signin')}
-                  className="hidden sm:inline-flex items-center gap-1.5 px-3 py-2 text-sm font-semibold text-[#14243A] hover:text-[#007F73] hover:bg-slate-50 rounded-xl transition-colors cursor-pointer min-h-[44px] shrink-0"
+                  className="hidden sm:inline-flex items-center gap-1.5 px-3 py-2 text-sm font-semibold text-slate-700 hover:text-blue-600 hover:bg-slate-50 rounded-xl transition-colors cursor-pointer min-h-[44px] shrink-0"
                 >
-                  <User className="w-4 h-4 text-[#536579]" />
+                  <User className="w-4 h-4 text-slate-500" />
                   <span>Sign In</span>
                 </button>
               )}
@@ -183,7 +183,7 @@ export const Header: React.FC<HeaderProps> = ({
               {/* Book Appointment action */}
               <button
                 onClick={() => onNavigate('find-clinic')}
-                className="inline-flex items-center gap-1.5 sm:gap-2 px-3.5 sm:px-4 py-2 sm:py-2.5 text-xs sm:text-sm font-bold text-white bg-[#007F73] hover:bg-[#006b60] rounded-xl shadow-xs transition-colors cursor-pointer min-h-[44px] shrink-0 whitespace-nowrap"
+                className="inline-flex items-center gap-1.5 sm:gap-2 px-3.5 sm:px-4 py-2 sm:py-2.5 text-xs sm:text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-xl shadow-xs transition-colors cursor-pointer min-h-[44px] shrink-0 whitespace-nowrap"
               >
                 <span>Book Appointment</span>
                 <ArrowRight className="w-4 h-4 hidden sm:inline" />
@@ -192,7 +192,7 @@ export const Header: React.FC<HeaderProps> = ({
               {/* Hamburger menu icon on the right (both desktop & mobile) */}
               <button
                 onClick={() => setDrawerOpen(true)}
-                className="p-2 sm:p-2.5 rounded-xl text-slate-700 hover:text-[#007F73] hover:bg-slate-100 transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center cursor-pointer shrink-0 border border-slate-200"
+                className="p-2 sm:p-2.5 rounded-xl text-slate-700 hover:text-blue-600 hover:bg-slate-100 transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center cursor-pointer shrink-0 border border-slate-200"
                 aria-label="Open navigation menu"
                 aria-expanded={drawerOpen}
               >
@@ -253,15 +253,15 @@ export const Header: React.FC<HeaderProps> = ({
                   onClick={() => handleNavigate('home')}
                   className={`w-full text-left px-3.5 py-3 rounded-xl text-sm font-semibold transition-colors flex items-center gap-3 min-h-[44px] cursor-pointer ${
                     currentPage === 'home'
-                      ? 'bg-[#E9F8F4] text-[#007F73] font-bold'
-                      : 'text-[#14243A] hover:bg-slate-50'
+                      ? 'bg-blue-50 text-blue-700 font-bold'
+                      : 'text-slate-800 hover:bg-slate-50'
                   }`}
                 >
                   <div
                     className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
                       currentPage === 'home'
-                        ? 'bg-[#007F73] text-white'
-                        : 'bg-slate-100 text-[#007F73]'
+                        ? 'bg-blue-600 text-white'
+                        : 'bg-slate-100 text-blue-600'
                     }`}
                   >
                     <Home className="w-4 h-4" />
@@ -279,15 +279,15 @@ export const Header: React.FC<HeaderProps> = ({
                   onClick={() => handleNavigate('find-clinic')}
                   className={`w-full text-left px-3.5 py-3 rounded-xl text-sm font-semibold transition-colors flex items-center gap-3 min-h-[44px] cursor-pointer ${
                     currentPage === 'find-clinic'
-                      ? 'bg-[#E9F8F4] text-[#007F73] font-bold'
-                      : 'text-[#14243A] hover:bg-slate-50'
+                      ? 'bg-blue-50 text-blue-700 font-bold'
+                      : 'text-slate-800 hover:bg-slate-50'
                   }`}
                 >
                   <div
                     className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
                       currentPage === 'find-clinic'
-                        ? 'bg-[#007F73] text-white'
-                        : 'bg-slate-100 text-[#007F73]'
+                        ? 'bg-blue-600 text-white'
+                        : 'bg-slate-100 text-blue-600'
                     }`}
                   >
                     <Search className="w-4 h-4" />
@@ -305,15 +305,15 @@ export const Header: React.FC<HeaderProps> = ({
                   onClick={() => handleNavigate('patient-dashboard')}
                   className={`w-full text-left px-3.5 py-3 rounded-xl text-sm font-semibold transition-colors flex items-center gap-3 min-h-[44px] cursor-pointer ${
                     currentPage === 'patient-dashboard'
-                      ? 'bg-[#E9F8F4] text-[#007F73] font-bold'
-                      : 'text-[#14243A] hover:bg-slate-50'
+                      ? 'bg-blue-50 text-blue-700 font-bold'
+                      : 'text-slate-800 hover:bg-slate-50'
                   }`}
                 >
                   <div
                     className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
                       currentPage === 'patient-dashboard'
-                        ? 'bg-[#007F73] text-white'
-                        : 'bg-slate-100 text-[#007F73]'
+                        ? 'bg-blue-600 text-white'
+                        : 'bg-slate-100 text-blue-600'
                     }`}
                   >
                     <User className="w-4 h-4" />
@@ -329,9 +329,9 @@ export const Header: React.FC<HeaderProps> = ({
                 {/* 4. How It Works */}
                 <button
                   onClick={handleScrollToHowItWorks}
-                  className="w-full text-left px-3.5 py-3 rounded-xl text-sm font-semibold text-[#14243A] hover:bg-slate-50 transition-colors flex items-center gap-3 min-h-[44px] cursor-pointer"
+                  className="w-full text-left px-3.5 py-3 rounded-xl text-sm font-semibold text-slate-800 hover:bg-slate-50 transition-colors flex items-center gap-3 min-h-[44px] cursor-pointer"
                 >
-                  <div className="w-8 h-8 rounded-lg bg-slate-100 text-[#007F73] flex items-center justify-center shrink-0">
+                  <div className="w-8 h-8 rounded-lg bg-slate-100 text-teal-600 flex items-center justify-center shrink-0">
                     <HeartHandshake className="w-4 h-4" />
                   </div>
                   <div className="flex-1 min-w-0">
@@ -349,19 +349,19 @@ export const Header: React.FC<HeaderProps> = ({
                   Account & Registration
                 </div>
 
-                {/* Patient Session or 6. Sign In and 7. Register */}
+                {/* Patient Session or Sign In and Register */}
                 {authenticatedPatient ? (
-                  <div className="p-3.5 bg-[#E9F8F4] border border-teal-200 rounded-xl space-y-2.5">
+                  <div className="p-3.5 bg-blue-50/70 border border-blue-200 rounded-xl space-y-2.5">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-[#007F73] text-white font-bold flex items-center justify-center text-sm shadow-xs shrink-0">
+                      <div className="w-10 h-10 rounded-full bg-blue-600 text-white font-bold flex items-center justify-center text-sm shadow-xs shrink-0">
                         {authenticatedPatient.fullName.charAt(0)}
                       </div>
                       <div className="min-w-0 flex-1">
                         <div className="text-sm font-bold text-slate-900 truncate">
                           {authenticatedPatient.fullName}
                         </div>
-                        <div className="text-[11px] text-teal-800 font-mono flex items-center gap-1">
-                          <ShieldCheck className="w-3 h-3 text-[#007F73]" />
+                        <div className="text-[11px] text-blue-700 font-mono flex items-center gap-1">
+                          <ShieldCheck className="w-3 h-3 text-blue-600" />
                           <span>{authenticatedPatient.patientId || authenticatedPatient.id}</span>
                         </div>
                       </div>
@@ -369,7 +369,7 @@ export const Header: React.FC<HeaderProps> = ({
                     <div className="grid grid-cols-2 gap-2 pt-1">
                       <button
                         onClick={() => handleNavigate('patient-dashboard')}
-                        className="py-2 px-3 rounded-lg bg-[#007F73] hover:bg-[#006b60] text-white text-xs font-bold text-center cursor-pointer transition-colors"
+                        className="py-2 px-3 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold text-center cursor-pointer transition-colors"
                       >
                         My Dashboard
                       </button>
@@ -391,11 +391,11 @@ export const Header: React.FC<HeaderProps> = ({
                       onClick={() => handleNavigate('signin')}
                       className={`p-3 rounded-xl border text-left font-semibold text-sm transition-colors min-h-[44px] cursor-pointer flex items-center gap-2 ${
                         currentPage === 'signin'
-                          ? 'border-[#007F73] bg-[#E9F8F4] text-[#007F73]'
-                          : 'border-slate-200 bg-slate-50 hover:bg-slate-100 text-[#14243A]'
+                          ? 'border-blue-600 bg-blue-50 text-blue-700'
+                          : 'border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-800'
                       }`}
                     >
-                      <LogIn className="w-4 h-4 text-[#007F73] shrink-0" />
+                      <LogIn className="w-4 h-4 text-blue-600 shrink-0" />
                       <span className="truncate">Sign In</span>
                     </button>
 
@@ -403,11 +403,11 @@ export const Header: React.FC<HeaderProps> = ({
                       onClick={() => handleNavigate('register')}
                       className={`p-3 rounded-xl border text-left font-semibold text-sm transition-colors min-h-[44px] cursor-pointer flex items-center gap-2 ${
                         currentPage === 'register'
-                          ? 'border-[#007F73] bg-[#E9F8F4] text-[#007F73]'
-                          : 'border-slate-200 bg-slate-50 hover:bg-slate-100 text-[#14243A]'
+                          ? 'border-blue-600 bg-blue-50 text-blue-700'
+                          : 'border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-800'
                       }`}
                     >
-                      <UserPlus className="w-4 h-4 text-[#007F73] shrink-0" />
+                      <UserPlus className="w-4 h-4 text-blue-600 shrink-0" />
                       <span className="truncate">Register</span>
                     </button>
                   </div>
@@ -416,7 +416,7 @@ export const Header: React.FC<HeaderProps> = ({
                 {/* Find a Clinic & Book Token */}
                 <button
                   onClick={() => handleNavigate('find-clinic')}
-                  className="w-full py-3.5 px-4 text-center text-sm font-bold text-white bg-[#007F73] hover:bg-[#006b60] rounded-xl shadow-xs min-h-[48px] cursor-pointer flex items-center justify-center gap-2 transition-colors"
+                  className="w-full py-3.5 px-4 text-center text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-xl shadow-xs min-h-[48px] cursor-pointer flex items-center justify-center gap-2 transition-colors"
                 >
                   <Calendar className="w-4 h-4" />
                   <span>Find a Clinic & Book Token</span>

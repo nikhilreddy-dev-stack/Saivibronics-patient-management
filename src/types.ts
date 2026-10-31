@@ -104,3 +104,71 @@ export interface VibronicsRemedy {
   category: string;
   commonUses: string;
 }
+
+export interface RemedyItem {
+  code: string;
+  name: string;
+  dosage: string;
+  frequency: string;
+  duration: string;
+  instructions: string;
+  precautions?: string;
+}
+
+export interface PrescriptionRecord {
+  id: string;
+  appointmentId: string;
+  patientId: string;
+  patientName: string;
+  practitionerId: string;
+  practitionerName: string;
+  clinicName: string;
+  date: string;
+  patientConcern: string;
+  clinicalNotes: string;
+  remedies: RemedyItem[];
+  followUpDate?: string;
+  followUpInstructions?: string;
+  status: 'Draft' | 'Finalised';
+  createdAt: string;
+  finalisedAt?: string;
+}
+
+export interface ChatMessage {
+  id: string;
+  conversationId: string;
+  senderRole: 'patient' | 'practitioner';
+  senderName: string;
+  receiverRole: 'patient' | 'practitioner';
+  receiverName: string;
+  text: string;
+  timestamp: string;
+  read: boolean;
+}
+
+export interface HistoricalRecord {
+  id: string;
+  patientId: string;
+  patientName: string;
+  originalVisitDate: string;
+  clinicName: string;
+  digitisedSummary: string;
+  scannedDocRef: string;
+  enteredBy: string;
+  verifiedBy?: string;
+  verificationStatus: 'Pending Verification' | 'Approved' | 'Returned';
+  approvalNotes?: string;
+  dateEntered: string;
+  dateVerified?: string;
+}
+
+export interface AuditLogEntry {
+  id: string;
+  timestamp: string;
+  user: string;
+  userRole: string;
+  action: string;
+  details: string;
+  clinic: string;
+  result: 'Success' | 'Denied' | 'Flagged';
+}
