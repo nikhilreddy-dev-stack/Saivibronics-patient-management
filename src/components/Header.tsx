@@ -326,54 +326,18 @@ export const Header: React.FC<HeaderProps> = ({
                   </div>
                 </button>
 
-                {/* 4. Practitioner */}
+                {/* 4. How It Works */}
                 <button
-                  onClick={() => handleNavigate('practitioner-dashboard')}
-                  className={`w-full text-left px-3.5 py-3 rounded-xl text-sm font-semibold transition-colors flex items-center gap-3 min-h-[44px] cursor-pointer ${
-                    currentPage === 'practitioner-dashboard'
-                      ? 'bg-[#E9F8F4] text-[#007F73] font-bold'
-                      : 'text-[#14243A] hover:bg-slate-50'
-                  }`}
+                  onClick={handleScrollToHowItWorks}
+                  className="w-full text-left px-3.5 py-3 rounded-xl text-sm font-semibold text-[#14243A] hover:bg-slate-50 transition-colors flex items-center gap-3 min-h-[44px] cursor-pointer"
                 >
-                  <div
-                    className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
-                      currentPage === 'practitioner-dashboard'
-                        ? 'bg-[#007F73] text-white'
-                        : 'bg-slate-100 text-[#007F73]'
-                    }`}
-                  >
-                    <Stethoscope className="w-4 h-4" />
+                  <div className="w-8 h-8 rounded-lg bg-slate-100 text-[#007F73] flex items-center justify-center shrink-0">
+                    <HeartHandshake className="w-4 h-4" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <span className="block truncate">Practitioner</span>
+                    <span className="block truncate">How It Works</span>
                     <span className="text-xs text-slate-500 font-normal block truncate">
-                      Consultation queue & remedies
-                    </span>
-                  </div>
-                </button>
-
-                {/* 5. Clinic Admin */}
-                <button
-                  onClick={() => handleNavigate('clinic-admin-dashboard')}
-                  className={`w-full text-left px-3.5 py-3 rounded-xl text-sm font-semibold transition-colors flex items-center gap-3 min-h-[44px] cursor-pointer ${
-                    currentPage === 'clinic-admin-dashboard'
-                      ? 'bg-[#E9F8F4] text-[#007F73] font-bold'
-                      : 'text-[#14243A] hover:bg-slate-50'
-                  }`}
-                >
-                  <div
-                    className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
-                      currentPage === 'clinic-admin-dashboard'
-                        ? 'bg-[#007F73] text-white'
-                        : 'bg-slate-100 text-[#007F73]'
-                    }`}
-                  >
-                    <Building2 className="w-4 h-4" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <span className="block truncate">Clinic Admin</span>
-                    <span className="text-xs text-slate-500 font-normal block truncate">
-                      Reception desk, tokens & schedule
+                      Holistic Vibronics consultation steps
                     </span>
                   </div>
                 </button>
@@ -449,7 +413,7 @@ export const Header: React.FC<HeaderProps> = ({
                   </div>
                 )}
 
-                {/* 8. Find a Clinic & Book Token */}
+                {/* Find a Clinic & Book Token */}
                 <button
                   onClick={() => handleNavigate('find-clinic')}
                   className="w-full py-3.5 px-4 text-center text-sm font-bold text-white bg-[#007F73] hover:bg-[#006b60] rounded-xl shadow-xs min-h-[48px] cursor-pointer flex items-center justify-center gap-2 transition-colors"
@@ -458,20 +422,6 @@ export const Header: React.FC<HeaderProps> = ({
                   <span>Find a Clinic & Book Token</span>
                   <ArrowRight className="w-4 h-4" />
                 </button>
-
-                {/* Staff & Administrator Portal Link */}
-                <div className="pt-1">
-                  <button
-                    onClick={() => handleNavigate('staff-signin')}
-                    className="w-full py-2.5 px-3 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-xs font-semibold text-slate-700 transition-colors flex items-center justify-between cursor-pointer min-h-[40px]"
-                  >
-                    <span className="flex items-center gap-2">
-                      <Building2 className="w-3.5 h-3.5 text-teal-700" />
-                      <span>Authorized Staff & Admin Sign In</span>
-                    </span>
-                    <ArrowRight className="w-3.5 h-3.5 text-slate-400" />
-                  </button>
-                </div>
               </div>
 
               {/* Progressive Web App Option */}

@@ -1,12 +1,17 @@
 export type PageId =
   | 'home'
   | 'find-clinic'
+  | 'clinics'
   | 'clinic-details'
   | 'register'
   | 'signin'
-  | 'staff-signin'
   | 'patient-dashboard'
+  | 'practitioner'
+  | 'practitioner-signin'
   | 'practitioner-dashboard'
+  | 'admin'
+  | 'admin-signin'
+  | 'admin-dashboard'
   | 'clinic-admin-dashboard'
   | 'org-admin-dashboard';
 

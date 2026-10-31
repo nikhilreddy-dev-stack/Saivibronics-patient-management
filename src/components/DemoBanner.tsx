@@ -11,6 +11,15 @@ export const DemoBanner: React.FC<DemoBannerProps> = ({ currentPage, onNavigate 
   const [isDismissed, setIsDismissed] = useState(false);
   const [showRoleModal, setShowRoleModal] = useState(false);
 
+  // Demonstration mode is only displayed when explicitly enabled (e.g. ?demo=true or ?demo=evaluator)
+  const isDemoMode = typeof window !== 'undefined' && 
+    (new URLSearchParams(window.location.search).has('demo') ||
+     new URLSearchParams(window.location.search).get('mode') === 'evaluator');
+
+  if (!isDemoMode) {
+    return null;
+  }
+
   if (isDismissed) {
     return (
       <div className="bg-slate-900 text-slate-200 text-xs px-4 py-2 flex items-center justify-between border-b border-slate-800">

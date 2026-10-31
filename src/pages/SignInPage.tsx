@@ -265,23 +265,6 @@ export const SignInPage: React.FC<SignInPageProps> = ({
         </form>
       </div>
 
-      {/* Discrete Separate Staff & Volunteer Portal Entry Point */}
-      <div className="p-4 rounded-2xl bg-slate-100/80 border border-slate-200 text-center text-xs text-slate-600 space-y-1.5">
-        <div className="font-semibold text-slate-700">
-          Are you a certified Vibrionics practitioner or clinic reception administrator?
-        </div>
-        <div>
-          <button
-            type="button"
-            onClick={() => onNavigate('staff-signin')}
-            className="font-bold text-[#007F73] hover:underline cursor-pointer inline-flex items-center gap-1"
-          >
-            <Lock className="w-3.5 h-3.5" />
-            <span>Access Staff & Seva Volunteer Console</span>
-          </button>
-        </div>
-      </div>
-
       {/* Forgot Password Helper Modal */}
       {showForgotPasswordModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs">
