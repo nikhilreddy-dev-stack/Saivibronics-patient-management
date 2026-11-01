@@ -1,0 +1,807 @@
+# SAIVIBRONICS PATIENT MANAGEMENT PLATFORM
+## Complete Enhancement, Practitioner Portal, Administration Portal and Appointment Management Requirements
+
+You are working on an existing application called **Saivibronics Patient Management Platform**, developed for the Sri Sathya Sai Organisation.
+
+This is an existing project with working pages, components, navigation, layouts, and features. Your task is to carefully enhance the existing application and implement the requirements below.
+
+# 1. MOST IMPORTANT: PRESERVE THE EXISTING APPLICATION
+
+Before making any changes:
+
+1. Inspect the complete existing project structure, components, pages, routing, state management, styles, and current functionality.
+2. Understand how the existing public website, patient portal, practitioner portal, and administration portal currently work.
+3. Identify which features are already implemented and which are incomplete.
+4. Reuse existing components, data structures, and functionality wherever possible.
+
+### Strict preservation rules
+
+- DO NOT regenerate the entire application.
+- DO NOT replace the existing application with a new template.
+- DO NOT delete existing pages or working components.
+- DO NOT unnecessarily modify the existing homepage, clinic finder, clinic details, patient registration, booking flow, or patient dashboard.
+- DO NOT break existing navigation or working interactions.
+- DO NOT remove existing functionality simply because a new design is being introduced.
+- DO NOT change the application's purpose, branding identity, or healthcare workflow.
+- DO NOT replace existing working functionality with static mockups.
+- DO NOT introduce unnecessary dependencies or perform a complete architecture rewrite.
+
+The existing main public application must remain functionally and visually intact except for the specific changes explicitly requested in this prompt.
+
+If an existing feature already works, preserve it.
+
+If a feature is incomplete, improve that feature without disturbing unrelated parts of the application.
+
+# 2. THREE DISTINCT PORTALS WITH ONE SHARED PLATFORM
+
+The platform must have three clearly separated user experiences.
+
+### A. Public Website and Patient Portal
+For patients and visitors.
+
+### B. Practitioner Portal
+For authorised practitioners who provide consultations and manage patient care.
+
+### C. Administration Portal
+For authorised clinic administrators and organisation administrators who manage the platform.
+
+All three must ultimately work with one shared backend and database.
+
+Do not create disconnected copies of patient, practitioner, clinic, or appointment data.
+
+Each portal must have its own appropriate navigation, login experience, dashboard, and permissions.
+
+# 3. PUBLIC WEBSITE: KEEP IT A GENERAL PUBLIC PORTAL
+
+The homepage is the general public-facing website.
+
+A visitor who has not signed in should be able to explore the platform, understand the services, find clinics, and register or sign in.
+
+### Public navigation
+
+The public menu should contain only patient-facing and visitor-facing options:
+
+- Home
+- Find a Clinic
+- How It Works
+- Patient Registration
+- Patient Sign In
+
+Do not display:
+- Practitioner Portal
+- Administration Portal
+- Clinic Admin Login
+- Organisation Admin Login
+- Staff Login
+- Internal dashboards
+
+### Important Patient Portal navigation correction
+
+Currently, the public menu displays a separate "Patient Portal" option.
+
+Remove this separate Patient Portal navigation item from the general public menu.
+
+The intended workflow is:
+
+1. A visitor opens the public website.
+2. They can explore the homepage and find clinics without signing in.
+3. They select Patient Sign In.
+4. They enter their credentials.
+5. After successful authentication, they are automatically redirected to their Patient Portal dashboard.
+6. If they are not registered, they can register first.
+7. After successful registration and the appropriate authentication process, they can access their Patient Portal.
+
+The Patient Portal should be an authenticated experience, not an additional public-facing destination.
+
+Preserve the existing patient dashboard and its working functionality.
+
+# 4. VISUAL DESIGN AND USER EXPERIENCE
+
+Use the uploaded reference screenshots as visual inspiration for the dashboards and portal layouts.
+
+They demonstrate useful ideas such as:
+
+- Professional healthcare dashboards.
+- Clear sidebar navigation.
+- Summary cards.
+- Appointment overview sections.
+- Recent patient activity.
+- Patient tables.
+- Doctor availability panels.
+- Quick-action buttons.
+- Charts and reports.
+- Organised patient records.
+- Responsive mobile layouts.
+
+Do not copy another product's branding or reproduce its interface exactly.
+
+Adapt the useful design patterns to Saivibronics.
+
+### Colour palette
+
+The existing dominant green appearance on the main page is not visually appealing.
+
+Improve the colour palette using a refined, professional healthcare design.
+
+Preferred direction:
+
+- Clean white and very light neutral backgrounds.
+- Deep navy or dark blue for important headings.
+- Blue or indigo for primary actions and navigation highlights.
+- Soft cyan or muted teal as a secondary accent.
+- Subtle violet accents for selected cards or visual indicators.
+- Light grey borders and restrained shadows.
+- Clear, accessible status colours.
+
+Avoid:
+- Large dominant green backgrounds.
+- Excessively bright colours.
+- Too many competing accent colours.
+- Heavy gradients everywhere.
+- Excessive shadows and decorative effects.
+
+The result should feel calm, trustworthy, professional, modern, and suitable for a healthcare organisation.
+
+Do not change the existing main application's layout or branding unnecessarily just to apply this palette. Apply visual changes only to the areas being intentionally redesigned.
+
+### Accessibility
+
+The platform must be usable by senior citizens.
+
+Provide:
+- Readable typography.
+- Adequate font sizes.
+- High contrast.
+- Large touch targets.
+- Clearly labelled buttons.
+- Simple forms.
+- Easy-to-understand error messages.
+- Responsive layouts.
+- Proper mobile navigation.
+- Text scaling controls where appropriate.
+- A high-contrast option where feasible.
+
+Do not make important information dependent on colour alone.
+
+# 5. PRACTITIONER PORTAL
+
+The practitioner portal must remain separate from the public patient-facing website.
+
+Use the existing practitioner dashboard and its functionality wherever possible.
+
+The practitioner should have an independent login and dashboard.
+
+Suggested routes:
+
+- `/practitioner`
+- `/practitioner/signin`
+- `/practitioner/dashboard`
+
+Do not expose these routes through the public navigation.
+
+### Practitioner dashboard design
+
+Use the uploaded practitioner dashboard references for layout inspiration.
+
+The practitioner dashboard should contain clearly organised sections:
+
+1. Practitioner profile and professional details.
+2. Clinic and room information.
+3. Today's patient queue.
+4. Appointment schedule.
+5. Digital consultation workspace.
+6. Patient medical history.
+7. Prescriptions and remedies archive.
+8. Patient enquiries and messages.
+9. Availability and working schedule.
+10. Notifications.
+
+Preserve existing consultation functionality and improve it where necessary.
+
+# 6. PRACTITIONER AVAILABILITY AND WEEKLY WORKING SCHEDULE
+
+THIS IS A CRITICAL REQUIREMENT.
+
+A practitioner is not necessarily available every day.
+
+Different practitioners may work:
+- Only certain days of the week.
+- Only during specific hours.
+- At different clinics on different days.
+- For different services at different times.
+- With temporary leave or exceptional schedule changes.
+
+Therefore, appointment booking must be based on actual practitioner availability.
+
+### Practitioner schedule management
+
+Each practitioner must have a configurable working schedule.
+
+The schedule must support:
+
+- Monday to Sunday.
+- Working days and non-working days.
+- Start time and end time.
+- Multiple working sessions in one day.
+- Morning and afternoon sessions.
+- Break times.
+- Consultation duration.
+- Maximum appointment capacity per session.
+- Clinic location.
+- Room or consultation location where applicable.
+- Services offered during each session.
+- Temporary leave.
+- Holidays.
+- Special working days.
+- One-time schedule changes.
+
+Example:
+
+Dr. A:
+- Monday: 9:00 AM to 1:00 PM.
+- Tuesday: Not available.
+- Wednesday: 2:00 PM to 6:00 PM.
+- Thursday: 9:00 AM to 1:00 PM.
+- Friday: Not available.
+- Saturday: 9:00 AM to 12:00 PM.
+- Sunday: Not available.
+
+This is only an example. Administrators must be able to configure each practitioner's actual schedule.
+
+### Appointment availability calculation
+
+The booking system must check all of the following before showing a time slot:
+
+1. Is the practitioner assigned to the selected clinic?
+2. Is the practitioner working on the selected date?
+3. Is the practitioner available during the requested time?
+4. Does the practitioner provide the selected service?
+5. Is the practitioner on leave?
+6. Is the selected time blocked?
+7. Is the appointment slot already occupied?
+8. Has the maximum session capacity been reached?
+9. Does the appointment duration fit within the working session?
+
+Only genuinely available appointment slots should be displayed.
+
+Never allow two patients to book the same exclusive appointment slot.
+
+Prevent appointments outside the practitioner's configured working hours.
+
+### Patient booking experience
+
+When a patient selects a clinic and service:
+
+1. Display practitioners who provide that service at that clinic.
+2. Allow the patient to select a practitioner.
+3. Display the practitioner's actual available dates.
+4. Allow the patient to select a date.
+5. Display only available time slots.
+6. Allow the patient to select a slot.
+7. Display an appointment summary.
+8. Allow confirmation.
+9. Save the appointment and update availability.
+
+If no practitioner is available on a particular date, clearly explain that no appointments are available and suggest another available date.
+
+Do not show misleading availability.
+
+### Schedule changes
+
+If an administrator or authorised practitioner changes an existing schedule:
+
+- Recalculate future appointment availability.
+- Do not silently delete confirmed appointments.
+- Identify affected appointments.
+- Notify the relevant authorised users.
+- Require an appropriate rescheduling or cancellation workflow.
+
+A practitioner must not be able to alter another practitioner's schedule without permission.
+
+# 7. PRACTITIONER PATIENT ENQUIRIES: CHAT APPLICATION EXPERIENCE
+
+The existing Patient Inquiries section must be redesigned.
+
+Currently, it displays an individual patient enquiry in a large conversation area.
+
+This is not sufficient when multiple patients are sending messages.
+
+We need a proper multi-conversation messaging interface, similar in usability to familiar messaging applications.
+
+### Messaging layout
+
+Create a two-panel messaging interface.
+
+LEFT PANEL: CONVERSATION LIST
+
+Display all patients who have contacted the practitioner.
+
+Each conversation item should show:
+
+- Patient name.
+- Patient profile image or initials.
+- Latest message preview.
+- Latest message time.
+- Unread message count.
+- Unread indicator.
+- Conversation status.
+- Relevant appointment or patient identifier where appropriate.
+
+Sort conversations by most recent activity.
+
+New messages should move the relevant conversation towards the top.
+
+Include:
+- Search conversations.
+- Unread filter.
+- All conversations filter.
+- Active conversations filter.
+- Resolved conversations filter.
+
+RIGHT PANEL: INDIVIDUAL CHAT
+
+When the practitioner selects a patient, open that patient's conversation.
+
+Display:
+- Patient name.
+- Patient identification number.
+- Relevant clinic information.
+- Conversation history.
+- Message timestamps.
+- Message sender.
+- Clear visual distinction between practitioner and patient messages.
+
+Provide a message input field and send button.
+
+Support:
+- Sending messages.
+- Receiving messages.
+- Conversation history.
+- Unread and read status.
+- Sending timestamps.
+- Message delivery status where supported.
+- Appropriate loading and error states.
+
+The practitioner must be able to switch between different patients without losing the conversation context.
+
+### Important patient privacy requirement
+
+A practitioner must only see conversations belonging to patients they are authorised to communicate with.
+
+Do not expose one patient's messages or medical information to another patient.
+
+Messages must be associated with the correct patient, practitioner, and clinic.
+
+Do not create a single shared conversation for all patients.
+
+### Patient-side messaging
+
+Where supported by the existing patient portal, provide the corresponding patient-side messaging experience.
+
+A patient should be able to:
+- View their conversations.
+- Open the conversation with the relevant practitioner.
+- Send a question.
+- Read the practitioner's response.
+- View previous messages.
+
+Do not imply that messages are instant or real-time unless the backend actually supports real-time communication.
+
+# 8. ADMINISTRATION PORTAL
+
+The administration portal must be entirely separate from the public website and patient portal.
+
+Suggested routes:
+
+- `/admin`
+- `/admin/signin`
+- `/admin/dashboard`
+
+Do not display administration links in the public navigation.
+
+Do not expose administrator registration publicly.
+
+Only authorised users should be able to access administration functions.
+
+### Administration dashboard design
+
+Use the uploaded ClinicPro and Health Platform screenshots as inspiration.
+
+The dashboard should be clean, organised, and information-rich without being cluttered.
+
+Include:
+
+- Total registered patients.
+- Total practitioners.
+- Total clinics.
+- Today's appointments.
+- Upcoming appointments.
+- Completed appointments.
+- Pending appointments.
+- Cancelled appointments.
+- Consultation statistics.
+- Prescription statistics.
+- Clinic activity.
+- Practitioner availability.
+- Patient registration activity.
+- Payment or donation records where applicable.
+- Recent administrative activity.
+- Important notifications.
+
+Include useful charts and date filters.
+
+All metrics must come from actual application data when backend integration is implemented.
+
+Do not present invented statistics as real organisational data.
+
+# 9. ADMINISTRATOR CONTROL OVER PATIENT AND PRACTITIONER DETAILS
+
+THIS IS AN ESSENTIAL REQUIREMENT.
+
+The administrator must be able to manage patient and practitioner information.
+
+### Patient management
+
+Administrators with the appropriate permissions should be able to:
+
+- View registered patients.
+- Search patients.
+- Filter patients.
+- View patient profiles.
+- Edit patient details.
+- Correct spelling mistakes.
+- Update contact information.
+- Update addresses.
+- Update emergency contact information.
+- Update other permitted registration details.
+- View appointment history.
+- View relevant medical records when authorised.
+- Manage patient account status.
+- Activate or deactivate accounts.
+- Handle duplicate patient records through a controlled process.
+
+Important:
+
+Patient medical history and consultation records are sensitive.
+
+Do not allow administrators to casually overwrite or erase clinical records.
+
+Clinical record corrections must preserve the original information and maintain an audit trail.
+
+### Practitioner management
+
+Administrators with the appropriate permissions should be able to:
+
+- Add practitioners.
+- Edit practitioner profiles.
+- Update names and contact details.
+- Update professional qualifications.
+- Update registration numbers.
+- Update practitioner levels.
+- Assign practitioners to clinics.
+- Assign consultation rooms.
+- Configure services offered.
+- Configure working days.
+- Configure working hours.
+- Configure consultation duration.
+- Configure appointment capacity.
+- Manage leave and holidays.
+- Activate or deactivate practitioner accounts.
+- Reset login credentials through a secure process.
+- View appointment schedules.
+- View relevant activity and availability.
+
+### Role-specific permissions
+
+There must be separate permission levels.
+
+**Clinic Administrator**
+- Manage their assigned clinic.
+- Manage practitioners assigned to that clinic.
+- Manage clinic appointments.
+- Manage permitted patient information.
+- Configure clinic schedules and operational details.
+- View clinic-level reports.
+
+**Organisation Administrator**
+- Manage multiple clinics.
+- Add and manage clinics.
+- Assign clinic administrators.
+- Manage organisation-wide practitioner assignments.
+- View organisation-wide operational reports.
+- Configure organisation-level settings.
+- Manage authorised users and permissions.
+
+A clinic administrator must not automatically have access to every clinic.
+
+Organisation-wide access must be restricted to appropriately authorised organisation administrators.
+
+# 10. SECURE LOGIN AND AUTHENTICATION
+
+THIS IS A HIGH-PRIORITY REQUIREMENT.
+
+The application handles sensitive patient and healthcare information.
+
+Login security must not be treated as a visual feature.
+
+Implement a proper authentication architecture.
+
+### Login requirements
+
+- Separate patient, practitioner, and administrator authentication experiences.
+- Secure password storage using a recognised server-side password hashing algorithm.
+- Never store plaintext passwords.
+- Never hardcode credentials.
+- Never use a frontend-only role selector as authentication.
+- Never treat localStorage values as proof of identity or permission.
+- Never allow a user to access another role's dashboard simply by changing a URL.
+- Validate authentication on the server.
+- Enforce permissions on the server for every protected operation.
+- Protect sessions using secure session management.
+- Use secure cookies with appropriate HttpOnly, Secure, and SameSite settings where applicable.
+- Implement logout and session invalidation.
+- Protect against repeated failed login attempts.
+- Apply rate limiting to authentication endpoints.
+- Provide secure password reset.
+- Do not reveal whether a particular email address or account exists through overly specific login error messages.
+- Validate all inputs on the server.
+- Protect sensitive operations against unauthorised access.
+
+### Additional security requirements
+
+Where appropriate, implement:
+
+- Multi-factor authentication for administrators.
+- Account lockout or progressive delay after repeated failed attempts.
+- Session expiry.
+- Re-authentication for highly sensitive actions.
+- Audit logging.
+- Role-based access control.
+- Clinic-level data access restrictions.
+- Secure password reset tokens.
+- Protection against common web application vulnerabilities.
+- Secure handling of patient information.
+
+### Administrative audit trail
+
+Record important actions, including:
+
+- Patient profile modifications.
+- Practitioner profile modifications.
+- Practitioner schedule modifications.
+- Appointment changes.
+- Account activation and deactivation.
+- Permission changes.
+- Clinical record corrections.
+- Administrative login events.
+- Failed authentication attempts where appropriate.
+
+An audit record should identify the acting user, action, affected record, timestamp, and relevant change details.
+
+Do not allow ordinary users to modify or erase audit records.
+
+IMPORTANT: Do not claim that the application is production-secure merely because the frontend login screen looks secure.
+
+If the existing application does not yet have a backend, implement only the parts that can be correctly supported at this stage. Clearly identify what requires backend authentication, database enforcement, and deployment configuration.
+
+Do not create fake security.
+
+# 11. SHARED DATA AND DATABASE ARCHITECTURE
+
+All three portals must eventually use a common backend and database.
+
+The shared entities should include:
+
+- Patients.
+- Practitioners.
+- Clinics.
+- Clinic administrators.
+- Organisation administrators.
+- Appointments.
+- Practitioner schedules.
+- Practitioner leave.
+- Services.
+- Consultations.
+- Medical records.
+- Prescriptions and remedies.
+- Patient-practitioner conversations.
+- Messages.
+- Notifications.
+- Administrative audit logs.
+
+Relationships must be maintained properly.
+
+For example:
+
+- A patient can have multiple appointments.
+- A clinic can have multiple practitioners.
+- A practitioner can work at multiple clinics if authorised.
+- A practitioner can have different schedules at different clinics.
+- A practitioner can provide multiple services.
+- An appointment must belong to a patient, clinic, practitioner, service, and available time slot.
+- A conversation must belong to the appropriate patient and authorised practitioner.
+- A medical record must be associated with the correct patient and consultation.
+
+Do not duplicate records unnecessarily.
+
+Preserve data consistency across all portals.
+
+# 12. EXISTING PATIENT PORTAL AND HEALTHCARE WORKFLOWS
+
+Preserve the existing patient dashboard and improve it only where necessary.
+
+The patient should be able to:
+
+- View their profile.
+- View upcoming appointments.
+- Book appointments.
+- Reschedule appointments where permitted.
+- Cancel appointments where permitted.
+- View previous consultations.
+- View medical records.
+- View prescriptions and remedies.
+- View relevant dosage instructions.
+- View laboratory or other uploaded results where supported.
+- Communicate with authorised practitioners.
+- Receive relevant notifications.
+- Update permitted profile information.
+
+The patient dashboard should be senior-friendly.
+
+Do not overload the patient with complex administrative features.
+
+# 13. CLINIC DISCOVERY AND MULTI-CLINIC SUPPORT
+
+Preserve the existing clinic discovery functionality.
+
+The system starts with Padmanabhanagar as the pilot clinic, but the architecture must support multiple clinics.
+
+Patients should be able to:
+
+- Find nearby clinics using location permission.
+- Search manually by locality.
+- View clinic details.
+- View services.
+- View available practitioners.
+- View actual practitioner availability.
+- Select a clinic and book an appointment.
+
+Clinic administrators should only manage their authorised clinic.
+
+Organisation administrators should be able to manage the overall clinic network.
+
+# 14. RESPONSIVE DESIGN AND FUTURE ANDROID APPLICATION
+
+The application must work properly on:
+
+- Desktop computers.
+- Laptops.
+- Tablets.
+- Android phones.
+- Smaller mobile screens.
+
+Use responsive layouts, not simply a desktop page scaled down.
+
+Ensure:
+- Sidebars become suitable mobile navigation.
+- Tables become readable on smaller screens.
+- Forms fit mobile screens.
+- Chat interfaces work on mobile.
+- Appointment calendars are touch-friendly.
+- Buttons are easy to tap.
+- No horizontal overflow or clipped content.
+
+Preserve the existing PWA functionality and installability.
+
+The architecture should remain suitable for packaging the website as an Android application in a later phase.
+
+Do not attempt an unrelated APK conversion or replace the existing PWA as part of this task.
+
+# 15. FUNCTIONALITY MUST BE REAL, NOT DECORATIVE
+
+Every button, menu item, filter, search field, form, chart, and action must behave according to its purpose.
+
+Examples:
+
+- An Edit button must actually open an editable form.
+- Saving a patient must update the correct patient record.
+- Saving practitioner availability must update the appointment booking system.
+- A chat must open the selected patient's conversation.
+- Sending a message must associate it with the correct conversation.
+- An appointment must not be bookable outside practitioner availability.
+- Administrator changes must be reflected in the relevant portal.
+- Search must search the appropriate data.
+- Filters must actually filter records.
+
+Do not build buttons that only display success messages without saving the corresponding information.
+
+If backend functionality is unavailable, clearly label prototype-only interactions and do not pretend that they persist across sessions or devices.
+
+# 16. IMPLEMENTATION AND CHANGE CONTROL
+
+Work carefully and systematically.
+
+Before editing, inspect the existing implementation and identify the minimum files that need to change.
+
+Implement the work in a way that preserves the existing main application.
+
+Do not perform a broad redesign of unrelated pages.
+
+Do not change existing patient-facing pages simply to make the practitioner or administration portal look different.
+
+Reuse the existing design system and components wherever appropriate.
+
+If a requested feature requires a backend or database that does not currently exist, explain that limitation and prepare a compatible architecture rather than creating insecure frontend-only imitations.
+
+Do not silently remove existing features because they are difficult to integrate.
+
+# 17. TESTING AND FINAL VERIFICATION
+
+After implementation, verify the following:
+
+### Public website
+- Homepage still works.
+- Existing clinic finder works.
+- Existing clinic details pages work.
+- Patient registration works.
+- Patient sign-in works.
+- Patient Portal is reached after successful patient login.
+- Public navigation does not expose practitioner or admin access.
+- The public menu does not contain a separate Patient Portal destination.
+
+### Practitioner portal
+- Practitioner login is separate.
+- Practitioner dashboard works.
+- Weekly working schedules can be configured.
+- Different working hours can be configured for different days.
+- Leave and blocked slots are respected.
+- Appointment booking reflects actual availability.
+- Multiple patient conversations appear in a conversation list.
+- Selecting a conversation opens the correct patient's chat.
+- Messages remain associated with the correct patient.
+
+### Administration portal
+- Admin login is separate.
+- Admin dashboard works.
+- Authorised administrators can edit patient details.
+- Authorised administrators can edit practitioner details.
+- Practitioner schedules can be managed.
+- Clinic-level and organisation-level permissions are different.
+- Unauthorised users cannot access administrative functions.
+- Important administrative changes are recorded in an audit trail.
+
+### Technical checks
+- Run the available build and TypeScript checks.
+- Resolve errors caused by your changes.
+- Verify routes and browser refresh behaviour.
+- Verify existing functionality has not been broken.
+- Check desktop and mobile layouts.
+
+# 18. FINAL REPORT REQUIRED
+
+When you finish, provide a clear report containing:
+
+1. What was already present and preserved.
+2. What was modified.
+3. What new functionality was added.
+4. Which existing files were changed.
+5. Which new files were created.
+6. How practitioner availability affects appointment booking.
+7. How the patient enquiry messaging interface works.
+8. How administrator patient and practitioner editing works.
+9. Which security measures are actually implemented.
+10. Which security measures still require backend or deployment work.
+11. Which features are fully functional.
+12. Which features are still prototype-only.
+13. Build and testing results.
+14. Any remaining issues.
+
+## FINAL NON-NEGOTIABLE INSTRUCTION
+
+**DO NOT REBUILD OR REPLACE THE EXISTING SAIVIBRONICS MAIN APPLICATION.**
+
+The current application is the foundation. Preserve its existing working pages, features, patient-facing experience, branding identity, and data wherever possible.
+
+Make only the required targeted enhancements and portal-specific additions.
+
+The goal is to evolve the existing Saivibronics application into a well-organised, secure, multi-clinic patient management platform with separate public, practitioner, and administration experiences, not to create an entirely different application.

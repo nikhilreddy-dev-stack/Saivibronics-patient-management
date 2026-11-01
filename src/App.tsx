@@ -14,6 +14,9 @@ import {
   ChatMessage,
   HistoricalRecord,
   AuditLogEntry,
+  ConversationThread,
+  Practitioner,
+  PractitionerSchedule
 } from './types';
 import {
   INITIAL_CLINICS,
@@ -21,8 +24,10 @@ import {
   INITIAL_APPOINTMENTS,
   INITIAL_MEDICAL_RECORDS,
   DEMO_PATIENT,
+  INITIAL_PATIENTS,
   INITIAL_PRESCRIPTIONS,
   INITIAL_MESSAGES,
+  INITIAL_CONVERSATIONS,
   INITIAL_HISTORICAL_RECORDS,
   INITIAL_AUDIT_LOGS,
 } from './data/mockData';
@@ -62,16 +67,18 @@ export default function App() {
 
   // Shared platform state
   const [clinics, setClinics] = useState<Clinic[]>(INITIAL_CLINICS);
+  const [practitioners, setPractitioners] = useState<Practitioner[]>(PRACTITIONERS);
+  const [patients, setPatients] = useState<PatientProfile[]>(INITIAL_PATIENTS);
   const [appointments, setAppointments] = useState<Appointment[]>(INITIAL_APPOINTMENTS);
   const [medicalRecords, setMedicalRecords] = useState<MedicalRecord[]>(INITIAL_MEDICAL_RECORDS);
   const [prescriptions, setPrescriptions] = useState<PrescriptionRecord[]>(INITIAL_PRESCRIPTIONS);
+  const [conversations, setConversations] = useState<ConversationThread[]>(INITIAL_CONVERSATIONS);
   const [messages, setMessages] = useState<ChatMessage[]>(INITIAL_MESSAGES);
   const [historicalRecords, setHistoricalRecords] = useState<HistoricalRecord[]>(INITIAL_HISTORICAL_RECORDS);
   const [auditLogs, setAuditLogs] = useState<AuditLogEntry[]>(INITIAL_AUDIT_LOGS);
 
   // Authentication states
   const [authenticatedPatient, setAuthenticatedPatient] = useState<PatientProfile | null>(DEMO_PATIENT);
-  const [registeredPatients, setRegisteredPatients] = useState<PatientProfile[]>([DEMO_PATIENT]);
   const [isPractitionerAuthenticated, setIsPractitionerAuthenticated] = useState<boolean>(true);
   const [adminRole, setAdminRole] = useState<'clinic-admin' | 'org-admin'>('clinic-admin');
   const [isAdminAuthenticated, setIsAdminAuthenticated] = useState<boolean>(true);
@@ -80,7 +87,6 @@ export default function App() {
   const navigateTo = useCallback((destination: string) => {
     let targetPath = destination;
 
-    // Map legacy PageId strings to standard URL paths if needed
     if (destination === 'home') targetPath = '/';
     else if (destination === 'find-clinic' || destination === 'clinics') targetPath = '/clinics';
     else if (destination === 'clinic-details') targetPath = `/clinics/${selectedClinicId}`;
@@ -123,14 +129,13 @@ export default function App() {
 
   const handleBookAppointment = (newAppointment: Appointment) => {
     setAppointments((prev) => [newAppointment, ...prev]);
-    // Log audit
     const newAudit: AuditLogEntry = {
       id: `aud-${Date.now()}`,
       timestamp: new Date().toISOString().replace('T', ' ').slice(0, 19),
       user: newAppointment.patientName,
       userRole: 'Patient / Reception',
       action: 'Token Scheduled',
-      details: `Token #${newAppointment.tokenNumber} scheduled for ${newAppointment.practitionerName}`,
+      details: `Token #${newAppointment.tokenNumber} scheduled for ${newAppointment.practitionerName} on ${newAppointment.date} (${newAppointment.timeSlot})`,
       clinic: newAppointment.clinicName,
       result: 'Success',
     };
@@ -138,9 +143,23 @@ export default function App() {
   };
 
   const handleCancelAppointment = (appointmentId: string) => {
+    const apt = appointments.find((a) => a.id === appointmentId);
     setAppointments((prev) =>
-      prev.map((apt) => (apt.id === appointmentId ? { ...apt, status: 'Cancelled' } : apt))
+      prev.map((a) => (a.id === appointmentId ? { ...a, status: 'Cancelled' } : a))
     );
+    if (apt) {
+      const newAudit: AuditLogEntry = {
+        id: `aud-${Date.now()}`,
+        timestamp: new Date().toISOString().replace('T', ' ').slice(0, 19),
+        user: authenticatedPatient?.fullName || 'Patient',
+        userRole: 'Patient',
+        action: 'Token Cancelled',
+        details: `Cancelled token #${apt.tokenNumber} for ${apt.date}`,
+        clinic: apt.clinicName,
+        result: 'Success',
+      };
+      setAuditLogs((prev) => [newAudit, ...prev]);
+    }
   };
 
   const handleUpdateAppointment = (updatedAppointment: Appointment) => {
@@ -164,11 +183,93 @@ export default function App() {
     setAuditLogs((prev) => [newAudit, ...prev]);
   };
 
-  // Practitioner Prescribing action -> updates appointment, medicalRecords, and prescriptions
+  // Administrator Patient Modification (Section 9 Requirement)
+  const handleUpdatePatient = (updatedPatient: PatientProfile, reason?: string) => {
+    setPatients((prev) =>
+      prev.map((p) => (p.id === updatedPatient.id ? updatedPatient : p))
+    );
+    if (authenticatedPatient && authenticatedPatient.id === updatedPatient.id) {
+      setAuthenticatedPatient(updatedPatient);
+    }
+    const newAudit: AuditLogEntry = {
+      id: `aud-${Date.now()}`,
+      timestamp: new Date().toISOString().replace('T', ' ').slice(0, 19),
+      user: adminRole === 'clinic-admin' ? 'admin.padmanabhanagar@saivibronics.org' : 'state.coordinator@saivibronics.org',
+      userRole: adminRole === 'clinic-admin' ? 'Clinic Administrator' : 'Organisation Administrator',
+      action: 'Patient Profile Edit',
+      details: `Modified patient ${updatedPatient.fullName} (${updatedPatient.id}). Reason: ${reason || 'Demographic update'}`,
+      clinic: 'Padmanabhanagar Pilot',
+      result: 'Success',
+    };
+    setAuditLogs((prev) => [newAudit, ...prev]);
+  };
+
+  // Administrator Practitioner Management & Schedule (Section 6 & 9 Requirements)
+  const handleUpdatePractitioner = (updatedPractitioner: Practitioner, reason?: string) => {
+    setPractitioners((prev) =>
+      prev.map((p) => (p.id === updatedPractitioner.id ? updatedPractitioner : p))
+    );
+    const newAudit: AuditLogEntry = {
+      id: `aud-${Date.now()}`,
+      timestamp: new Date().toISOString().replace('T', ' ').slice(0, 19),
+      user: adminRole === 'clinic-admin' ? 'admin.padmanabhanagar@saivibronics.org' : 'state.coordinator@saivibronics.org',
+      userRole: adminRole === 'clinic-admin' ? 'Clinic Administrator' : 'Organisation Administrator',
+      action: 'Practitioner Profile & Schedule Update',
+      details: `Updated ${updatedPractitioner.name}. ${reason || 'Schedule and room configuration update'}`,
+      clinic: updatedPractitioner.clinicId,
+      result: 'Success',
+    };
+    setAuditLogs((prev) => [newAudit, ...prev]);
+  };
+
+  const handleAddPractitioner = (newPractitioner: Practitioner) => {
+    setPractitioners((prev) => [...prev, newPractitioner]);
+    const newAudit: AuditLogEntry = {
+      id: `aud-${Date.now()}`,
+      timestamp: new Date().toISOString().replace('T', ' ').slice(0, 19),
+      user: 'state.coordinator@saivibronics.org',
+      userRole: 'Organisation Administrator',
+      action: 'Add Practitioner',
+      details: `Accredited ${newPractitioner.name} (${newPractitioner.registrationNumber})`,
+      clinic: newPractitioner.clinicId,
+      result: 'Success',
+    };
+    setAuditLogs((prev) => [newAudit, ...prev]);
+  };
+
+  const handleUpdatePractitionerSchedule = (updatedSchedule: PractitionerSchedule) => {
+    setPractitioners((prev) =>
+      prev.map((p) => {
+        if (p.id === updatedSchedule.practitionerId) {
+          const daysList = Object.entries(updatedSchedule.weeklySchedule)
+            .filter(([, v]) => v.isWorkingDay)
+            .map(([k]) => k);
+          return {
+            ...p,
+            schedule: updatedSchedule,
+            availableDays: daysList,
+          };
+        }
+        return p;
+      })
+    );
+    const newAudit: AuditLogEntry = {
+      id: `aud-${Date.now()}`,
+      timestamp: new Date().toISOString().replace('T', ' ').slice(0, 19),
+      user: 'dr.ramesh@saivibronics-seva.org',
+      userRole: 'Senior Practitioner',
+      action: 'Practitioner Schedule Self-Update',
+      details: `Updated weekly working hours and leave dates for ${updatedSchedule.practitionerId}`,
+      clinic: updatedSchedule.clinicId,
+      result: 'Success',
+    };
+    setAuditLogs((prev) => [newAudit, ...prev]);
+  };
+
+  // Practitioner Prescribing action
   const handleCreatePrescription = (newRx: PrescriptionRecord) => {
     setPrescriptions((prev) => [newRx, ...prev]);
 
-    // Mark matching appointment as Completed
     setAppointments((prev) =>
       prev.map((apt) =>
         apt.id === newRx.appointmentId
@@ -182,7 +283,6 @@ export default function App() {
       )
     );
 
-    // Add corresponding patient medical record
     const newRecord: MedicalRecord = {
       id: `rec-${Date.now().toString().slice(-6)}`,
       date: newRx.date,
@@ -202,7 +302,6 @@ export default function App() {
     };
     setMedicalRecords((prev) => [newRecord, ...prev]);
 
-    // Add Audit Log
     const newAudit: AuditLogEntry = {
       id: `aud-${Date.now()}`,
       timestamp: new Date().toISOString().replace('T', ' ').slice(0, 19),
@@ -216,21 +315,35 @@ export default function App() {
     setAuditLogs((prev) => [newAudit, ...prev]);
   };
 
-  // Live messaging action
-  const handleSendMessage = (text: string, senderRole: 'patient' | 'practitioner') => {
+  // Two-Panel Multi-Conversation Messaging Action (Section 7 Requirement)
+  const handleSendMessage = (conversationId: string, text: string, senderRole: 'patient' | 'practitioner') => {
     const isPatient = senderRole === 'patient';
+    const targetConversation = conversations.find((c) => c.id === conversationId) || conversations[0];
+
     const newMsg: ChatMessage = {
       id: `msg-${Date.now()}`,
-      conversationId: 'conv-0842-prac1',
+      conversationId: targetConversation.id,
       senderRole,
       senderName: isPatient ? (authenticatedPatient?.fullName || 'Smt. Ananya Rao') : 'Dr. K. S. Ramesh, BAMS',
       receiverRole: isPatient ? 'practitioner' : 'patient',
-      receiverName: isPatient ? 'Dr. K. S. Ramesh, BAMS' : (authenticatedPatient?.fullName || 'Smt. Ananya Rao'),
+      receiverName: isPatient ? 'Dr. K. S. Ramesh, BAMS' : targetConversation.patientName,
       text,
       timestamp: 'Just now',
       read: !isPatient,
     };
     setMessages((prev) => [...prev, newMsg]);
+
+    // Update conversation thread snippet and move to top
+    setConversations((prev) => {
+      const remaining = prev.filter((c) => c.id !== targetConversation.id);
+      const updatedThread: ConversationThread = {
+        ...targetConversation,
+        lastMessageText: text,
+        lastMessageTime: 'Just now',
+        unreadCount: isPatient ? targetConversation.unreadCount + 1 : 0,
+      };
+      return [updatedThread, ...remaining];
+    });
   };
 
   // Historical record digitisation
@@ -308,7 +421,7 @@ export default function App() {
   };
 
   const handlePatientRegisterSuccess = (patient: PatientProfile) => {
-    setRegisteredPatients((prev) => [patient, ...prev]);
+    setPatients((prev) => [patient, ...prev]);
     setAuthenticatedPatient(patient);
     navigateTo('/dashboard/patient');
   };
@@ -337,10 +450,7 @@ export default function App() {
   };
 
   const selectedClinic = clinics.find((c) => c.id === selectedClinicId) || clinics[0];
-  const clinicPractitioners = PRACTITIONERS.filter((p) => p.clinicId === selectedClinic.id);
-  const activePractitioners = clinicPractitioners.length > 0 ? clinicPractitioners : PRACTITIONERS.slice(0, 2);
 
-  // Derive legacy PageId for components expecting onNavigate(PageId)
   const legacyPageId: PageId = (() => {
     if (currentPath === '/' || currentPath === '/home') return 'home';
     if (currentPath === '/clinics' || currentPath === '/find-clinic') return 'find-clinic';
@@ -374,7 +484,6 @@ export default function App() {
 
     return (
       <div className="min-h-screen flex flex-col bg-slate-50 text-slate-800 font-sans">
-        {/* Crisp Light Practitioner Top Bar */}
         <header className="sticky top-0 z-40 bg-white/95 border-b border-slate-200 backdrop-blur-md px-4 sm:px-6 py-3.5 flex items-center justify-between shadow-2xs">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-teal-600 text-white flex items-center justify-center shadow-xs">
@@ -413,14 +522,17 @@ export default function App() {
 
         <main className="flex-1">
           <PractitionerDashboardPage
+            practitioner={practitioners[0]}
             appointments={appointments}
             prescriptions={prescriptions}
+            conversations={conversations}
             messages={messages}
             historicalRecords={historicalRecords}
             onNavigate={(page) => navigateTo(page)}
             onUpdateAppointment={handleUpdateAppointment}
             onCreatePrescription={handleCreatePrescription}
-            onSendMessage={(text) => handleSendMessage(text, 'practitioner')}
+            onSendMessage={(convId, text) => handleSendMessage(convId, text, 'practitioner')}
+            onUpdatePractitionerSchedule={handleUpdatePractitionerSchedule}
             onVerifyHistoricalRecord={handleVerifyHistoricalRecord}
           />
         </main>
@@ -445,7 +557,6 @@ export default function App() {
 
     return (
       <div className="min-h-screen flex flex-col bg-slate-50 text-slate-800 font-sans">
-        {/* Crisp Light Administration Top Bar */}
         <header className="sticky top-0 z-40 bg-white/95 border-b border-slate-200 backdrop-blur-md px-4 sm:px-6 py-3.5 flex items-center justify-between shadow-2xs">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center shadow-xs">
@@ -468,7 +579,6 @@ export default function App() {
           </div>
 
           <div className="flex items-center gap-2 sm:gap-3">
-            {/* Prototype Role Switcher for Admin Level Testing */}
             <button
               onClick={() => setAdminRole((prev) => (prev === 'clinic-admin' ? 'org-admin' : 'clinic-admin'))}
               className="px-2.5 py-1.5 rounded-lg bg-indigo-50 border border-indigo-200 text-indigo-800 text-xs font-semibold hover:bg-indigo-100 transition-colors flex items-center gap-1.5 cursor-pointer"
@@ -501,18 +611,26 @@ export default function App() {
           {adminRole === 'clinic-admin' ? (
             <ClinicAdminDashboardPage
               appointments={appointments}
-              practitioners={PRACTITIONERS}
+              practitioners={practitioners}
+              patients={patients}
               historicalRecords={historicalRecords}
               onNavigate={(page) => navigateTo(page)}
               onBookAppointment={handleBookAppointment}
               onDigitiseRecord={handleDigitiseRecord}
+              onUpdatePatient={handleUpdatePatient}
+              onUpdatePractitioner={handleUpdatePractitioner}
             />
           ) : (
             <OrgAdminDashboardPage
               clinics={clinics}
+              practitioners={practitioners}
+              patients={patients}
               auditLogs={auditLogs}
               onNavigate={(page) => navigateTo(page)}
               onAddClinic={handleAddClinic}
+              onAddPractitioner={handleAddPractitioner}
+              onUpdatePatient={handleUpdatePatient}
+              onUpdatePractitioner={handleUpdatePractitioner}
             />
           )}
         </main>
@@ -525,10 +643,8 @@ export default function App() {
   // -------------------------------------------------------------
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 text-slate-800 font-sans">
-      {/* Demonstration mode banner is ONLY rendered if ?demo=true is present in URL */}
       <DemoBanner currentPage={legacyPageId} onNavigate={navigateTo} />
 
-      {/* Public Top Navigation Bar (Contains patient-facing options only) */}
       <Header
         currentPage={legacyPageId}
         onNavigate={navigateTo}
@@ -536,10 +652,8 @@ export default function App() {
         onSignOut={handlePatientSignOut}
       />
 
-      {/* Offline Status Monitor */}
       <OfflineIndicator />
 
-      {/* Main View Port */}
       <main className="flex-1">
         {(currentPath === '/' || currentPath === '/home') && (
           <HomePage
@@ -562,7 +676,8 @@ export default function App() {
         {currentPath.startsWith('/clinics/') && (
           <ClinicDetailsPage
             clinic={selectedClinic}
-            practitioners={activePractitioners}
+            practitioners={practitioners}
+            appointments={appointments}
             onNavigate={navigateTo}
             onBookAppointment={handleBookAppointment}
             authenticatedPatient={authenticatedPatient}
@@ -581,7 +696,7 @@ export default function App() {
           <SignInPage
             onNavigate={navigateTo}
             onSignInSuccess={handlePatientSignInSuccess}
-            registeredPatients={registeredPatients}
+            registeredPatients={patients}
           />
         )}
 
@@ -591,7 +706,7 @@ export default function App() {
             medicalRecords={medicalRecords}
             prescriptions={prescriptions}
             messages={messages}
-            onSendMessage={(text) => handleSendMessage(text, 'patient')}
+            onSendMessage={(text) => handleSendMessage('conv-0842-prac1', text, 'patient')}
             onNavigate={navigateTo}
             onCancelAppointment={handleCancelAppointment}
             authenticatedPatient={authenticatedPatient}
@@ -601,7 +716,6 @@ export default function App() {
         )}
       </main>
 
-      {/* Public Website Global Footer */}
       <Footer onNavigate={navigateTo} />
     </div>
   );

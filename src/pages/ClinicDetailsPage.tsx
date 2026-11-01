@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Clinic, Practitioner, PageId, Appointment, PatientProfile } from '../types';
+import { calculatePractitionerAvailability, getDayOfWeekFromDate } from '../utils/scheduleUtils';
 import {
   ArrowLeft,
   MapPin,
@@ -19,12 +20,14 @@ import {
   LogIn,
   ChevronRight,
   ShieldCheck,
-  CheckCircle
+  CheckCircle,
+  AlertTriangle
 } from 'lucide-react';
 
 interface ClinicDetailsPageProps {
   clinic: Clinic;
   practitioners: Practitioner[];
+  appointments?: Appointment[];
   onNavigate: (page: PageId) => void;
   onBookAppointment: (appointment: Appointment) => void;
   authenticatedPatient?: PatientProfile | null;
@@ -33,23 +36,46 @@ interface ClinicDetailsPageProps {
 export const ClinicDetailsPage: React.FC<ClinicDetailsPageProps> = ({
   clinic,
   practitioners,
+  appointments = [],
   onNavigate,
   onBookAppointment,
   authenticatedPatient,
 }) => {
   const [showBookingModal, setShowBookingModal] = useState(false);
-  const [selectedService, setSelectedService] = useState(clinic.specialties[0] || 'Vibronics 108 Holistic Consultation');
-  const [selectedPractitioner, setSelectedPractitioner] = useState(
-    practitioners[0]?.name || 'Dr. K. S. Ramesh, BAMS, MD (Ayu)'
+  const [selectedService, setSelectedService] = useState(
+    clinic.specialties[0] || 'Vibronics 108 Holistic Consultation'
   );
-  
+
+  // Filter practitioners assigned to this clinic
+  const clinicPractitioners = useMemo(() => {
+    const list = practitioners.filter(
+      (p) =>
+        p.clinicId === clinic.id ||
+        (p.assignedClinicIds && p.assignedClinicIds.includes(clinic.id))
+    );
+    return list.length > 0 ? list : practitioners;
+  }, [practitioners, clinic.id]);
+
+  const [selectedPractitionerId, setSelectedPractitionerId] = useState<string>(
+    clinicPractitioners[0]?.id || ''
+  );
+
+  const currentPractitioner = useMemo(() => {
+    return (
+      clinicPractitioners.find((p) => p.id === selectedPractitionerId) ||
+      clinicPractitioners[0]
+    );
+  }, [clinicPractitioners, selectedPractitionerId]);
+
   // Tomorrow's date formatted as YYYY-MM-DD
-  const tomorrow = new Date();
-  tomorrow.setDate(tomorrow.getDate() + 1);
-  const defaultDate = tomorrow.toISOString().split('T')[0];
+  const defaultDate = useMemo(() => {
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    return tomorrow.toISOString().split('T')[0];
+  }, []);
 
   const [selectedDate, setSelectedDate] = useState(defaultDate);
-  const [selectedTimeSlot, setSelectedTimeSlot] = useState('10:00 AM - 10:30 AM');
+  const [selectedTimeSlot, setSelectedTimeSlot] = useState('');
   const [patientName, setPatientName] = useState(authenticatedPatient?.fullName || '');
   const [patientPhone, setPatientPhone] = useState(authenticatedPatient?.mobileNumber || '');
   const [reasonForVisit, setReasonForVisit] = useState('');
@@ -58,14 +84,17 @@ export const ClinicDetailsPage: React.FC<ClinicDetailsPageProps> = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [bookingSuccessToken, setBookingSuccessToken] = useState<Appointment | null>(null);
 
-  const availableSlots = [
-    '09:30 AM - 10:00 AM',
-    '10:00 AM - 10:30 AM',
-    '10:30 AM - 11:00 AM',
-    '11:30 AM - 12:00 PM',
-    '05:00 PM - 05:30 PM',
-    '06:00 PM - 06:30 PM',
-  ];
+  // 9-Point availability calculation based on practitioner's working schedule
+  const availability = useMemo(() => {
+    if (!currentPractitioner) return null;
+    return calculatePractitionerAvailability(
+      currentPractitioner,
+      clinic.id,
+      selectedDate,
+      appointments,
+      selectedService
+    );
+  }, [currentPractitioner, clinic.id, selectedDate, appointments, selectedService]);
 
   const handleOpenBooking = () => {
     if (authenticatedPatient) {
@@ -73,6 +102,7 @@ export const ClinicDetailsPage: React.FC<ClinicDetailsPageProps> = ({
       setPatientPhone(authenticatedPatient.mobileNumber);
     }
     setBookingErrors({});
+    setSelectedTimeSlot('');
     setShowBookingModal(true);
   };
 
@@ -95,6 +125,14 @@ export const ClinicDetailsPage: React.FC<ClinicDetailsPageProps> = ({
       errs.selectedDate = 'Consultation date is required.';
     }
 
+    if (!selectedTimeSlot) {
+      errs.selectedTimeSlot = 'Please select an available time slot.';
+    }
+
+    if (availability && (!availability.isWorkingDay || availability.isOnLeave || availability.isCapacityReached)) {
+      errs.general = availability.unavailabilityReason || 'Selected practitioner is not available on this date.';
+    }
+
     setBookingErrors(errs);
     return Object.keys(errs).length === 0;
   };
@@ -107,7 +145,7 @@ export const ClinicDetailsPage: React.FC<ClinicDetailsPageProps> = ({
 
     setTimeout(() => {
       const randomSeq = Math.floor(10 + Math.random() * 90);
-      const randomTokenCode = `T-2026-PAD-${randomSeq}`;
+      const randomTokenCode = `P-${randomSeq}`;
       const patientId = authenticatedPatient?.id || `SSSO-BLR-2026-${Math.floor(1000 + Math.random() * 9000)}`;
 
       const newApt: Appointment = {
@@ -117,7 +155,8 @@ export const ClinicDetailsPage: React.FC<ClinicDetailsPageProps> = ({
         patientId: patientId,
         clinicId: clinic.id,
         clinicName: clinic.name,
-        practitionerName: selectedPractitioner,
+        practitionerName: currentPractitioner?.name || 'Dr. K. S. Ramesh, BAMS, MD (Ayu)',
+        serviceName: selectedService,
         date: selectedDate,
         timeSlot: selectedTimeSlot,
         status: 'Scheduled',
@@ -128,7 +167,7 @@ export const ClinicDetailsPage: React.FC<ClinicDetailsPageProps> = ({
       onBookAppointment(newApt);
       setIsSubmitting(false);
       setBookingSuccessToken(newApt);
-    }, 600);
+    }, 500);
   };
 
   const closeBookingFlow = () => {
@@ -213,7 +252,7 @@ export const ClinicDetailsPage: React.FC<ClinicDetailsPageProps> = ({
             <div className="p-4 bg-slate-50 rounded-xl border border-slate-100 text-sm text-slate-800 space-y-2">
               <div className="font-semibold">{clinic.operatingHours}</div>
               <div className="text-xs text-slate-500">
-                Morning Session: 09:30 AM – 01:00 PM IST | Evening Session: 04:30 PM – 07:30 PM IST
+                Consultation slots are strictly managed per practitioner working schedule to ensure focused care.
               </div>
             </div>
           </div>
@@ -256,56 +295,111 @@ export const ClinicDetailsPage: React.FC<ClinicDetailsPageProps> = ({
           <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-xs space-y-4">
             <h3 className="text-lg font-bold text-slate-900 flex items-center gap-2">
               <User className="w-5 h-5 text-blue-600" />
-              <span>Consulting Practitioners</span>
+              <span>Consulting Practitioners & Schedule</span>
             </h3>
-            <p className="text-xs text-slate-500">
-              Certified practitioners providing voluntary clinical consultations.
-            </p>
 
-            <div className="space-y-3">
-              {practitioners.map((prac) => (
-                <div key={prac.id} className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <div className="font-bold text-slate-900 text-sm">{prac.name}</div>
-                      <div className="text-xs text-blue-600 font-medium">{prac.title}</div>
-                    </div>
-                    <span className="text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
-                      Active
+            <div className="space-y-4">
+              {clinicPractitioners.map((prac) => (
+                <div key={prac.id} className="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <h4 className="text-sm font-bold text-slate-900">{prac.name}</h4>
+                    <span className="text-[11px] font-bold text-teal-800 bg-teal-50 px-2 py-0.5 rounded border border-teal-200">
+                      {prac.level || 'Certified'}
                     </span>
                   </div>
-                  <div className="text-xs text-slate-600">
-                    <div><span className="font-semibold">Specialization:</span> {prac.specialization}</div>
-                    <div><span className="font-semibold">Available:</span> {prac.availableDays.join(', ')}</div>
-                    <div><span className="font-semibold">Hours:</span> {prac.timing}</div>
+                  <p className="text-xs text-slate-600">{prac.qualification}</p>
+                  <p className="text-xs text-slate-500 font-medium">
+                    Room: <strong className="text-slate-700">{prac.roomNumber || 'Room 1'}</strong>
+                  </p>
+                  <div className="text-[11px] text-blue-700 font-semibold bg-blue-50/70 p-2 rounded-lg">
+                    <span>Working Days: {prac.availableDays.join(', ')}</span>
                   </div>
                 </div>
               ))}
             </div>
+
+            <button
+              onClick={handleOpenBooking}
+              className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold text-xs sm:text-sm transition-colors cursor-pointer flex items-center justify-center gap-2"
+            >
+              <Calendar className="w-4 h-4" />
+              <span>Select Date & Book Token</span>
+            </button>
           </div>
         </div>
       </div>
 
-      {/* 10-Step Guided Booking Modal */}
+      {/* GUIDED APPOINTMENT BOOKING MODAL WITH SCHEDULE-BASED AVAILABILITY */}
       {showBookingModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-xs overflow-y-auto">
-          <div className="w-full max-w-lg rounded-2xl bg-white p-6 sm:p-7 shadow-2xl border border-slate-200 my-8">
-            {!bookingSuccessToken ? (
-              <form onSubmit={handleBookingSubmit} noValidate className="space-y-4 text-sm">
-                {/* Header */}
+        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl max-w-xl w-full max-h-[92vh] overflow-y-auto p-6 sm:p-8 space-y-5 shadow-2xl border border-slate-200 animate-in fade-in zoom-in-95 duration-150">
+            {bookingSuccessToken ? (
+              /* Success Token Screen */
+              <div className="text-center space-y-5 py-4">
+                <div className="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto">
+                  <CheckCircle2 className="w-8 h-8" />
+                </div>
+                <div className="space-y-1">
+                  <span className="text-xs font-bold text-emerald-700 uppercase tracking-wider">
+                    Appointment Confirmed
+                  </span>
+                  <h2 className="text-2xl font-bold text-slate-900 font-['Plus_Jakarta_Sans',sans-serif]">
+                    Your Seva Consultation Token
+                  </h2>
+                  <p className="text-xs text-slate-500">
+                    Your appointment has been reserved in the practitioner schedule.
+                  </p>
+                </div>
+
+                <div className="p-5 bg-slate-50 rounded-2xl border border-slate-200 text-left space-y-3 text-xs sm:text-sm">
+                  <div className="flex items-center justify-between border-b border-slate-200 pb-2.5">
+                    <span className="text-slate-500">Consultation Token Number:</span>
+                    <span className="font-mono font-extrabold text-blue-700 text-base">
+                      {bookingSuccessToken.tokenNumber}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-slate-500">Patient:</span>
+                    <span className="font-bold text-slate-900">{bookingSuccessToken.patientName}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-slate-500">Practitioner:</span>
+                    <span className="font-bold text-slate-900">{bookingSuccessToken.practitionerName}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-slate-500">Date & Slot:</span>
+                    <span className="font-bold text-slate-900">
+                      {bookingSuccessToken.date} ({bookingSuccessToken.timeSlot})
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-slate-500">Clinic Desk:</span>
+                    <span className="font-bold text-slate-900">{clinic.name}</span>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={closeBookingFlow}
+                  className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold text-sm shadow-xs transition-colors cursor-pointer"
+                >
+                  Done
+                </button>
+              </div>
+            ) : (
+              /* Booking Form */
+              <form onSubmit={handleBookingSubmit} className="space-y-5">
                 <div className="flex items-center justify-between border-b border-slate-100 pb-3">
                   <div>
-                    <h3 className="text-lg font-bold text-slate-900">
-                      Book Seva Appointment
+                    <h3 className="text-lg font-bold text-slate-900 font-['Plus_Jakarta_Sans',sans-serif]">
+                      Book a Seva Consultation Token
                     </h3>
-                    <p className="text-xs text-slate-500">
-                      {clinic.name}
-                    </p>
+                    <p className="text-xs text-slate-500">{clinic.name}</p>
                   </div>
                   <button
                     type="button"
                     onClick={closeBookingFlow}
-                    className="text-slate-400 hover:text-slate-700 p-1.5"
+                    className="text-slate-400 hover:text-slate-700 p-1.5 cursor-pointer"
                   >
                     <X className="w-5 h-5" />
                   </button>
@@ -326,7 +420,7 @@ export const ClinicDetailsPage: React.FC<ClinicDetailsPageProps> = ({
                         closeBookingFlow();
                         onNavigate('signin');
                       }}
-                      className="font-bold text-blue-600 underline"
+                      className="font-bold text-blue-600 underline cursor-pointer"
                     >
                       Sign In
                     </button>
@@ -336,7 +430,7 @@ export const ClinicDetailsPage: React.FC<ClinicDetailsPageProps> = ({
                 {/* Service Selection */}
                 <div>
                   <label className="block font-bold text-slate-700 mb-1 text-xs uppercase tracking-wider">
-                    Select Specialty Service
+                    1. Select Specialty Service
                   </label>
                   <select
                     value={selectedService}
@@ -354,54 +448,129 @@ export const ClinicDetailsPage: React.FC<ClinicDetailsPageProps> = ({
                 {/* Practitioner Selection */}
                 <div>
                   <label className="block font-bold text-slate-700 mb-1 text-xs uppercase tracking-wider">
-                    Select Certified Practitioner
+                    2. Select Certified Practitioner
                   </label>
                   <select
-                    value={selectedPractitioner}
-                    onChange={(e) => setSelectedPractitioner(e.target.value)}
+                    value={selectedPractitionerId}
+                    onChange={(e) => {
+                      setSelectedPractitionerId(e.target.value);
+                      setSelectedTimeSlot('');
+                    }}
                     className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs sm:text-sm text-slate-900 focus:ring-2 focus:ring-blue-500"
                   >
-                    {practitioners.map((p) => (
-                      <option key={p.id} value={p.name}>
-                        {p.name} — {p.specialization}
+                    {clinicPractitioners.map((p) => (
+                      <option key={p.id} value={p.id}>
+                        {p.name} — ({p.availableDays.join(', ')})
                       </option>
                     ))}
                   </select>
+                  {currentPractitioner && (
+                    <p className="text-[11px] text-slate-500 mt-1">
+                      Works on: <strong className="text-slate-700">{currentPractitioner.availableDays.join(', ')}</strong> · Room: {currentPractitioner.roomNumber || 'Room 1'}
+                    </p>
+                  )}
                 </div>
 
                 {/* Date Selection */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div>
-                    <label className="block font-bold text-slate-700 mb-1 text-xs uppercase tracking-wider">
-                      Appointment Date <span className="text-rose-500">*</span>
-                    </label>
-                    <input
-                      type="date"
-                      required
-                      min={new Date().toISOString().split('T')[0]}
-                      value={selectedDate}
-                      onChange={(e) => setSelectedDate(e.target.value)}
-                      className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs sm:text-sm text-slate-900 focus:ring-2 focus:ring-blue-500"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block font-bold text-slate-700 mb-1 text-xs uppercase tracking-wider">
-                      Select Available Time Slot
-                    </label>
-                    <select
-                      value={selectedTimeSlot}
-                      onChange={(e) => setSelectedTimeSlot(e.target.value)}
-                      className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs sm:text-sm text-slate-900 focus:ring-2 focus:ring-blue-500"
-                    >
-                      {availableSlots.map((slot) => (
-                        <option key={slot} value={slot}>
-                          {slot}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
+                <div>
+                  <label className="block font-bold text-slate-700 mb-1 text-xs uppercase tracking-wider">
+                    3. Select Appointment Date <span className="text-rose-500">*</span>
+                  </label>
+                  <input
+                    type="date"
+                    required
+                    min={new Date().toISOString().split('T')[0]}
+                    value={selectedDate}
+                    onChange={(e) => {
+                      setSelectedDate(e.target.value);
+                      setSelectedTimeSlot('');
+                    }}
+                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs sm:text-sm text-slate-900 focus:ring-2 focus:ring-blue-500"
+                  />
+                  <p className="text-[11px] text-slate-500 mt-1">
+                    Day: <strong>{getDayOfWeekFromDate(selectedDate)}</strong>
+                  </p>
                 </div>
+
+                {/* Availability status banner */}
+                {availability && (
+                  <div>
+                    {!availability.isWorkingDay || availability.isOnLeave || availability.isCapacityReached ? (
+                      <div className="p-3.5 bg-amber-50 rounded-xl border border-amber-200 text-xs text-amber-900 space-y-2">
+                        <div className="flex items-start gap-2">
+                          <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+                          <div>
+                            <strong className="block font-bold">No Appointments Available on this Date</strong>
+                            <p>{availability.unavailabilityReason}</p>
+                          </div>
+                        </div>
+
+                        {availability.nextAvailableDates.length > 0 && (
+                          <div className="pt-2 border-t border-amber-200">
+                            <span className="font-semibold block mb-1.5">Suggested Next Working Dates:</span>
+                            <div className="flex flex-wrap gap-1.5">
+                              {availability.nextAvailableDates.map((d) => (
+                                <button
+                                  key={d}
+                                  type="button"
+                                  onClick={() => {
+                                    setSelectedDate(d);
+                                    setSelectedTimeSlot('');
+                                  }}
+                                  className="px-2.5 py-1 bg-white border border-amber-300 rounded-lg text-xs font-bold text-amber-900 hover:bg-amber-100 cursor-pointer"
+                                >
+                                  {d} ({getDayOfWeekFromDate(d)})
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      /* Slots available */
+                      <div className="space-y-2">
+                        <label className="block font-bold text-slate-700 text-xs uppercase tracking-wider">
+                          4. Select Available Time Slot ({availability.availableSlots.length} Slots Open)
+                        </label>
+                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 max-h-48 overflow-y-auto p-1 border border-slate-200 rounded-xl">
+                          {/* Available Slots */}
+                          {availability.availableSlots.map((slot) => {
+                            const isSelected = selectedTimeSlot === slot;
+                            return (
+                              <button
+                                key={slot}
+                                type="button"
+                                onClick={() => setSelectedTimeSlot(slot)}
+                                className={`p-2.5 rounded-lg text-xs font-semibold text-center transition-colors cursor-pointer border ${
+                                  isSelected
+                                    ? 'bg-blue-600 text-white border-blue-600 shadow-xs'
+                                    : 'bg-slate-50 text-slate-800 border-slate-200 hover:bg-blue-50 hover:border-blue-300'
+                                }`}
+                              >
+                                {slot}
+                              </button>
+                            );
+                          })}
+
+                          {/* Occupied Slots (Disabled) */}
+                          {availability.occupiedSlots.map((slot) => (
+                            <div
+                              key={slot}
+                              className="p-2.5 rounded-lg text-xs font-medium text-center bg-slate-100 text-slate-400 border border-slate-200 line-through cursor-not-allowed"
+                              title="Already booked by another patient"
+                            >
+                              <span>{slot}</span>
+                              <span className="block text-[9px] font-bold text-rose-500 uppercase">Booked</span>
+                            </div>
+                          ))}
+                        </div>
+                        {bookingErrors.selectedTimeSlot && (
+                          <p className="text-rose-600 text-xs">{bookingErrors.selectedTimeSlot}</p>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                )}
 
                 {/* Patient Details */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -415,7 +584,7 @@ export const ClinicDetailsPage: React.FC<ClinicDetailsPageProps> = ({
                       value={patientName}
                       onChange={(e) => setPatientName(e.target.value)}
                       placeholder="e.g. Smt. Ananya Rao"
-                      className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs sm:text-sm text-slate-900 focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-3.5 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs sm:text-sm text-slate-900 focus:ring-2 focus:ring-blue-500"
                     />
                     {bookingErrors.patientName && (
                       <p className="text-rose-600 text-xs mt-1">{bookingErrors.patientName}</p>
@@ -424,7 +593,7 @@ export const ClinicDetailsPage: React.FC<ClinicDetailsPageProps> = ({
 
                   <div>
                     <label className="block font-bold text-slate-700 mb-1 text-xs uppercase tracking-wider">
-                      Mobile (10 digits) <span className="text-rose-500">*</span>
+                      Mobile Number <span className="text-rose-500">*</span>
                     </label>
                     <input
                       type="tel"
@@ -433,7 +602,7 @@ export const ClinicDetailsPage: React.FC<ClinicDetailsPageProps> = ({
                       value={patientPhone}
                       onChange={(e) => setPatientPhone(e.target.value)}
                       placeholder="9845012345"
-                      className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs sm:text-sm text-slate-900 focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-3.5 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs sm:text-sm text-slate-900 focus:ring-2 focus:ring-blue-500"
                     />
                     {bookingErrors.patientPhone && (
                       <p className="text-rose-600 text-xs mt-1">{bookingErrors.patientPhone}</p>
@@ -446,11 +615,11 @@ export const ClinicDetailsPage: React.FC<ClinicDetailsPageProps> = ({
                   <label className="block font-bold text-slate-700 mb-1 text-xs uppercase tracking-wider">
                     Reason for Consultation
                   </label>
-                  <textarea
-                    rows={2}
+                  <input
+                    type="text"
                     value={reasonForVisit}
                     onChange={(e) => setReasonForVisit(e.target.value)}
-                    placeholder="Briefly describe symptoms or wellness goals..."
+                    placeholder="e.g. Knee joint stiffness review..."
                     className="w-full px-3.5 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs sm:text-sm text-slate-900 focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
@@ -465,9 +634,13 @@ export const ClinicDetailsPage: React.FC<ClinicDetailsPageProps> = ({
                     className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
                   />
                   <label htmlFor="access-check" className="cursor-pointer">
-                    Request ground floor access or senior citizen priority escort
+                    Request wheelchair access or senior citizen priority escort
                   </label>
                 </div>
+
+                {bookingErrors.general && (
+                  <p className="text-xs text-rose-600 font-semibold">{bookingErrors.general}</p>
+                )}
 
                 {/* Buttons */}
                 <div className="pt-3 border-t border-slate-100 flex items-center justify-end gap-2.5">
@@ -480,65 +653,20 @@ export const ClinicDetailsPage: React.FC<ClinicDetailsPageProps> = ({
                   </button>
                   <button
                     type="submit"
-                    disabled={isSubmitting}
-                    className="px-5 py-2.5 text-xs sm:text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-xl shadow-xs transition-colors cursor-pointer disabled:opacity-50"
+                    disabled={isSubmitting || !availability || !availability.isWorkingDay || availability.isOnLeave || availability.isCapacityReached}
+                    className="px-6 py-2.5 text-xs sm:text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed rounded-xl shadow-xs transition-colors cursor-pointer flex items-center gap-2"
                   >
-                    {isSubmitting ? 'Confirming Token...' : 'Confirm Appointment'}
+                    {isSubmitting ? (
+                      <span>Reserving Token...</span>
+                    ) : (
+                      <>
+                        <span>Confirm Seva Token</span>
+                        <ChevronRight className="w-4 h-4" />
+                      </>
+                    )}
                   </button>
                 </div>
               </form>
-            ) : (
-              /* Confirmation Screen with Token */
-              <div className="space-y-5 text-center py-4">
-                <div className="w-14 h-14 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center mx-auto border border-emerald-200">
-                  <Check className="w-7 h-7" />
-                </div>
-
-                <div>
-                  <span className="text-xs font-bold text-emerald-700 uppercase tracking-wider">
-                    Appointment Successfully Confirmed
-                  </span>
-                  <h3 className="text-2xl font-extrabold text-slate-900 mt-1">
-                    Token #{bookingSuccessToken.tokenNumber}
-                  </h3>
-                  <p className="text-xs text-slate-500 mt-1">
-                    Recorded in clinic schedule for {bookingSuccessToken.clinicName}
-                  </p>
-                </div>
-
-                <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 text-left text-xs space-y-2">
-                  <div className="flex justify-between">
-                    <span className="text-slate-500">Patient:</span>
-                    <span className="font-bold text-slate-800">{bookingSuccessToken.patientName}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-slate-500">Practitioner:</span>
-                    <span className="font-bold text-slate-800">{bookingSuccessToken.practitionerName}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-slate-500">Date & Slot:</span>
-                    <span className="font-bold text-blue-600">{bookingSuccessToken.date} · {bookingSuccessToken.timeSlot}</span>
-                  </div>
-                </div>
-
-                <div className="flex flex-col sm:flex-row items-center justify-center gap-2 pt-2">
-                  <button
-                    onClick={() => {
-                      closeBookingFlow();
-                      onNavigate('patient-dashboard');
-                    }}
-                    className="w-full sm:w-auto px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold shadow-xs cursor-pointer"
-                  >
-                    View in Patient Portal
-                  </button>
-                  <button
-                    onClick={closeBookingFlow}
-                    className="w-full sm:w-auto px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold cursor-pointer"
-                  >
-                    Done
-                  </button>
-                </div>
-              </div>
             )}
           </div>
         </div>

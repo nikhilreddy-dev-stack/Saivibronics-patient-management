@@ -33,6 +33,7 @@ export interface PatientProfile {
   emergencyContactName?: string;
   emergencyContactPhone?: string;
   accessibilityNeeds?: string;
+  status?: 'Active' | 'Inactive';
   registeredDate: string;
 }
 
@@ -54,16 +55,47 @@ export interface Clinic {
   seniorAccessible: boolean;
 }
 
+export interface DailyWorkingHours {
+  day: 'Monday' | 'Tuesday' | 'Wednesday' | 'Thursday' | 'Friday' | 'Saturday' | 'Sunday';
+  isWorkingDay: boolean;
+  morningStart?: string; // e.g. "09:30 AM"
+  morningEnd?: string;   // e.g. "01:00 PM"
+  afternoonStart?: string; // e.g. "05:00 PM"
+  afternoonEnd?: string;   // e.g. "07:30 PM"
+  maxCapacity: number; // Max appointments per session
+  slotDurationMinutes: number; // e.g. 20
+  roomNumber?: string;
+}
+
+export interface PractitionerSchedule {
+  practitionerId: string;
+  clinicId: string;
+  weeklySchedule: Record<string, DailyWorkingHours>;
+  leaveDates: string[]; // YYYY-MM-DD
+  blockedSlots?: { date: string; timeSlot: string; reason: string }[];
+  consultationDurationMinutes: number;
+  servicesOffered: string[];
+}
+
 export interface Practitioner {
   id: string;
   name: string;
   title: string;
   qualification: string;
+  registrationNumber?: string;
+  level?: 'Level 1' | 'Level 2' | 'Level 3';
+  phone?: string;
+  email?: string;
   experienceYears: number;
   clinicId: string;
+  assignedClinicIds?: string[];
+  roomNumber?: string;
   availableDays: string[];
   timing: string;
   specialization: string;
+  servicesOffered?: string[];
+  status?: 'Active' | 'Inactive' | 'On Leave';
+  schedule?: PractitionerSchedule;
 }
 
 export interface Appointment {
@@ -74,6 +106,7 @@ export interface Appointment {
   clinicId: string;
   clinicName: string;
   practitionerName: string;
+  serviceName?: string;
   date: string;
   timeSlot: string;
   status: 'Scheduled' | 'Waiting' | 'In Consultation' | 'Completed' | 'Cancelled';
@@ -132,6 +165,21 @@ export interface PrescriptionRecord {
   status: 'Draft' | 'Finalised';
   createdAt: string;
   finalisedAt?: string;
+}
+
+export interface ConversationThread {
+  id: string; // conversationId
+  patientId: string;
+  patientName: string;
+  patientAge?: number | string;
+  practitionerId: string;
+  practitionerName: string;
+  clinicId: string;
+  clinicName: string;
+  status: 'Active' | 'Resolved';
+  lastMessageText: string;
+  lastMessageTime: string;
+  unreadCount: number;
 }
 
 export interface ChatMessage {

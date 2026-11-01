@@ -128,14 +128,14 @@ export const Header: React.FC<HeaderProps> = ({
                 How It Works
               </button>
               <button
-                onClick={() => handleNavigate('patient-dashboard')}
+                onClick={() => handleNavigate('register')}
                 className={`px-3 py-1.5 rounded-lg text-sm font-semibold transition-colors cursor-pointer min-h-[40px] flex items-center ${
-                  currentPage === 'patient-dashboard'
+                  currentPage === 'register'
                     ? 'text-blue-600 font-bold bg-blue-50'
                     : 'text-slate-600 hover:text-blue-600 hover:bg-slate-50'
                 }`}
               >
-                Patient Portal
+                Patient Registration
               </button>
             </nav>
 
@@ -300,33 +300,7 @@ export const Header: React.FC<HeaderProps> = ({
                   </div>
                 </button>
 
-                {/* 3. Patient Portal */}
-                <button
-                  onClick={() => handleNavigate('patient-dashboard')}
-                  className={`w-full text-left px-3.5 py-3 rounded-xl text-sm font-semibold transition-colors flex items-center gap-3 min-h-[44px] cursor-pointer ${
-                    currentPage === 'patient-dashboard'
-                      ? 'bg-blue-50 text-blue-700 font-bold'
-                      : 'text-slate-800 hover:bg-slate-50'
-                  }`}
-                >
-                  <div
-                    className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
-                      currentPage === 'patient-dashboard'
-                        ? 'bg-blue-600 text-white'
-                        : 'bg-slate-100 text-blue-600'
-                    }`}
-                  >
-                    <User className="w-4 h-4" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <span className="block truncate">Patient Portal</span>
-                    <span className="text-xs text-slate-500 font-normal block truncate">
-                      Senior-friendly dashboard & records
-                    </span>
-                  </div>
-                </button>
-
-                {/* 4. How It Works */}
+                {/* 3. How It Works */}
                 <button
                   onClick={handleScrollToHowItWorks}
                   className="w-full text-left px-3.5 py-3 rounded-xl text-sm font-semibold text-slate-800 hover:bg-slate-50 transition-colors flex items-center gap-3 min-h-[44px] cursor-pointer"
